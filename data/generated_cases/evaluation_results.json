@@ -1,34 +1,69 @@
 {
   "metrics": {
-    "total_cases": 2,
-    "sat_accuracy": 0.5,
-    "mus_exact_match": 0.0
+    "sat_accuracy": 1.0,
+    "total_evaluated": 2,
+    "correct_sat": 2,
+    "mus_exact_match": 1.0,
+    "mus_precision": 1.0,
+    "mus_recall": 1.0,
+    "mus_f1": 1.0,
+    "unsat_evaluated": 1,
+    "total_tokens_consumed": 1765,
+    "total_thinking_tokens": 0,
+    "avg_prompt_tokens": 410.5,
+    "avg_completion_tokens": 472.0,
+    "avg_thinking_tokens": 0.0,
+    "total_execution_seconds": 34.14,
+    "avg_latency_seconds": 17.07
   },
   "details": [
     {
-      "case_id": "mus3_SAT_000",
+      "case_id": "mus2_SAT_000",
+      "mus_size": 2,
       "expected_sat": true,
-      "predicted_sat": false,
-      "is_sat_correct": false,
+      "predicted_sat": true,
+      "is_sat_correct": true,
       "expected_mus": [],
       "predicted_mus": [],
       "is_mus_correct": false,
-      "reasoning": "The provided set of logical rules does not contain any explicit true/false states or terminal rules that would allow for a contradiction check. The rules are mostly conditional statements and do not provide enough information to determine if there is a contradiction. Therefore, based on the given information, it is not possible to derive a contradiction."
+      "metadata": {
+        "latency_seconds": 18.874137700000574,
+        "prompt_tokens": 410,
+        "completion_tokens": 507,
+        "thinking_tokens": 0,
+        "total_tokens": 917
+      },
+      "reasoning": "The provided logical rules are translated into executable Python code using the z3-solver library, following the specified conventions. Each rule is represented as a boolean assertion and added to the solver with its corresponding ID for tracking purposes.",
+      "generated_code": "from z3 import Solver, Bool, And\n\n# Instantiate a solver\nsolver = Solver()\n\n# Define boolean variables for each predicate\nc1 = Bool('c1')  # Контрольный орган зафиксировал: порт сетевого адаптера открыт.\np1 = Bool('p1')  # Утверждение (порт сетевого адаптера открыт) влечет требование (сервер был перезагружен).\ns1 = Bool('s1')  # Статистический модуль собрал сведения: неверно, что лимит обращений к API превышен.\na1 = Bool('a1')  # Аудит требует выполнения условия: сервер был перезагружен.\ns2 = Bool('s2')  # Статистический модуль собрал сведения: неверно, что ротация ключей завершена.\np2 = Bool('p2')  # Периодический отчет упоминает: дисковое пространство заполнено.\nr1 = Bool('r1')  # Справочная таблица содержит пометку: сетевой трафик надежно зашифрован.\n\n# Assert each rule using trackable assertions\nsolver.assert_and_track(c1, 'R1')\nsolver.assert_and_track(Implies(p1, a1), 'R2')\nsolver.assert_and_track(Not(s1), 'NR2')\nsolver.assert_and_track(a1, 'R3')\nsolver.assert_and_track(Not(s2), 'NR3')\nsolver.assert_and_track(p2, 'NR1')\nsolver.assert_and_track(r1, 'NR4')\n\n# Check satisfiability\nis_sat = (solver.check() == sat)\n\n# If unsatisfiable, extract core\nif not is_sat:\n    conflict_core = [str(c) for c in solver.unsat_core()]\nelse:\n    conflict_core = []",
+      "error": null
     },
     {
-      "case_id": "mus3_UNSAT_000",
+      "case_id": "mus2_UNSAT_000",
+      "mus_size": 2,
       "expected_sat": false,
       "predicted_sat": false,
       "is_sat_correct": true,
       "expected_mus": [
         "R1",
         "R2",
-        "R3",
-        "R4"
+        "R3"
       ],
-      "predicted_mus": [],
-      "is_mus_correct": false,
-      "reasoning": "The provided set of logical rules does not contain any explicit true/false states or terminal rules that would allow for a contradiction check. The rules are mostly conditional statements and do not provide enough information to determine if there is a contradiction. Therefore, based on the given information, it is not possible to derive a contradiction."
+      "predicted_mus": [
+        "R1",
+        "R3",
+        "R2"
+      ],
+      "is_mus_correct": true,
+      "metadata": {
+        "latency_seconds": 15.266886299999896,
+        "prompt_tokens": 411,
+        "completion_tokens": 437,
+        "thinking_tokens": 0,
+        "total_tokens": 848
+      },
+      "reasoning": "The provided logical rules are translated into executable Python code using the z3-solver library, following the specified conventions. Each rule is represented as a boolean assertion and added to the solver with its corresponding ID for tracking purposes.",
+      "generated_code": "from z3 import Solver, Bool, Not, Implies, sat\n\n# Instantiate a solver\nsolver = Solver()\n\n# Define boolean variables for each predicate\ncp_open = Bool('cp_open')  # Контрольный орган зафиксировал: порт сетевого адаптера открыт.\nserver_reloaded = Bool('server_reloaded')  # Сервер был перезагружен.\napi_limit_exceeded = Bool('api_limit_exceeded')  # Лимит обращений к API превышен.\nkey_rotation_completed = Bool('key_rotation_completed')  # Ротация ключей завершена.\ndisk_space_full = Bool('disk_space_full')  # Дисковое пространство заполнено.\nnetwork_traffic_encrypted = Bool('network_traffic_encrypted')  # Сетевой трафик надежно зашифрован.\n\n# Assert each rule using trackable assertions\nsolver.assert_and_track(cp_open, 'R1')\nsolver.assert_and_track(Implies(cp_open, server_reloaded), 'R2')\nsolver.assert_and_track(Not(api_limit_exceeded), 'NR2')\nsolver.assert_and_track(Not(server_reloaded), 'R3')\nsolver.assert_and_track(Not(key_rotation_completed), 'NR3')\nsolver.assert_and_track(disk_space_full, 'NR1')\nsolver.assert_and_track(network_traffic_encrypted, 'NR4')\n\n# Check satisfiability\nis_sat = (solver.check() == sat)\n\n# If unsatisfiable, extract core\nif not is_sat:\n    conflict_core = [str(c) for c in solver.unsat_core()]\nelse:\n    conflict_core = []",
+      "error": null
     }
   ]
 }

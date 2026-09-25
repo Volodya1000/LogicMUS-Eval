@@ -27,9 +27,9 @@ class BenchmarkGenerator:
         pack_id = self._pack_id or get_template_pack_id(case_seed)
 
         core_variables = [f"{RulePrefix.CORE_VAR}{i}" for i in range(1, mus_size + 1)]
-
+        num_distractors = max(0, self._total_rules - (mus_size + 1))
         distractor_variables = [
-            f"{RulePrefix.NOISE_VAR}{i}" for i in range(1, self._total_rules + 1)
+            f"{RulePrefix.NOISE_VAR}{i}" for i in range(1, num_distractors + 1)
         ]
 
         all_variables = core_variables + distractor_variables
@@ -94,7 +94,7 @@ class BenchmarkGenerator:
             noise_pred = full_mapping[u_var]
             noise_template = rng.choice(noise_templates)
 
-            prefix_not = "" if noise_pol else "not "
+            prefix_not = "" if noise_pol else "неверно, что "
             noise_text = noise_template.replace("{var}", f"{prefix_not}{noise_pred}")
 
             noise_rules.append(
@@ -128,6 +128,9 @@ class BenchmarkGenerator:
         self, case_seed: int, variables: list[str]
     ) -> dict[str, str]:
         rng = random.Random(case_seed)
-        pool = list(PREDICATE_POOL)
-        rng.shuffle(pool)
-        return {var: pool[i % len(pool)] for i, var in enumerate(variables)}
+        if len(variables) > len(PREDICATE_POOL):
+            raise ValueError(
+                f"Requested {len(variables)} unique predicates, but pool only has {len(PREDICATE_POOL)}"
+            )
+        sampled_predicates = rng.sample(PREDICATE_POOL, len(variables))
+        return dict(zip(variables, sampled_predicates))

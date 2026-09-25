@@ -33,30 +33,37 @@ logger = logging.getLogger(__name__)
 
 
 def evaluate_vectorizer_subset(
-    analyzer_type: AnalyzerType,
-    custom_texts: list[str],
-    custom_labels: np.ndarray,
-    custom_groups: list[str],
+        analyzer_type: AnalyzerType, custom_texts: list[str],
+        custom_labels: np.ndarray, custom_groups: list[str]
 ) -> tuple[float, float]:
-    sgkf = StratifiedGroupKFold(n_splits=5)
-    f1_scores = []
-    for train_idx, test_idx in sgkf.split(
-        custom_texts, custom_labels, groups=custom_groups
-    ):
-        vectorizer = TfidfVectorizer(
-            analyzer=analyzer_type.value, ngram_range=(1, 2), min_df=1
+    if len(custom_texts) < 2 or len(np.unique(custom_labels)) < 2:
+        return 0.0, 0.0
+
+    unique_groups = len(set(custom_groups))
+    min_class_samples = int(min(np.bincount(custom_labels)))
+    n_splits = min(5, unique_groups, min_class_samples)
+
+    if n_splits < 2:
+        return 0.0, 0.0
+
+    try:
+        sgkf = StratifiedGroupKFold(n_splits=n_splits)
+        f1_scores = []
+        for train_idx, test_idx in sgkf.split(custom_texts, custom_labels, groups=custom_groups):
+            vectorizer = TfidfVectorizer(analyzer=analyzer_type.value, ngram_range=(1, 2), min_df=1)
+            x_train = vectorizer.fit_transform([custom_texts[i] for i in train_idx])
+            x_test = vectorizer.transform([custom_texts[i] for i in test_idx])
+            y_train, y_test = custom_labels[train_idx], custom_labels[test_idx]
+            clf = LogisticRegression(max_iter=1000, random_state=42)
+            clf.fit(x_train, y_train)
+            preds = clf.predict(x_test)
+            f1_scores.append(f1_score(y_test, preds, zero_division=0))
+        return (
+            float(np.mean(f1_scores)) if f1_scores else 0.0,
+            float(np.std(f1_scores)) if f1_scores else 0.0,
         )
-        x_train = vectorizer.fit_transform([custom_texts[i] for i in train_idx])
-        x_test = vectorizer.transform([custom_texts[i] for i in test_idx])
-        y_train, y_test = custom_labels[train_idx], custom_labels[test_idx]
-        clf = LogisticRegression(max_iter=1000, random_state=42)
-        clf.fit(x_train, y_train)
-        preds = clf.predict(x_test)
-        f1_scores.append(f1_score(y_test, preds, zero_division=0))
-    return (
-        float(np.mean(f1_scores)) if f1_scores else 0.0,
-        float(np.std(f1_scores)) if f1_scores else 0.0,
-    )
+    except ValueError:
+        return 0.0, 0.0
 
 
 def generate_dataset(
