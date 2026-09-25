@@ -1,0 +1,34 @@
+{
+  "metrics": {
+    "total_cases": 2,
+    "sat_accuracy": 0.5,
+    "mus_exact_match": 0.0
+  },
+  "details": [
+    {
+      "case_id": "mus3_SAT_000",
+      "expected_sat": true,
+      "predicted_sat": false,
+      "is_sat_correct": false,
+      "expected_mus": [],
+      "predicted_mus": [],
+      "is_mus_correct": false,
+      "reasoning": "The provided set of logical rules does not contain any explicit true/false states or terminal rules that would allow for a contradiction check. The rules are mostly conditional statements and do not provide enough information to determine if there is a contradiction. Therefore, based on the given information, it is not possible to derive a contradiction."
+    },
+    {
+      "case_id": "mus3_UNSAT_000",
+      "expected_sat": false,
+      "predicted_sat": false,
+      "is_sat_correct": true,
+      "expected_mus": [
+        "R1",
+        "R2",
+        "R3",
+        "R4"
+      ],
+      "predicted_mus": [],
+      "is_mus_correct": false,
+      "reasoning": "The provided set of logical rules does not contain any explicit true/false states or terminal rules that would allow for a contradiction check. The rules are mostly conditional statements and do not provide enough information to determine if there is a contradiction. Therefore, based on the given information, it is not possible to derive a contradiction."
+    }
+  ]
+}

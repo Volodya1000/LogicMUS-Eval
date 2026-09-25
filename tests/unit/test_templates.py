@@ -8,6 +8,7 @@ def test_get_template_pack_id_deterministic():
     assert pack1 == pack2
     assert isinstance(pack1, TemplatePackId)
 
+
 def test_all_packs_in_templates():
     for pack_id in TemplatePackId:
         assert pack_id in TEMPLATES

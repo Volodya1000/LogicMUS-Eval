@@ -44,7 +44,7 @@ def test_verify_case_sat():
         template_pack_id=TemplatePackId.PACK_00,
         predicate_mapping={"A": "P"},
         rules=[r1],
-        mus_expected=[]
+        mus_expected=[],
     )
     result = verify_case(case)
     assert result.is_sat_correct is True
@@ -61,7 +61,7 @@ def test_verify_case_unsat():
         template_pack_id=TemplatePackId.PACK_00,
         predicate_mapping={"A": "P"},
         rules=[r1, r2],
-        mus_expected=["R1", "R2"]
+        mus_expected=["R1", "R2"],
     )
     result = verify_case(case)
     assert result.is_sat_correct is True
@@ -70,9 +70,30 @@ def test_verify_case_unsat():
 
 
 def test_numeric_cycle_verification_real():
-    r1 = NumericGTRule(id="R1", text="", left_var="A", right_var="B", left_predicate="a", right_predicate="b")
-    r2 = NumericGTRule(id="R2", text="", left_var="B", right_var="C", left_predicate="b", right_predicate="c")
-    r3 = NumericGTRule(id="R3", text="", left_var="C", right_var="A", left_predicate="c", right_predicate="a")
+    r1 = NumericGTRule(
+        id="R1",
+        text="",
+        left_var="A",
+        right_var="B",
+        left_predicate="a",
+        right_predicate="b",
+    )
+    r2 = NumericGTRule(
+        id="R2",
+        text="",
+        left_var="B",
+        right_var="C",
+        left_predicate="b",
+        right_predicate="c",
+    )
+    r3 = NumericGTRule(
+        id="R3",
+        text="",
+        left_var="C",
+        right_var="A",
+        left_predicate="c",
+        right_predicate="a",
+    )
 
     case = LogicTestCase(
         case_id="M_UNSAT_3",
@@ -91,8 +112,22 @@ def test_numeric_cycle_verification_real():
 
 
 def test_numeric_cycle_verification_int():
-    r1 = NumericGTRule(id="R1", text="", left_var="A", right_var="B", left_predicate="a", right_predicate="b")
-    r2 = NumericGTRule(id="R2", text="", left_var="B", right_var="A", left_predicate="b", right_predicate="a")
+    r1 = NumericGTRule(
+        id="R1",
+        text="",
+        left_var="A",
+        right_var="B",
+        left_predicate="a",
+        right_predicate="b",
+    )
+    r2 = NumericGTRule(
+        id="R2",
+        text="",
+        left_var="B",
+        right_var="A",
+        left_predicate="b",
+        right_predicate="a",
+    )
 
     case = LogicTestCase(
         case_id="M_UNSAT_2",
@@ -111,8 +146,22 @@ def test_numeric_cycle_verification_int():
 
 
 def test_numeric_equality_contradiction():
-    r1 = NumericGTRule(id="R1", text="", left_var="A", right_var="B", left_predicate="a", right_predicate="b")
-    r2 = NumericEQRule(id="R2", text="", left_var="A", right_var="B", left_predicate="a", right_predicate="b")
+    r1 = NumericGTRule(
+        id="R1",
+        text="",
+        left_var="A",
+        right_var="B",
+        left_predicate="a",
+        right_predicate="b",
+    )
+    r2 = NumericEQRule(
+        id="R2",
+        text="",
+        left_var="A",
+        right_var="B",
+        left_predicate="a",
+        right_predicate="b",
+    )
 
     case = LogicTestCase(
         case_id="M_EQ_UNSAT",

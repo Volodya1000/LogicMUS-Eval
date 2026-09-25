@@ -38,3 +38,13 @@ class CaseStatus(StrEnum):
 class MetricType(StrEnum):
     WORD_TFIDF = "word_tfidf"
     CHAR_TFIDF = "char_tfidf"
+
+
+class AnalyzerType(StrEnum):
+    WORD = "word"
+    CHAR_WB = "char_wb"
+
+
+class ManifestFilename(StrEnum):
+    DATASET_JSONL = "dataset_v1_frozen.jsonl"
+    MANIFEST_JSON = "dataset_v1_frozen.manifest.json"

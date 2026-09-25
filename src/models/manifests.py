@@ -39,10 +39,17 @@ class LeakageMetricsGlobal(BaseModel):
     char_tfidf: TfidfMetrics
 
 
+class ValidationResultsManifest(BaseModel):
+    sat_correctness: str
+    unsat_correctness: str
+    mus_validity: str
+    mus_minimality: str
+
+
 class BenchmarkManifest(BaseModel):
     artifacts: ArtifactsManifest
     environment: EnvironmentManifest
     parameters: ParametersManifest
-    validation_results: dict[str, str]
+    validation_results: ValidationResultsManifest
     leakage_metrics_global: LeakageMetricsGlobal
     leakage_metrics_by_mus_size: dict[str, dict[str, TfidfMetrics]]

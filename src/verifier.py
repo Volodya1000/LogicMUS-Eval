@@ -14,7 +14,9 @@ def rule_to_z3(rule: BaseRule, numeric_as_real: bool = True) -> z3.ExprRef:
 def build_z3_solver(rules: list[BaseRule], numeric_as_real: bool = True) -> z3.Solver:
     solver = z3.Solver()
     for rule in rules:
-        solver.assert_and_track(rule_to_z3(rule, numeric_as_real=numeric_as_real), rule.id)
+        solver.assert_and_track(
+            rule_to_z3(rule, numeric_as_real=numeric_as_real), rule.id
+        )
     return solver
 
 
@@ -23,21 +25,23 @@ def extract_unsat_core(solver: z3.Solver) -> list[str]:
 
 
 def check_minimality(
-        rules: list[BaseRule], core_ids: list[str], numeric_as_real: bool = True
+    rules: list[BaseRule], core_ids: list[str], numeric_as_real: bool = True
 ) -> bool:
     if not core_ids:
         return True
     core_rules = [r for r in rules if r.id in core_ids]
 
     for i in range(len(core_rules)):
-        subset = core_rules[:i] + core_rules[i + 1:]
+        subset = core_rules[:i] + core_rules[i + 1 :]
         solver = build_z3_solver(subset, numeric_as_real=numeric_as_real)
         if solver.check() == z3.unsat:
             return False
     return True
 
 
-def verify_case(case: LogicTestCase, numeric_as_real: bool = True) -> ValidationResultDTO:
+def verify_case(
+    case: LogicTestCase, numeric_as_real: bool = True
+) -> ValidationResultDTO:
     solver = build_z3_solver(case.rules, numeric_as_real=numeric_as_real)
     result = solver.check()
     is_sat = result == z3.sat

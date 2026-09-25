@@ -8,6 +8,7 @@ from src.models.manifests import (
     LeakageMetricsGlobal,
     ParametersManifest,
     TfidfMetrics,
+    ValidationResultsManifest,
 )
 from src.models.test_case import LogicTestCase
 
@@ -35,7 +36,7 @@ def test_fake_storage_saves_dataset_behavior():
         template_pack_id=TemplatePackId.PACK_00,
         predicate_mapping={"A": "P"},
         rules=[],
-        mus_expected=[]
+        mus_expected=[],
     )
 
     filepath = storage.save_dataset("test.jsonl", [case])
@@ -49,14 +50,27 @@ def test_fake_storage_saves_manifest_behavior():
 
     empty_metrics = TfidfMetrics(mean_f1=0.0, std_f1=0.0)
     manifest = BenchmarkManifest(
-        artifacts=ArtifactsManifest(dataset_filename="", dataset_sha256="", source_bundle_sha256=""),
+        artifacts=ArtifactsManifest(
+            dataset_filename="", dataset_sha256="", source_bundle_sha256=""
+        ),
         environment=EnvironmentManifest(python="", z3="", numpy="", scikit_learn=""),
         parameters=ParametersManifest(
-            mus_sizes=[], pairs_per_group=0, total_cases=0, rules_per_case=0, base_seed=0
+            mus_sizes=[],
+            pairs_per_group=0,
+            total_cases=0,
+            rules_per_case=0,
+            base_seed=0,
         ),
-        validation_results={},
-        leakage_metrics_global=LeakageMetricsGlobal(word_tfidf=empty_metrics, char_tfidf=empty_metrics),
-        leakage_metrics_by_mus_size={}
+        validation_results=ValidationResultsManifest(
+            sat_correctness="0/0",
+            unsat_correctness="0/0",
+            mus_validity="0/0",
+            mus_minimality="0/0",
+        ),
+        leakage_metrics_global=LeakageMetricsGlobal(
+            word_tfidf=empty_metrics, char_tfidf=empty_metrics
+        ),
+        leakage_metrics_by_mus_size={},
     )
 
     filepath = storage.save_manifest("manifest.json", manifest)

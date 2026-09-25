@@ -23,6 +23,6 @@ class BasePatternStrategy(ABC):
         core_variables: list[str],
         predicate_mapping: dict[str, str],
         pack_id: TemplatePackId,
-        rng: random.Random
+        rng: random.Random,
     ) -> PatternGenerationResult:
         pass

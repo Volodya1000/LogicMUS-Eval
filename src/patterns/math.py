@@ -9,13 +9,13 @@ from src.templates import TEMPLATES
 class MathPatternStrategy(BasePatternStrategy):
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
-            self,
-            mus_size: int,
-            is_satisfiable: bool,
-            core_variables: list[str],
-            predicate_mapping: dict[str, str],
-            pack_id: TemplatePackId,
-            rng: random.Random
+        self,
+        mus_size: int,
+        is_satisfiable: bool,
+        core_variables: list[str],
+        predicate_mapping: dict[str, str],
+        pack_id: TemplatePackId,
+        rng: random.Random,
     ) -> PatternGenerationResult:
         pack_templates = TEMPLATES.get(pack_id, TEMPLATES[TemplatePackId.MATH_PACK])
         if OperatorType.NUMERIC_GT not in pack_templates:
@@ -57,7 +57,9 @@ class MathPatternStrategy(BasePatternStrategy):
                     )
                 )
             expected_mus = [r.id for r in core_rules] if not is_satisfiable else []
-            return PatternGenerationResult(core_rules=core_rules, expected_mus_ids=expected_mus)
+            return PatternGenerationResult(
+                core_rules=core_rules, expected_mus_ids=expected_mus
+            )
 
         for i in range(mus_size - 1):
             left_v = core_variables[i]
@@ -111,4 +113,6 @@ class MathPatternStrategy(BasePatternStrategy):
             )
 
         expected_mus = [r.id for r in core_rules] if not is_satisfiable else []
-        return PatternGenerationResult(core_rules=core_rules, expected_mus_ids=expected_mus)
+        return PatternGenerationResult(
+            core_rules=core_rules, expected_mus_ids=expected_mus
+        )
