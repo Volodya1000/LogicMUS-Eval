@@ -1,35 +1,40 @@
-from enum import Enum
+from enum import StrEnum
 
 
-class TemplatePackId(str, Enum):
+class TemplatePackId(StrEnum):
     PACK_00 = "pack_00"
     PACK_01 = "pack_01"
     PACK_02 = "pack_02"
     PACK_03 = "pack_03"
     PACK_04 = "pack_04"
+    MATH_PACK = "math_pack"
 
 
-class OperatorType(str, Enum):
+class OperatorType(StrEnum):
     FACT = "FACT"
     IMPLIES = "IMPLIES"
     TERMINAL = "TERMINAL"
     NOISE = "NOISE"
     AND_IMPLIES = "AND_IMPLIES"
     OR_FACT = "OR_FACT"
+    NUMERIC = "NUMERIC"
+    NUMERIC_GT = "NUMERIC_GT"
+    NUMERIC_LT = "NUMERIC_LT"
+    NUMERIC_EQ = "NUMERIC_EQ"
 
 
-class RulePrefix(str, Enum):
+class RulePrefix(StrEnum):
     CORE_VAR = "V"
     NOISE_VAR = "N"
     CORE_RULE = "R"
     NOISE_RULE = "NR"
 
 
-class CaseStatus(str, Enum):
+class CaseStatus(StrEnum):
     SAT = "SAT"
     UNSAT = "UNSAT"
 
 
-class MetricType(str, Enum):
+class MetricType(StrEnum):
     WORD_TFIDF = "word_tfidf"
     CHAR_TFIDF = "char_tfidf"

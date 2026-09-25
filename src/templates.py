@@ -4,10 +4,12 @@ from src.enums import OperatorType, TemplatePackId
 
 PACK_COUNT = 5
 
+
 def get_template_pack_id(seed: int) -> TemplatePackId:
     digest = hashlib.sha256(f"template_pack:{seed}".encode()).digest()
     pack_id = int.from_bytes(digest[:8], "big") % PACK_COUNT
     return TemplatePackId(f"pack_{pack_id:02d}")
+
 
 PREDICATE_POOL = [
     "авторизация_пользователя",
@@ -64,6 +66,18 @@ TEMPLATES = {
             "Выполняется либо {var1}, либо {var2}.",
             "Хотя бы одно из {var1} или {var2} имеет место.",
         ],
+        OperatorType.NUMERIC_GT: [
+            "Значение {left} строго больше {right}.",
+            "Параметр {left} превышает {right}.",
+        ],
+        OperatorType.NUMERIC_LT: [
+            "Значение {left} строго меньше {right}.",
+            "Параметр {left} уступает {right}.",
+        ],
+        OperatorType.NUMERIC_EQ: [
+            "Значение {left} строго равно {right}.",
+            "Параметр {left} совпадает с {right}.",
+        ],
     },
     TemplatePackId.PACK_01: {
         OperatorType.FACT: [
@@ -95,6 +109,18 @@ TEMPLATES = {
             "Зафиксировано состояние {var1} или {var2}.",
             "Система подтверждает либо {var1}, либо {var2}.",
             "В логах найдено {var1} или {var2}.",
+        ],
+        OperatorType.NUMERIC_GT: [
+            "Система фиксирует: {left} больше {right}.",
+            "Уровень {left} превышает уровень {right}.",
+        ],
+        OperatorType.NUMERIC_LT: [
+            "Система фиксирует: {left} меньше {right}.",
+            "Уровень {left} ниже уровня {right}.",
+        ],
+        OperatorType.NUMERIC_EQ: [
+            "Система фиксирует равенство {left} и {right}.",
+            "Уровень {left} идентичен уровню {right}.",
         ],
     },
     TemplatePackId.PACK_02: {
@@ -128,6 +154,18 @@ TEMPLATES = {
             "Получен сигнал о {var1} либо {var2}.",
             "Активно хотя бы одно состояние: {var1} или {var2}.",
         ],
+        OperatorType.NUMERIC_GT: [
+            "Датчик передает: {left} превосходит {right}.",
+            "Показатель {left} выше {right}.",
+        ],
+        OperatorType.NUMERIC_LT: [
+            "Датчик передает: {left} уступает {right}.",
+            "Показатель {left} ниже {right}.",
+        ],
+        OperatorType.NUMERIC_EQ: [
+            "Датчик фиксирует эквивалентность {left} и {right}.",
+            "Показания {left} совпадают с {right}.",
+        ],
     },
     TemplatePackId.PACK_03: {
         OperatorType.FACT: [
@@ -160,6 +198,18 @@ TEMPLATES = {
             "Поступили данные о наличии {var1} или {var2}.",
             "Подтвержден один из статусов: {var1} или {var2}.",
         ],
+        OperatorType.NUMERIC_GT: [
+            "Реестр указывает: величина {left} больше величины {right}.",
+            "Инспектор подтверждает: {left} превышает {right}.",
+        ],
+        OperatorType.NUMERIC_LT: [
+            "Реестр указывает: величина {left} меньше величины {right}.",
+            "Инспектор подтверждает: {left} ниже {right}.",
+        ],
+        OperatorType.NUMERIC_EQ: [
+            "Реестр подтверждает равенство величин {left} и {right}.",
+            "Инспектор фиксирует тождественность {left} и {right}.",
+        ],
     },
     TemplatePackId.PACK_04: {
         OperatorType.FACT: [
@@ -191,6 +241,65 @@ TEMPLATES = {
             "Контекст допускает {var1} или {var2}.",
             "Активирована настройка {var1} либо {var2}.",
             "Включено состояние {var1} или {var2}.",
+        ],
+        OperatorType.NUMERIC_GT: [
+            "Контекст задает неравенство: {left} строго больше {right}.",
+            "Переменная {left} превышает {right}.",
+        ],
+        OperatorType.NUMERIC_LT: [
+            "Контекст задает неравенство: {left} строго меньше {right}.",
+            "Переменная {left} уступает {right}.",
+        ],
+        OperatorType.NUMERIC_EQ: [
+            "Контекст задает отношение: {left} строго равно {right}.",
+            "Переменные {left} и {right} равны.",
+        ],
+    },
+    TemplatePackId.MATH_PACK: {
+        OperatorType.FACT: [
+            "Математический анализ подтверждает истинность {var}.",
+            "Установлено выполнение логического условия {var}.",
+            "Теорема гарантирует справедливость {var}.",
+        ],
+        OperatorType.IMPLIES: [
+            "Если истинно {ant}, то доказано {cons}.",
+            "Из истинности {ant} математически следует {cons}.",
+            "Условие {ant} влечет за собой {cons}.",
+        ],
+        OperatorType.TERMINAL: [
+            "Требуется, чтобы условие {var} было ложным.",
+            "Критерий опровергает истинность {var}.",
+            "Истинность {var} приводит к противоречию.",
+        ],
+        OperatorType.NOISE: [
+            "Фоновое измерение регистрирует параметр {var}.",
+            "Вспомогательная оценка дает {var}.",
+            "Калибровочный датчик фиксирует {var}.",
+        ],
+        OperatorType.AND_IMPLIES: [
+            "Если {ant1} и {ant2} истинны, то выполняется {cons}.",
+            "Совместная истинность {ant1} и {ant2} доказывает {cons}.",
+            "Из условий {ant1} и {ant2} следует {cons}.",
+        ],
+        OperatorType.OR_FACT: [
+            "Справедливо хотя бы одно утверждение: {var1} или {var2}.",
+            "Истинно либо {var1}, либо {var2}.",
+            "Допускается выполнение {var1} либо {var2}.",
+        ],
+        OperatorType.NUMERIC_GT: [
+            "Значение {left} строго больше значения {right}.",
+            "Показатель {left} строго превышает {right}.",
+            "Метрика {left} строго больше, чем {right}.",
+        ],
+        OperatorType.NUMERIC_LT: [
+            "Значение {left} строго меньше значения {right}.",
+            "Показатель {left} строго уступает {right}.",
+            "Метрика {left} строго меньше, чем {right}.",
+        ],
+        OperatorType.NUMERIC_EQ: [
+            "Значение {left} в точности равно значению {right}.",
+            "Показатель {left} совпадает с показателем {right}.",
+            "Метрики {left} и {right} равны между собой.",
         ],
     },
 }

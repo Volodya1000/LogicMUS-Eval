@@ -9,17 +9,22 @@ from src.templates import PREDICATE_POOL, TEMPLATES, get_template_pack_id
 
 class BenchmarkGenerator:
     def __init__(
-            self, strategy: BasePatternStrategy, total_rules: int = 20, base_seed: int = 42
+            self,
+            strategy: BasePatternStrategy,
+            total_rules: int = 20,
+            base_seed: int = 42,
+            pack_id: TemplatePackId | None = None,
     ) -> None:
         self._strategy = strategy
         self._total_rules = total_rules
         self._base_seed = base_seed
+        self._pack_id = pack_id
 
     def generate_pair(
             self, mus_size: int, index_in_batch: int
     ) -> tuple[LogicTestCase, LogicTestCase]:
         case_seed = self._base_seed + mus_size * 1000 + index_in_batch
-        pack_id = get_template_pack_id(case_seed)
+        pack_id = self._pack_id or get_template_pack_id(case_seed)
 
         core_variables = [f"{RulePrefix.CORE_VAR}{i}" for i in range(1, mus_size + 1)]
 

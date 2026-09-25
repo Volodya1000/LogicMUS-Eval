@@ -100,3 +100,39 @@ class OrFactRule(BaseRule):
         var1 = z3.Bool(self.variable1)
         var2 = z3.Bool(self.variable2)
         return z3.Or(var1, var2)
+
+
+class NumericRule(BaseRule):
+    left_var: str
+    right_var: str
+    operator: Literal[">", "<", "=="]
+    left_predicate: str
+    right_predicate: str
+    operator_type: OperatorType = OperatorType.NUMERIC
+
+    def to_z3(self, use_real: bool = True) -> z3.ExprRef:
+        var_type = z3.Real if use_real else z3.Int
+        left = var_type(self.left_var)
+        right = var_type(self.right_var)
+        if self.operator == ">":
+            return left > right
+        if self.operator == "<":
+            return left < right
+        if self.operator == "==":
+            return left == right
+        raise ValueError(f"Unsupported numeric operator: {self.operator}")
+
+
+class NumericGTRule(NumericRule):
+    operator: Literal[">"] = ">"
+    operator_type: OperatorType = OperatorType.NUMERIC_GT
+
+
+class NumericLTRule(NumericRule):
+    operator: Literal["<"] = "<"
+    operator_type: OperatorType = OperatorType.NUMERIC_LT
+
+
+class NumericEQRule(NumericRule):
+    operator: Literal["=="] = "=="
+    operator_type: OperatorType = OperatorType.NUMERIC_EQ

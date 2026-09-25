@@ -7,8 +7,6 @@ from src.models.test_case import LogicTestCase
 
 
 class StorageProtocol(Protocol):
-    """Интерфейс для сохранения артефактов (Dependency Inversion)."""
-
     def save_dataset(self, filename: str, dataset: list[LogicTestCase]) -> Path:
         ...
 
