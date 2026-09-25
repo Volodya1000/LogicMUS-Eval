@@ -1,12 +1,14 @@
+# pylint: disable=duplicate-code
 import random
 
 from src.enums import OperatorType, RulePrefix, TemplatePackId
-from src.models.rules import FactRule, ImpliesRule, TerminalRule
+from src.models.rules import BaseRule, FactRule, ImpliesRule, TerminalRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
 from src.templates import TEMPLATES
 
 
 class DirectPatternStrategy(BasePatternStrategy):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
             self,
             mus_size: int,
@@ -17,7 +19,7 @@ class DirectPatternStrategy(BasePatternStrategy):
             rng: random.Random
     ) -> PatternGenerationResult:
         pack_templates = TEMPLATES[pack_id]
-        core_rules = []
+        core_rules: list[BaseRule] = []
 
         fact_template = rng.choice(pack_templates[OperatorType.FACT])
         fact_pred = predicate_mapping[core_variables[0]]

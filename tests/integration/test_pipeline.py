@@ -6,7 +6,7 @@ from src.verifier import verify_case
 
 def test_chain_strategy_pipeline():
     strategy = ChainPatternStrategy()
-    generator = BenchmarkGenerator(strategy=strategy, total_rules_count=5)
+    generator = BenchmarkGenerator(strategy=strategy, total_rules=5)
 
     sat_case, unsat_case = generator.generate_pair(mus_size=3, index_in_batch=1)
 
@@ -21,7 +21,7 @@ def test_chain_strategy_pipeline():
 
 def test_merge_strategy_pipeline():
     strategy = MergePatternStrategy()
-    generator = BenchmarkGenerator(strategy=strategy, total_rules_count=6)
+    generator = BenchmarkGenerator(strategy=strategy, total_rules=6)
 
     _sat_case, unsat_case = generator.generate_pair(mus_size=3, index_in_batch=2)
 

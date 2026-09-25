@@ -1,6 +1,6 @@
 from typing import Literal
 
-import z3
+import z3  # type: ignore
 from pydantic import BaseModel
 
 from src.enums import OperatorType
@@ -22,6 +22,7 @@ class BaseRule(BaseModel):
     def to_z3(self) -> z3.ExprRef:
         raise NotImplementedError()
 
+
 class FactRule(BaseRule):
     variable: str
     predicate: str
@@ -31,6 +32,7 @@ class FactRule(BaseRule):
     def to_z3(self) -> z3.ExprRef:
         expr = z3.Bool(self.variable)
         return expr if self.polarity else z3.Not(expr)
+
 
 class ImpliesRule(BaseRule):
     antecedent: str
@@ -48,6 +50,7 @@ class ImpliesRule(BaseRule):
         cons_expr = cons if self.consequent_polarity else z3.Not(cons)
         return z3.Implies(ant_expr, cons_expr)
 
+
 class TerminalRule(BaseRule):
     variable: str
     predicate: str
@@ -58,6 +61,7 @@ class TerminalRule(BaseRule):
         expr = z3.Bool(self.variable)
         return expr if self.polarity else z3.Not(expr)
 
+
 class NoiseRule(BaseRule):
     variable: str
     predicate: str
@@ -67,6 +71,7 @@ class NoiseRule(BaseRule):
     def to_z3(self) -> z3.ExprRef:
         expr = z3.Bool(self.variable)
         return expr if self.polarity else z3.Not(expr)
+
 
 class AndImpliesRule(BaseRule):
     antecedent1: str
@@ -82,6 +87,7 @@ class AndImpliesRule(BaseRule):
         ant2 = z3.Bool(self.antecedent2)
         cons = z3.Bool(self.consequent)
         return z3.Implies(z3.And(ant1, ant2), cons)
+
 
 class OrFactRule(BaseRule):
     variable1: str

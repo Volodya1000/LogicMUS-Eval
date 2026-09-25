@@ -1,4 +1,4 @@
-import z3
+import z3  # type: ignore
 
 from src.models.manifests import ValidationResultDTO
 from src.models.rules import BaseRule
@@ -34,10 +34,10 @@ def verify_case(case: LogicTestCase) -> ValidationResultDTO:
     result = solver.check()
     is_sat = result == z3.sat
 
-    is_sat_correct = (is_sat == case.is_satisfiable)
+    is_sat_correct = is_sat == case.is_satisfiable
     is_mus_valid = True
     is_mus_minimal = True
-    extracted_core_ids = []
+    extracted_core_ids: list[str] = []
 
     if not is_sat:
         extracted_core_ids = extract_unsat_core(solver)

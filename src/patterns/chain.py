@@ -1,18 +1,20 @@
+# pylint: disable=duplicate-code
 import random
 
 from src.enums import OperatorType, RulePrefix, TemplatePackId
-from src.models.rules import FactRule, ImpliesRule, TerminalRule
+from src.models.rules import BaseRule, FactRule, ImpliesRule, TerminalRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
 from src.templates import TEMPLATES
 
 
 class ChainPatternStrategy(BasePatternStrategy):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
             self, mus_size: int, is_satisfiable: bool, core_variables: list[str],
             predicate_mapping: dict[str, str], pack_id: TemplatePackId, rng: random.Random
     ) -> PatternGenerationResult:
         pack_templates = TEMPLATES[pack_id]
-        core_rules = []
+        core_rules: list[BaseRule] = []
 
         fact_template = rng.choice(pack_templates[OperatorType.FACT])
         fact_pred = predicate_mapping[core_variables[0]]
@@ -42,7 +44,7 @@ class ChainPatternStrategy(BasePatternStrategy):
         term_template = rng.choice(pack_templates[OperatorType.TERMINAL])
         term_pred = predicate_mapping[last_var]
 
-        prefix_not = "" if term_polarity else "отсутствие "
+        prefix_not = "" if term_polarity else "not "
 
         core_rules.append(TerminalRule(
             id=f"{RulePrefix.CORE_RULE}{len(core_rules) + 1}",

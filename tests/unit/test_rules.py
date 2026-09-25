@@ -1,4 +1,4 @@
-import z3
+import z3  # type: ignore
 
 from src.models.rules import AndImpliesRule, FactRule
 

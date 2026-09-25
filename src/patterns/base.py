@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 import random
 from abc import ABC, abstractmethod
 from typing import Any
@@ -11,7 +12,9 @@ class PatternGenerationResult(BaseModel):
     core_rules: list[Any]
     expected_mus_ids: list[str]
 
+
 class BasePatternStrategy(ABC):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments
     @abstractmethod
     def generate_pattern(
         self,

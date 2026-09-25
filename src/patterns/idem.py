@@ -1,12 +1,14 @@
+# pylint: disable=duplicate-code
 import random
 
 from src.enums import OperatorType, RulePrefix, TemplatePackId
-from src.models.rules import FactRule, ImpliesRule
+from src.models.rules import BaseRule, FactRule, ImpliesRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
 from src.templates import TEMPLATES
 
 
 class IdemPatternStrategy(BasePatternStrategy):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
             self,
             mus_size: int,
@@ -17,7 +19,7 @@ class IdemPatternStrategy(BasePatternStrategy):
             rng: random.Random
     ) -> PatternGenerationResult:
         pack_templates = TEMPLATES[pack_id]
-        core_rules = []
+        core_rules: list[BaseRule] = []
 
         var_a = core_variables[0]
         var_b = core_variables[1]

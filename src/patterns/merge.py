@@ -1,20 +1,24 @@
+# pylint: disable=duplicate-code
 import random
 
 from src.enums import OperatorType, RulePrefix, TemplatePackId
-from src.models.rules import AndImpliesRule, FactRule, TerminalRule
+from src.models.rules import AndImpliesRule, BaseRule, FactRule, TerminalRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
 from src.templates import TEMPLATES
 
 
 class MergePatternStrategy(BasePatternStrategy):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
             self, mus_size: int, is_satisfiable: bool, core_variables: list[str],
             predicate_mapping: dict[str, str], pack_id: TemplatePackId, rng: random.Random
     ) -> PatternGenerationResult:
         pack_templates = TEMPLATES[pack_id]
-        core_rules = []
-        ant1_var, ant2_var, cons_var = core_variables[0], core_variables[1], core_variables[2]
-        ant1_p, ant2_p, cons_p = predicate_mapping[ant1_var], predicate_mapping[ant2_var], predicate_mapping[cons_var]
+        core_rules: list[BaseRule] = []
+        ant1_var, ant2_var = core_variables[0], core_variables[1]
+        cons_var = core_variables[2]
+        ant1_p, ant2_p = predicate_mapping[ant1_var], predicate_mapping[ant2_var]
+        cons_p = predicate_mapping[cons_var]
 
         core_rules.append(FactRule(
             id=f"{RulePrefix.CORE_RULE}1",
@@ -28,9 +32,10 @@ class MergePatternStrategy(BasePatternStrategy):
             variable=ant2_var, predicate=ant2_p, polarity=True
         ))
 
-        and_text = pack_templates[OperatorType.AND_IMPLIES][0].replace("{ant1}", ant1_p).replace("{ant2}",
-                                                                                                 ant2_p).replace(
-            "{cons}", cons_p)
+        and_text = (pack_templates[OperatorType.AND_IMPLIES][0]
+                    .replace("{ant1}", ant1_p)
+                    .replace("{ant2}", ant2_p)
+                    .replace("{cons}", cons_p))
         core_rules.append(AndImpliesRule(
             id=f"{RulePrefix.CORE_RULE}3", text=and_text,
             antecedent1=ant1_var, antecedent2=ant2_var, consequent=cons_var,

@@ -8,8 +8,8 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    eval_model: str
-    target_model: str
+    eval_model: str = "default-eval"
+    target_model: str = "default-target"
 
 
-settings = Settings()
+settings = Settings(eval_model="default-eval", target_model="default-target")

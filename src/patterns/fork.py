@@ -1,12 +1,14 @@
+# pylint: disable=duplicate-code
 import random
 
 from src.enums import OperatorType, RulePrefix, TemplatePackId
-from src.models.rules import FactRule, ImpliesRule, TerminalRule
+from src.models.rules import BaseRule, FactRule, ImpliesRule, TerminalRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
 from src.templates import TEMPLATES
 
 
 class ForkPatternStrategy(BasePatternStrategy):
+    # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
             self,
             mus_size: int,
@@ -17,7 +19,7 @@ class ForkPatternStrategy(BasePatternStrategy):
             rng: random.Random
     ) -> PatternGenerationResult:
         pack_templates = TEMPLATES[pack_id]
-        core_rules = []
+        core_rules: list[BaseRule] = []
 
         root_var = core_variables[0]
         root_pred = predicate_mapping[root_var]
