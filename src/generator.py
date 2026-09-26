@@ -27,9 +27,10 @@ class BenchmarkGenerator:
         pack_id = self._pack_id or get_template_pack_id(case_seed)
 
         core_variables = [f"{RulePrefix.CORE_VAR}{i}" for i in range(1, mus_size + 1)]
-        num_distractors = max(0, self._total_rules - (mus_size + 1))
+        num_distractor_candidates = max(0, self._total_rules - 1)
         distractor_variables = [
-            f"{RulePrefix.NOISE_VAR}{i}" for i in range(1, num_distractors + 1)
+            f"{RulePrefix.NOISE_VAR}{i}"
+            for i in range(1, num_distractor_candidates + 1)
         ]
 
         all_variables = core_variables + distractor_variables
@@ -130,7 +131,8 @@ class BenchmarkGenerator:
         rng = random.Random(case_seed)
         if len(variables) > len(PREDICATE_POOL):
             raise ValueError(
-                f"Requested {len(variables)} unique predicates, but pool only has {len(PREDICATE_POOL)}"
+                f"Requested {len(variables)} unique predicates, "
+                f"but pool only has {len(PREDICATE_POOL)}"
             )
         sampled_predicates = rng.sample(PREDICATE_POOL, len(variables))
         return dict(zip(variables, sampled_predicates))

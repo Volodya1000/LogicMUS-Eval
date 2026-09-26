@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from typing import Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 import litellm  # type: ignore
 from pydantic import BaseModel
@@ -21,9 +21,32 @@ class ExtractorError(Exception):
     pass
 
 
-class ExtractionResult(BaseModel, Generic[T]):
+class ExtractionResult(BaseModel, Generic[T]):  # noqa: UP046
     data: T
     metadata: ExtractionMetadata
+
+
+def _extract_usage_metadata(response: Any, elapsed_time: float) -> ExtractionMetadata:
+    usage = getattr(response, "usage", None)
+    prompt_tokens = getattr(usage, "prompt_tokens", 0) or 0
+    completion_tokens = getattr(usage, "completion_tokens", 0) or 0
+    total_tokens = getattr(usage, "total_tokens", 0) or 0
+
+    thinking_tokens = 0
+    details = getattr(usage, "completion_tokens_details", None)
+    if details:
+        if isinstance(details, dict):
+            thinking_tokens = details.get("reasoning_tokens", 0) or 0
+        else:
+            thinking_tokens = getattr(details, "reasoning_tokens", 0) or 0
+
+    return ExtractionMetadata(
+        latency_seconds=elapsed_time,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        thinking_tokens=thinking_tokens,
+        total_tokens=total_tokens,
+    )
 
 
 class StructuredOutputExtractor:
@@ -48,6 +71,7 @@ class StructuredOutputExtractor:
         self, prompt: str, response_model: type[T]
     ) -> ExtractionResult[T]:
         start_time = time.perf_counter()
+        content = ""
         try:
             self.logger.info("Sending request to model: %s", self.model_name)
             response = litellm.completion(
@@ -67,26 +91,7 @@ class StructuredOutputExtractor:
             data = json.loads(content)
             parsed_response = response_model.model_validate(data)
 
-            usage = getattr(response, "usage", None)
-            prompt_tokens = getattr(usage, "prompt_tokens", 0) or 0
-            completion_tokens = getattr(usage, "completion_tokens", 0) or 0
-            total_tokens = getattr(usage, "total_tokens", 0) or 0
-
-            thinking_tokens = 0
-            details = getattr(usage, "completion_tokens_details", None)
-            if details:
-                if isinstance(details, dict):
-                    thinking_tokens = details.get("reasoning_tokens", 0) or 0
-                else:
-                    thinking_tokens = getattr(details, "reasoning_tokens", 0) or 0
-
-            metadata = ExtractionMetadata(
-                latency_seconds=elapsed_time,
-                prompt_tokens=prompt_tokens,
-                completion_tokens=completion_tokens,
-                thinking_tokens=thinking_tokens,
-                total_tokens=total_tokens,
-            )
+            metadata = _extract_usage_metadata(response, elapsed_time)
 
             return ExtractionResult(data=parsed_response, metadata=metadata)
 

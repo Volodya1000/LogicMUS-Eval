@@ -91,8 +91,10 @@ class Z3CodeExecutor:
 
         def _runner() -> None:
             try:
-                exec(cleaned_code, globals_env, locals_env)  # pylint: disable=exec-used
-            except BaseException as ex:  # pylint: disable=broad-exception-caught
+                exec(  # noqa: S102  # pylint: disable=exec-used
+                    cleaned_code, globals_env, locals_env
+                )
+            except BaseException as ex:  # noqa: BLE001  # pylint: disable=broad-exception-caught
                 exception_holder.append(ex)
 
         thread = threading.Thread(target=_runner, daemon=True)

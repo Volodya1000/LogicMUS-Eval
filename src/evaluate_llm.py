@@ -1,14 +1,8 @@
 import argparse
+import json
 import logging
 import os
 from pathlib import Path
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    force=True,
-)
 
 from src.enums import ManifestFilename
 from src.evaluation.metrics import (
@@ -25,6 +19,13 @@ from src.evaluation.strategies import (
 from src.extractor import StructuredOutputExtractor
 from src.models.test_case import LogicTestCase
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    force=True,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,9 +36,6 @@ def load_dataset(filepath: Path) -> list[LogicTestCase]:
             data = json.loads(line)
             dataset.append(LogicTestCase.model_validate(data))
     return dataset
-
-
-import json
 
 
 def main() -> None:

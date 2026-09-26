@@ -23,9 +23,11 @@ class DirectEvaluationStrategy(BaseEvaluationStrategy):
             rules_block += f"ID: {rule_dict['id']} | Rule: {rule_dict['text']}\n"
 
         return (
-            "You are an expert logical reasoning system. Analyze the following set of logical rules.\n\n"
+            "You are an expert logical reasoning system. "
+            "Analyze the following set of logical rules.\n\n"
             f"RULES:\n{rules_block}\n\n"
-            "You MUST write your step-by-step logical deduction in the 'reasoning' JSON field FIRST.\n"
+            "You MUST write your step-by-step logical deduction "
+            "in the 'reasoning' JSON field FIRST.\n"
             "Inside your reasoning, explicitly write out:\n"
             "1. FACT: What are the initial given true/false states?\n"
             "2. CHAIN: Apply implications step-by-step.\n"
@@ -65,9 +67,12 @@ class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
             "CODE CONVENTIONS:\n"
             "1. Instantiate a solver: `solver = Solver()`\n"
             "2. Define boolean variables for each predicate, e.g. `p1 = Bool('...')`\n"
-            "3. Assert each rule using trackable assertions: `solver.assert_and_track(assertion, 'RULE_ID')`\n"
+            "3. Assert each rule using trackable assertions: "
+            "`solver.assert_and_track(assertion, 'RULE_ID')`\n"
             "4. Check satisfiability: `is_sat = (solver.check() == sat)`\n"
-            "5. If unsatisfiable, extract core: `conflict_core = [str(c) for c in solver.unsat_core()]`, else `conflict_core = []`\n"
+            "5. If unsatisfiable, extract core: "
+            "`conflict_core = [str(c) for c in solver.unsat_core()]`, "
+            "else `conflict_core = []`\n"
             "Return valid Python code in the `python_z3_code` field."
         )
 

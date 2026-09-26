@@ -42,15 +42,6 @@ conflict_core = [str(c) for c in solver.unsat_core()]
     assert set(result.conflict_core) == {"R1", "R2"}
 
 
-def test_sandbox_intercepts_syntax_error():
-    code = "this is an invalid python code!"
-    executor = Z3CodeExecutor(timeout_seconds=2.0)
-    result = executor.execute(code)
-
-    assert result.success is False
-    assert "SyntaxError" in result.error
-
-
 def test_sandbox_prevents_unsafe_operations():
     code = """
 import os
@@ -62,6 +53,16 @@ os.listdir('.')
     assert result.success is False
 
 
+def test_sandbox_intercepts_syntax_error():
+    code = "this is an invalid python code!"
+    executor = Z3CodeExecutor(timeout_seconds=2.0)
+    result = executor.execute(code)
+
+    assert result.success is False
+    error_msg = result.error or ""
+    assert "SyntaxError" in error_msg
+
+
 def test_sandbox_handles_timeout():
     code = """
 while True:
@@ -71,4 +72,5 @@ while True:
     result = executor.execute(code)
 
     assert result.success is False
-    assert "timed out" in result.error
+    error_msg = result.error or ""
+    assert "timed out" in error_msg

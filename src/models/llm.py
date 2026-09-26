@@ -10,7 +10,10 @@ class DirectReasoningResponse(BaseModel):
     )
     conflict_core: list[str] = Field(
         default_factory=list,
-        description="List of rule IDs that form the Minimal Unsatisfiable Core (MUS) if unsatisfiable. Empty if satisfiable.",
+        description=(
+            "List of rule IDs that form the Minimal Unsatisfiable Core (MUS) "
+            "if unsatisfiable. Empty if satisfiable."
+        ),
     )
 
 

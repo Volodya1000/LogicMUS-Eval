@@ -32,36 +32,50 @@ from src.verifier import verify_case
 logger = logging.getLogger(__name__)
 
 
+def _compute_cv_f1_scores(
+    analyzer_type: AnalyzerType,
+    texts: list[str],
+    labels: np.ndarray,
+    groups: list[str],
+    n_splits: int,
+) -> list[float]:
+    sgkf = StratifiedGroupKFold(n_splits=n_splits)
+    f1_scores: list[float] = []
+    for train_idx, test_idx in sgkf.split(texts, labels, groups=groups):
+        vectorizer = TfidfVectorizer(
+            analyzer=analyzer_type.value, ngram_range=(1, 2), min_df=1
+        )
+        x_train = vectorizer.fit_transform([texts[i] for i in train_idx])
+        x_test = vectorizer.transform([texts[i] for i in test_idx])
+        clf = LogisticRegression(max_iter=1000, random_state=42)
+        clf.fit(x_train, labels[train_idx])
+        preds = clf.predict(x_test)
+        f1_scores.append(f1_score(labels[test_idx], preds, zero_division=0))
+    return f1_scores
+
+
 def evaluate_vectorizer_subset(
-        analyzer_type: AnalyzerType, custom_texts: list[str],
-        custom_labels: np.ndarray, custom_groups: list[str]
+    analyzer_type: AnalyzerType,
+    custom_texts: list[str],
+    custom_labels: np.ndarray,
+    custom_groups: list[str],
 ) -> tuple[float, float]:
     if len(custom_texts) < 2 or len(np.unique(custom_labels)) < 2:
         return 0.0, 0.0
 
-    unique_groups = len(set(custom_groups))
     min_class_samples = int(min(np.bincount(custom_labels)))
-    n_splits = min(5, unique_groups, min_class_samples)
+    n_splits = min(5, len(set(custom_groups)), min_class_samples)
 
     if n_splits < 2:
         return 0.0, 0.0
 
     try:
-        sgkf = StratifiedGroupKFold(n_splits=n_splits)
-        f1_scores = []
-        for train_idx, test_idx in sgkf.split(custom_texts, custom_labels, groups=custom_groups):
-            vectorizer = TfidfVectorizer(analyzer=analyzer_type.value, ngram_range=(1, 2), min_df=1)
-            x_train = vectorizer.fit_transform([custom_texts[i] for i in train_idx])
-            x_test = vectorizer.transform([custom_texts[i] for i in test_idx])
-            y_train, y_test = custom_labels[train_idx], custom_labels[test_idx]
-            clf = LogisticRegression(max_iter=1000, random_state=42)
-            clf.fit(x_train, y_train)
-            preds = clf.predict(x_test)
-            f1_scores.append(f1_score(y_test, preds, zero_division=0))
-        return (
-            float(np.mean(f1_scores)) if f1_scores else 0.0,
-            float(np.std(f1_scores)) if f1_scores else 0.0,
+        f1_scores = _compute_cv_f1_scores(
+            analyzer_type, custom_texts, custom_labels, custom_groups, n_splits
         )
+        if not f1_scores:
+            return 0.0, 0.0
+        return float(np.mean(f1_scores)), float(np.std(f1_scores))
     except ValueError:
         return 0.0, 0.0
 
@@ -99,6 +113,27 @@ def verify_dataset_correctness(
     return metrics
 
 
+def _leakage_for_subset(
+    texts: list[str],
+    labels: np.ndarray,
+    groups: list[str],
+) -> dict[str, TfidfMetrics]:
+    word_m, word_s = evaluate_vectorizer_subset(
+        AnalyzerType.WORD, texts, labels, groups
+    )
+    char_m, char_s = evaluate_vectorizer_subset(
+        AnalyzerType.CHAR_WB, texts, labels, groups
+    )
+    return {
+        MetricType.WORD_TFIDF.value: TfidfMetrics(
+            mean_f1=round(word_m, 4), std_f1=round(word_s, 4)
+        ),
+        MetricType.CHAR_TFIDF.value: TfidfMetrics(
+            mean_f1=round(char_m, 4), std_f1=round(char_s, 4)
+        ),
+    }
+
+
 def calculate_leakage(
     dataset: list[LogicTestCase], mus_sizes: list[int]
 ) -> LeakageReport:
@@ -106,12 +141,7 @@ def calculate_leakage(
     labels = np.array([0 if case.is_satisfiable else 1 for case in dataset])
     groups = [str(case.template_pack_id) for case in dataset]
 
-    word_m, word_s = evaluate_vectorizer_subset(
-        AnalyzerType.WORD, texts, labels, groups
-    )
-    char_m, char_s = evaluate_vectorizer_subset(
-        AnalyzerType.CHAR_WB, texts, labels, groups
-    )
+    global_metrics = _leakage_for_subset(texts, labels, groups)
 
     leakage_by_mus_size: dict[str, dict[str, TfidfMetrics]] = {}
     for target_mus_size in mus_sizes:
@@ -121,26 +151,16 @@ def calculate_leakage(
         sub_texts = [texts[idx] for idx in indices]
         sub_labels = labels[indices]
         sub_groups = [groups[idx] for idx in indices]
-
-        w_m, w_s = evaluate_vectorizer_subset(
-            AnalyzerType.WORD, sub_texts, sub_labels, sub_groups
-        )
-        c_m, c_s = evaluate_vectorizer_subset(
-            AnalyzerType.CHAR_WB, sub_texts, sub_labels, sub_groups
+        leakage_by_mus_size[f"mus_size={target_mus_size}"] = _leakage_for_subset(
+            sub_texts, sub_labels, sub_groups
         )
 
-        leakage_by_mus_size[f"mus_size={target_mus_size}"] = {
-            MetricType.WORD_TFIDF.value: TfidfMetrics(
-                mean_f1=round(w_m, 4), std_f1=round(w_s, 4)
-            ),
-            MetricType.CHAR_TFIDF.value: TfidfMetrics(
-                mean_f1=round(c_m, 4), std_f1=round(c_s, 4)
-            ),
-        }
+    word_metric = global_metrics[MetricType.WORD_TFIDF.value]
+    char_metric = global_metrics[MetricType.CHAR_TFIDF.value]
 
     return LeakageReport(
-        global_word=(word_m, word_s),
-        global_char=(char_m, char_s),
+        global_word=(word_metric.mean_f1, word_metric.std_f1),
+        global_char=(char_metric.mean_f1, char_metric.std_f1),
         by_mus_size=leakage_by_mus_size,
     )
 
