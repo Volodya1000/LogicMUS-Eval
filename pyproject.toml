@@ -9,6 +9,7 @@ dependencies = [
     "pydantic>=2.13.5",
     "scikit-learn>=1.9.1",
     "tenacity>=9.1.4",
+    "typer>=0.27.2",
     "z3-solver>=5.1.0.0",
 ]
 

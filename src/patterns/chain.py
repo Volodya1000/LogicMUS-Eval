@@ -8,6 +8,8 @@ from src.templates import TEMPLATES
 
 
 class ChainPatternStrategy(BasePatternStrategy):
+    name = "chain"
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,

@@ -8,6 +8,8 @@ from src.templates import TEMPLATES
 
 
 class ForkPatternStrategy(BasePatternStrategy):
+    name = "fork"
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,
@@ -71,7 +73,21 @@ class ForkPatternStrategy(BasePatternStrategy):
             )
         )
 
-        expected_mus = [r.id for r in core_rules] if not is_satisfiable else []
+        if is_satisfiable:
+            expected_mus: list[str] = []
+        else:
+            # Only these rules form the contradiction:
+            #   R1     -- the root fact
+            #   R[-2]  -- the last implication (root -> last branch)
+            #   R[-1]  -- the terminal rule (not last branch)
+            # Intermediate branches (root -> V_2..V_{n-1}) are redundant
+            # and are not returned by z3 in unsat_core().
+            expected_mus = [
+                core_rules[0].id,
+                core_rules[-2].id,
+                core_rules[-1].id,
+            ]
+
         return PatternGenerationResult(
             core_rules=core_rules, expected_mus_ids=expected_mus
         )

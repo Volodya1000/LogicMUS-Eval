@@ -1,7 +1,6 @@
-import argparse
 import logging
 import platform
-from pathlib import Path
+from dataclasses import dataclass
 
 import numpy as np
 import sklearn  # type: ignore
@@ -13,7 +12,7 @@ from sklearn.model_selection import StratifiedGroupKFold  # type: ignore
 
 from src.enums import AnalyzerType, ManifestFilename, MetricType
 from src.generator import BenchmarkGenerator
-from src.hashing import compute_file_sha256, compute_source_hash
+from src.hashing import compute_file_sha256, compute_source_bundle_hash
 from src.models.manifests import (
     ArtifactsManifest,
     BenchmarkManifest,
@@ -25,11 +24,44 @@ from src.models.manifests import (
 )
 from src.models.pipeline import DatasetValidationMetrics, LeakageReport
 from src.models.test_case import LogicTestCase
+from src.patterns.base import BasePatternStrategy
 from src.patterns.chain import ChainPatternStrategy
+from src.patterns.coverage import CoveragePatternStrategy
+from src.patterns.direct import DirectPatternStrategy
+from src.patterns.fork import ForkPatternStrategy
+from src.patterns.idem import IdemPatternStrategy
+from src.patterns.math import MathPatternStrategy
+from src.patterns.merge import MergePatternStrategy
 from src.storage import FileStorageManager, StorageProtocol
 from src.verifier import verify_case
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class GenerationConfig:
+    mus_sizes: list[int]
+    pairs_per_group: int
+    total_rules: int
+    base_seed: int
+    output_dir: str
+
+
+# Registry is a plain list of classes. Each strategy self-describes its
+# ``name``, ``min_mus_size`` and ``forced_pack_id`` via ClassVar attributes.
+STRATEGY_REGISTRY: list[type[BasePatternStrategy]] = [
+    ChainPatternStrategy,
+    CoveragePatternStrategy,
+    DirectPatternStrategy,
+    ForkPatternStrategy,
+    IdemPatternStrategy,
+    MergePatternStrategy,
+    MathPatternStrategy,
+]
+
+
+def _eligible_strategies(mus_size: int) -> list[type[BasePatternStrategy]]:
+    return [cls for cls in STRATEGY_REGISTRY if mus_size >= cls.min_mus_size]
 
 
 def _compute_cv_f1_scores(
@@ -80,12 +112,19 @@ def evaluate_vectorizer_subset(
         return 0.0, 0.0
 
 
-def generate_dataset(
-    generator: BenchmarkGenerator, mus_sizes: list[int], pairs: int
-) -> list[LogicTestCase]:
+def generate_dataset(config: GenerationConfig) -> list[LogicTestCase]:
+    """Generate SAT/UNSAT pairs cycling through all compatible strategies."""
     dataset: list[LogicTestCase] = []
-    for target_mus_size in mus_sizes:
-        for i in range(pairs):
+    for target_mus_size in config.mus_sizes:
+        eligible = _eligible_strategies(target_mus_size)
+        for i in range(config.pairs_per_group):
+            strategy_cls = eligible[i % len(eligible)]
+            generator = BenchmarkGenerator(
+                strategy=strategy_cls(),
+                total_rules=config.total_rules,
+                base_seed=config.base_seed,
+                pack_id=strategy_cls.forced_pack_id,
+            )
             sat_case, unsat_case = generator.generate_pair(
                 mus_size=target_mus_size, index_in_batch=i
             )
@@ -169,28 +208,13 @@ def save_artifacts(
     dataset: list[LogicTestCase],
     metrics: DatasetValidationMetrics,
     leakage: LeakageReport,
-    args: argparse.Namespace,
+    config: GenerationConfig,
     storage: StorageProtocol,
 ) -> None:
     dataset_file = ManifestFilename.DATASET_JSONL.value
     output_path = storage.save_dataset(dataset_file, dataset)
 
-    source_bundle_hash = compute_source_hash(
-        [
-            Path("src/models/rules.py"),
-            Path("src/models/test_case.py"),
-            Path("src/models/manifests.py"),
-            Path("src/models/pipeline.py"),
-            Path("src/models/llm.py"),
-            Path("src/templates.py"),
-            Path("src/generator.py"),
-            Path("src/verifier.py"),
-            Path("src/extractor.py"),
-            Path("src/run_pipeline.py"),
-            Path("src/storage.py"),
-            Path("src/hashing.py"),
-        ]
-    )
+    source_bundle_hash = compute_source_bundle_hash()
 
     total_cases = len(dataset)
     half = total_cases // 2
@@ -208,11 +232,11 @@ def save_artifacts(
             scikit_learn=sklearn.__version__,
         ),
         parameters=ParametersManifest(
-            mus_sizes=args.mus_sizes,
-            pairs_per_group=args.pairs_per_group,
+            mus_sizes=config.mus_sizes,
+            pairs_per_group=config.pairs_per_group,
             total_cases=total_cases,
-            rules_per_case=args.total_rules,
-            base_seed=args.base_seed,
+            rules_per_case=config.total_rules,
+            base_seed=config.base_seed,
         ),
         validation_results=ValidationResultsManifest(
             sat_correctness=f"{metrics.sat_valid}/{half}",
@@ -240,29 +264,11 @@ def save_artifacts(
     logger.info("Manifest saved to %s", manifest_path)
 
 
-def main() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mus-sizes", type=int, nargs="+", default=[2, 3, 4, 5])
-    parser.add_argument("--pairs-per-group", type=int, default=25)
-    parser.add_argument("--total-rules", type=int, default=20)
-    parser.add_argument("--base-seed", type=int, default=42)
-    parser.add_argument("--output-dir", type=str, default="data/generated_cases")
-    args = parser.parse_args()
-
+def run_generation(config: GenerationConfig) -> None:
+    """Library entry point for dataset generation (no CLI parsing)."""
     logger.info("Starting generation and verification pipeline...")
-    generator = BenchmarkGenerator(
-        strategy=ChainPatternStrategy(),
-        total_rules=args.total_rules,
-        base_seed=args.base_seed,
-    )
 
-    dataset = generate_dataset(generator, args.mus_sizes, args.pairs_per_group)
+    dataset = generate_dataset(config)
     logger.info("Generated cases: %d", len(dataset))
 
     metrics = verify_dataset_correctness(dataset)
@@ -277,7 +283,7 @@ def main() -> None:
     logger.info("MUS minimality    : %d/%d", metrics.mus_minimal, half)
     logger.info("=" * 50)
 
-    leakage = calculate_leakage(dataset, args.mus_sizes)
+    leakage = calculate_leakage(dataset, config.mus_sizes)
 
     logger.info("=" * 50)
     logger.info("LEAKAGE DIAGNOSTICS REPORT (BY MUS SIZE)")
@@ -291,9 +297,11 @@ def main() -> None:
         )
     logger.info("=" * 50)
 
-    storage = FileStorageManager(args.output_dir)
-    save_artifacts(dataset, metrics, leakage, args, storage)
-
-
-if __name__ == "__main__":
-    main()
+    storage = FileStorageManager(config.output_dir)
+    save_artifacts(
+        dataset=dataset,
+        metrics=metrics,
+        leakage=leakage,
+        config=config,
+        storage=storage,
+    )

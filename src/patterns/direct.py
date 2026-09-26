@@ -8,6 +8,8 @@ from src.templates import TEMPLATES
 
 
 class DirectPatternStrategy(BasePatternStrategy):
+    name = "direct"
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,

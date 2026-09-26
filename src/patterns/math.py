@@ -7,6 +7,9 @@ from src.templates import TEMPLATES
 
 
 class MathPatternStrategy(BasePatternStrategy):
+    name = "math"
+    forced_pack_id = TemplatePackId.MATH_PACK
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,

@@ -1,11 +1,10 @@
-import argparse
-import json
 import logging
 import os
 from pathlib import Path
 
 from src.enums import ManifestFilename
 from src.evaluation.metrics import (
+    BaseMetric,
     ExecutionTimeMetric,
     MusValidMetric,
     SatAccuracyMetric,
@@ -17,83 +16,34 @@ from src.evaluation.strategies import (
     Z3TranslationEvaluationStrategy,
 )
 from src.extractor import StructuredOutputExtractor
-from src.models.test_case import LogicTestCase
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    force=True,
-)
+from src.models.evaluation import EvaluationSummary
+from src.storage import FileStorageManager
 
 logger = logging.getLogger(__name__)
 
 
-def load_dataset(filepath: Path) -> list[LogicTestCase]:
-    dataset = []
-    with open(filepath, "r", encoding="utf-8") as f:
-        for line in f:
-            data = json.loads(line)
-            dataset.append(LogicTestCase.model_validate(data))
-    return dataset
+def _resolve_dataset_filename(dataset_dir: str) -> str | None:
+    preferred = ManifestFilename.DATASET_JSONL.value
+    if (Path(dataset_dir) / preferred).exists():
+        return preferred
+
+    candidates = list(Path(dataset_dir).glob("*.jsonl"))
+    if not candidates:
+        return None
+    logger.info("Dataset found by glob fallback: %s", candidates[0])
+    return candidates[0].name
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Evaluate LLM on LogicMUS-Eval dataset."
-    )
-    parser.add_argument("--dataset-dir", type=str, default="data/generated_cases")
-    parser.add_argument(
-        "--model-name", type=str, default="openai/qwen2.5-coder-14b-instruct"
-    )
-    parser.add_argument(
-        "--strategy", type=str, choices=["direct", "z3"], default="direct"
-    )
-    parser.add_argument("--limit", type=int, default=10)
-    parser.add_argument("--output-file", type=str, default="evaluation_results.json")
-    args = parser.parse_args()
-
-    dataset_path = Path(args.dataset_dir) / ManifestFilename.DATASET_JSONL.value
-    if not dataset_path.exists():
-        candidates = list(Path(args.dataset_dir).glob("*.jsonl"))
-        if candidates:
-            dataset_path = candidates[0]
-            logger.info("Dataset found by glob fallback: %s", dataset_path)
-        else:
-            logger.error("No .jsonl dataset files found in %s", args.dataset_dir)
-            return
-
-    dataset = load_dataset(dataset_path)
-    extractor = StructuredOutputExtractor(model_name=args.model_name)
-
-    strategy = (
-        DirectEvaluationStrategy()
-        if args.strategy == "direct"
-        else Z3TranslationEvaluationStrategy()
-    )
-
-    metrics = [
+def _build_metrics() -> list[BaseMetric]:
+    return [
         SatAccuracyMetric(),
         MusValidMetric(),
         TokenUsageMetric(),
         ExecutionTimeMetric(),
     ]
 
-    pipeline = EvaluationPipeline(
-        strategy=strategy, extractor=extractor, metrics=metrics
-    )
 
-    logger.info(
-        "Starting evaluation with strategy: %s on model: %s",
-        args.strategy,
-        args.model_name,
-    )
-    logger.info(
-        "Target API Base: %s", os.environ.get("OPENAI_API_BASE", "Default (OpenAI)")
-    )
-
-    report = pipeline.run(dataset, limit=args.limit)
-
+def _log_summary(report: EvaluationSummary) -> None:
     logger.info("=" * 50)
     logger.info("EVALUATION METRICS SUMMARY")
     logger.info("=" * 50)
@@ -101,12 +51,48 @@ def main() -> None:
         logger.info("%s: %s", k, v)
     logger.info("=" * 50)
 
-    output_path = Path(args.dataset_dir) / args.output_file
+
+def run_evaluation(
+    dataset_dir: str,
+    model_name: str,
+    strategy_name: str,
+    limit: int,
+    output_file: str,
+) -> None:
+    """Library entry point for LLM evaluation (no CLI parsing)."""
+    filename = _resolve_dataset_filename(dataset_dir)
+    if filename is None:
+        logger.error("No .jsonl dataset files found in %s", dataset_dir)
+        return
+
+    storage = FileStorageManager(dataset_dir)
+    dataset = storage.load_dataset(filename)
+
+    extractor = StructuredOutputExtractor(model_name=model_name)
+    strategy = (
+        DirectEvaluationStrategy()
+        if strategy_name == "direct"
+        else Z3TranslationEvaluationStrategy()
+    )
+
+    pipeline = EvaluationPipeline(
+        strategy=strategy, extractor=extractor, metrics=_build_metrics()
+    )
+
+    logger.info(
+        "Starting evaluation with strategy: %s on model: %s",
+        strategy_name,
+        model_name,
+    )
+    logger.info(
+        "Target API Base: %s", os.environ.get("OPENAI_API_BASE", "Default (OpenAI)")
+    )
+
+    report = pipeline.run(dataset, limit=limit)
+    _log_summary(report)
+
+    output_path = Path(dataset_dir) / output_file
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(report.model_dump_json(indent=2))
 
     logger.info("Full report saved to %s", output_path)
-
-
-if __name__ == "__main__":
-    main()

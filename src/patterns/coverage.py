@@ -8,6 +8,9 @@ from src.templates import TEMPLATES
 
 
 class CoveragePatternStrategy(BasePatternStrategy):
+    name = "coverage"
+    min_mus_size = 2
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,

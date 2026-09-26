@@ -9,6 +9,8 @@ from src.models.test_case import LogicTestCase
 class StorageProtocol(Protocol):
     def save_dataset(self, filename: str, dataset: list[LogicTestCase]) -> Path: ...
 
+    def load_dataset(self, filename: str) -> list[LogicTestCase]: ...
+
     def save_manifest(self, filename: str, manifest: BenchmarkManifest) -> Path: ...
 
 
@@ -25,6 +27,17 @@ class FileStorageManager:
                 for case in dataset
             )
         return output_path
+
+    def load_dataset(self, filename: str) -> list[LogicTestCase]:
+        input_path = self.output_dir / filename
+        dataset: list[LogicTestCase] = []
+        with open(input_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                dataset.append(LogicTestCase.model_validate(json.loads(line)))
+        return dataset
 
     def save_manifest(self, filename: str, manifest: BenchmarkManifest) -> Path:
         manifest_path = self.output_dir / filename

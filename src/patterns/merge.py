@@ -8,6 +8,9 @@ from src.templates import TEMPLATES
 
 
 class MergePatternStrategy(BasePatternStrategy):
+    name = "merge"
+    min_mus_size = 3
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,
