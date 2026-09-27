@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pydantic import BaseModel
 
-from src.extractor import ExtractorError, StructuredOutputExtractor
+from logicmus_eval.extractor import ExtractorError, StructuredOutputExtractor
 
 
 class DummyModel(BaseModel):
@@ -12,7 +12,7 @@ class DummyModel(BaseModel):
     number: int
 
 
-@patch("src.extractor.litellm.completion")
+@patch("logicmus_eval.extractor.litellm.completion")
 def test_extractor_success(mock_completion):
     mock_response = MagicMock()
     mock_response.choices = [MagicMock()]
@@ -28,7 +28,7 @@ def test_extractor_success(mock_completion):
     assert result.number == 42
 
 
-@patch("src.extractor.litellm.completion")
+@patch("logicmus_eval.extractor.litellm.completion")
 def test_extractor_json_error(mock_completion):
     mock_response = MagicMock()
     mock_response.choices = [MagicMock()]

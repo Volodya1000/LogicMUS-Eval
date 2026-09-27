@@ -1,9 +1,9 @@
-from src.enums import TemplatePackId
-from src.generator import BenchmarkGenerator
-from src.patterns.chain import ChainPatternStrategy
-from src.patterns.math import MathPatternStrategy
-from src.patterns.merge import MergePatternStrategy
-from src.verifier import verify_case
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.generator import BenchmarkGenerator
+from logicmus_eval.patterns.chain import ChainPatternStrategy
+from logicmus_eval.patterns.math import MathPatternStrategy
+from logicmus_eval.patterns.merge import MergePatternStrategy
+from logicmus_eval.verifier import verify_case
 
 
 def test_chain_strategy_pipeline():

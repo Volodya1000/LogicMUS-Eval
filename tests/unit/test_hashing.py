@@ -2,7 +2,7 @@ import hashlib
 import tempfile
 from pathlib import Path
 
-from src.hashing import compute_file_sha256, compute_source_hash
+from logicmus_eval.hashing import compute_file_sha256, compute_source_hash
 
 
 def test_compute_file_sha256():

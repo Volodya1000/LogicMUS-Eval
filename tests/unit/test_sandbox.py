@@ -1,4 +1,4 @@
-from src.sandbox.executor import Z3CodeExecutor
+from logicmus_eval.sandbox.executor import Z3CodeExecutor
 
 
 def test_sandbox_executes_valid_sat_code():

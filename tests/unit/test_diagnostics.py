@@ -1,7 +1,7 @@
-from src.enums import FailureTag, TemplatePackId
-from src.evaluation.diagnostics import classify_failure, is_refusal
-from src.models.evaluation import CasePrediction
-from src.models.test_case import LogicTestCase
+from logicmus_eval.enums import FailureTag, TemplatePackId
+from logicmus_eval.evaluation.diagnostics import classify_failure, is_refusal
+from logicmus_eval.models.evaluation import CasePrediction
+from logicmus_eval.models.test_case import LogicTestCase
 
 
 def _case(is_satisfiable: bool, mus_expected: list[str] | None = None) -> LogicTestCase:

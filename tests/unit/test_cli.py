@@ -1,6 +1,6 @@
 from typer.testing import CliRunner
 
-from src.cli import app
+from logicmus_eval.cli import app
 
 runner = CliRunner()
 

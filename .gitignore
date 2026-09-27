@@ -10,3 +10,7 @@ dataset_v1_frozen.manifest.json
 .vscode/
 *.log
 data
+*.egg-info/
+*.egg-info
+build/
+dist/

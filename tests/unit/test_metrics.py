@@ -1,5 +1,5 @@
-from src.enums import TemplatePackId
-from src.evaluation.metrics import (
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.evaluation.metrics import (
     InfrastructureErrorRateMetric,
     MusValidMetric,
     RefusalRateMetric,
@@ -7,8 +7,8 @@ from src.evaluation.metrics import (
     TokenUsageMetric,
     ValidResponseAccuracyMetric,
 )
-from src.models.evaluation import CasePrediction, ExtractionMetadata
-from src.models.test_case import LogicTestCase
+from logicmus_eval.models.evaluation import CasePrediction, ExtractionMetadata
+from logicmus_eval.models.test_case import LogicTestCase
 
 
 def test_sat_accuracy_metric():

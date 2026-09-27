@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from src.enums import TemplatePackId
-from src.models.manifests import (
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.models.manifests import (
     ArtifactsManifest,
     BenchmarkManifest,
     EnvironmentManifest,
@@ -10,7 +10,7 @@ from src.models.manifests import (
     TfidfMetrics,
     ValidationResultsManifest,
 )
-from src.models.test_case import LogicTestCase
+from logicmus_eval.models.test_case import LogicTestCase
 
 
 class FakeStorageManager:

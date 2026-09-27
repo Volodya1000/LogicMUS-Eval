@@ -1,6 +1,6 @@
-from src.generator import BenchmarkGenerator
-from src.patterns.chain import ChainPatternStrategy
-from src.verifier import verify_case
+from logicmus_eval.generator import BenchmarkGenerator
+from logicmus_eval.patterns.chain import ChainPatternStrategy
+from logicmus_eval.verifier import verify_case
 
 
 def test_generator_deterministic_behavior():

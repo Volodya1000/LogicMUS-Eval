@@ -1,11 +1,11 @@
 import z3  # type: ignore
 
-from src.enums import TemplatePackId
-from src.generator import BenchmarkGenerator
-from src.models.rules import FactRule, NumericEQRule, NumericGTRule
-from src.models.test_case import LogicTestCase
-from src.patterns.chain import ChainPatternStrategy
-from src.verifier import (
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.generator import BenchmarkGenerator
+from logicmus_eval.models.rules import FactRule, NumericEQRule, NumericGTRule
+from logicmus_eval.models.test_case import LogicTestCase
+from logicmus_eval.patterns.chain import ChainPatternStrategy
+from logicmus_eval.verifier import (
     build_z3_solver,
     check_minimality,
     extract_unsat_core,

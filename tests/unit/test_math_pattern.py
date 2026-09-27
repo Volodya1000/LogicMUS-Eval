@@ -1,9 +1,9 @@
 import random
 
-from src.enums import TemplatePackId
-from src.models.test_case import LogicTestCase
-from src.patterns.math import MathPatternStrategy
-from src.verifier import verify_case
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.models.test_case import LogicTestCase
+from logicmus_eval.patterns.math import MathPatternStrategy
+from logicmus_eval.verifier import verify_case
 
 
 def test_math_pattern_strategy_unsat_cycle():

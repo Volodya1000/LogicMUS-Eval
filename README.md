@@ -1,4 +1,4 @@
-﻿# LogicMUS-Eval
+# LogicMUS-Eval
 
 Пайплайн для генерации парных SAT/UNSAT логических бенчмарков со строгой
 Z3-верификацией, проверкой минимальных невыполнимых ядер (MUS) и диагностикой
@@ -55,7 +55,7 @@ uv sync
 
 **bash**
 ```bash
-uv run -m src.cli generate \
+uv run -m logicmus_eval.cli generate \
     --mus-size-min 2 --mus-size-max 5 \
     --pairs-per-group 25 \
     --total-rules 20 \
@@ -65,7 +65,7 @@ uv run -m src.cli generate \
 
 **PowerShell**
 ```powershell
-uv run -m src.cli generate `
+uv run -m logicmus_eval.cli generate `
     --mus-size-min 2 --mus-size-max 5 `
     --pairs-per-group 25 `
     --total-rules 20 `
@@ -93,7 +93,7 @@ uv run -m src.cli generate `
 
 **PowerShell**
 ```powershell
-uv run -m src.cli evaluate `
+uv run -m logicmus_eval.cli evaluate `
     --strategy direct `
     --model-name openai/qwen2.5-coder-14b-instruct `
     --dataset-dir data/generated_cases `
@@ -105,7 +105,7 @@ uv run -m src.cli evaluate `
 
 **PowerShell**
 ```powershell
-uv run -m src.cli evaluate `
+uv run -m logicmus_eval.cli evaluate `
     --strategy z3 `
     --model-name openai/qwen2.5-coder-14b-instruct `
     --dataset-dir data/generated_cases `
@@ -143,9 +143,9 @@ export OPENAI_API_KEY="lm-studio"
 ### 5. Справка
 
 ```bash
-uv run -m src.cli --help
-uv run -m src.cli generate --help
-uv run -m src.cli evaluate --help
+uv run -m logicmus_eval.cli --help
+uv run -m logicmus_eval.cli generate --help
+uv run -m logicmus_eval.cli evaluate --help
 ```
 
 ## Метрики оценки

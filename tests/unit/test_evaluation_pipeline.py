@@ -3,18 +3,18 @@ import tempfile
 from datetime import UTC, datetime
 from pathlib import Path
 
-from src.enums import TemplatePackId
-from src.evaluation.pipeline import EvaluationPipeline
-from src.evaluation.strategies import DirectEvaluationStrategy
-from src.extractor import ExtractionResult
-from src.models.evaluation import (
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.evaluation.pipeline import EvaluationPipeline
+from logicmus_eval.evaluation.strategies import DirectEvaluationStrategy
+from logicmus_eval.extractor import ExtractionResult
+from logicmus_eval.models.evaluation import (
     EvaluationCaseReport,
     EvaluationSummary,
     ExtractionMetadata,
     RunInfo,
 )
-from src.models.llm import DirectReasoningResponse
-from src.models.test_case import LogicTestCase
+from logicmus_eval.models.llm import DirectReasoningResponse
+from logicmus_eval.models.test_case import LogicTestCase
 
 
 class DummyExtractor:

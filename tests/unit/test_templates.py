@@ -1,5 +1,10 @@
-from src.enums import TemplatePackId
-from src.templates import NEGATION_MARKER, TEMPLATES, get_template_pack_id, negate
+from logicmus_eval.enums import TemplatePackId
+from logicmus_eval.templates import (
+    NEGATION_MARKER,
+    TEMPLATES,
+    get_template_pack_id,
+    negate,
+)
 
 
 def test_get_template_pack_id_deterministic():
