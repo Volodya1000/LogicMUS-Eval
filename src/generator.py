@@ -1,4 +1,5 @@
 import random
+import re
 
 from src.enums import CaseStatus, OperatorType, RulePrefix, TemplatePackId
 from src.models.rules import NoiseRule
@@ -10,6 +11,11 @@ from src.templates import (
     get_template_pack_id,
     negate,
 )
+
+# Strict pattern for the neutral rule ID space: "R" + digits, nothing else.
+# `startswith("R")` was too permissive — it would accept "RX", "R_foo", or a
+# bare "R". Anchored full-match keeps the invariant honest.
+_RULE_ID_PATTERN = re.compile(r"^R\d+$")
 
 # Noise rules may reuse templates of any single-`{var}` operator so that
 # terminal-style phrases ("Главное требование:") also appear among noise.
@@ -41,11 +47,15 @@ class BenchmarkGenerator:
         case_seed = self._base_seed + mus_size * 1000 + index_in_batch
         pack_id = self._pack_id or get_template_pack_id(case_seed)
 
-        core_variables = [f"{RulePrefix.CORE_VAR}{i}" for i in range(1, mus_size + 1)]
+        # Neutral variable names: single prefix `p`, continuous numbering.
+        # The model must not be able to distinguish core from noise by name.
+        core_variables = [
+            f"{RulePrefix.NEUTRAL_VAR}{i}" for i in range(1, mus_size + 1)
+        ]
         num_distractor_candidates = max(0, self._total_rules - 1)
         distractor_variables = [
-            f"{RulePrefix.NOISE_VAR}{i}"
-            for i in range(1, num_distractor_candidates + 1)
+            f"{RulePrefix.NEUTRAL_VAR}{i}"
+            for i in range(mus_size + 1, mus_size + 1 + num_distractor_candidates)
         ]
 
         all_variables = core_variables + distractor_variables
@@ -133,11 +143,18 @@ class BenchmarkGenerator:
         # was statistically visible. This is a defensive guard (fires rarely);
         # a stronger policy is scheduled for a follow-up iteration if leakage
         # stays above target.
+        #
+        # We re-render from a fresh template instead of substring-replacing the
+        # predicate inside the already-rendered text: the predicate string may
+        # legitimately occur more than once (e.g. as part of another phrase), in
+        # which case `.replace(..., 1)` would corrupt the wrong occurrence.
         if is_satisfiable and noise_rules and all(r.polarity for r in noise_rules):
             first = noise_rules[0]
+            flipped_template = rng.choice(noise_templates_flat)
+            flipped_text = flipped_template.replace("{var}", negate(first.predicate))
             noise_rules[0] = NoiseRule(
                 id=first.id,
-                text=first.text.replace(first.predicate, negate(first.predicate), 1),
+                text=flipped_text,
                 variable=first.variable,
                 predicate=first.predicate,
                 polarity=False,
@@ -145,6 +162,32 @@ class BenchmarkGenerator:
 
         all_rules = pattern_result.core_rules + noise_rules
         rng.shuffle(all_rules)
+
+        # Renumber rules sequentially R1..R_total. The core/noise distinction
+        # is hidden from the model — the dataset must not leak which rules are
+        # structurally relevant.
+        id_mapping: dict[str, str] = {}
+        for i, rule in enumerate(all_rules, start=1):
+            old_id = rule.id
+            new_id = f"{RulePrefix.CORE_RULE}{i}"  # -> "R1", "R2", ...
+            id_mapping[old_id] = new_id
+            rule.id = new_id
+
+        expected_mus_remapped = [
+            id_mapping[old_id] for old_id in pattern_result.expected_mus_ids
+        ]
+
+        # Hard runtime checks — deliberately NOT `assert`. `assert` statements
+        # are stripped under `python -O`, which would silently disable the very
+        # guards meant to catch regressions. A `RuntimeError` survives -O.
+        if len(id_mapping) != len(all_rules):
+            raise RuntimeError(
+                f"ID collision during renumber: {len(id_mapping)} unique IDs "
+                f"for {len(all_rules)} rules"
+            )
+        for rule in all_rules:
+            if not _RULE_ID_PATTERN.match(rule.id):
+                raise RuntimeError(f"Non-neutral rule ID detected: {rule.id!r}")
 
         status_str = CaseStatus.SAT.value if is_satisfiable else CaseStatus.UNSAT.value
         case_id = f"mus{mus_size}_{status_str}_{index_in_batch:03d}"
@@ -156,7 +199,7 @@ class BenchmarkGenerator:
             template_pack_id=pack_id,
             predicate_mapping=full_mapping,
             rules=all_rules,
-            mus_expected=pattern_result.expected_mus_ids,
+            mus_expected=expected_mus_remapped,
             metadata={"case_seed": case_seed},
         )
 
