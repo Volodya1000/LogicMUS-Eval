@@ -33,7 +33,7 @@ from src.patterns.idem import IdemPatternStrategy
 from src.patterns.math import MathPatternStrategy
 from src.patterns.merge import MergePatternStrategy
 from src.storage import FileStorageManager, StorageProtocol
-from src.verifier import verify_case
+from src.verifier import verify_case, verify_mus_uniqueness_by_structure
 
 logger = logging.getLogger(__name__)
 
@@ -288,6 +288,22 @@ def run_generation(config: GenerationConfig) -> None:
     logger.info("MUS validity      : %d/%d", metrics.mus_valid, half)
     logger.info("MUS minimality    : %d/%d", metrics.mus_minimal, half)
     logger.info("=" * 50)
+
+    # Structural MUS-uniqueness check: O(n) per UNSAT case, replaces the
+    # previous brute-force enumeration that would have taken hours at
+    # mus_size=9. See ``verify_mus_uniqueness_by_structure`` for the proof.
+    if metrics.mus_valid > 0:
+        non_unique = [
+            c.case_id for c in dataset if not verify_mus_uniqueness_by_structure(c)
+        ]
+        if non_unique:
+            logger.warning(
+                "Non-unique MUS in %d cases (first 5): %s",
+                len(non_unique),
+                non_unique[:5],
+            )
+        else:
+            logger.info("MUS uniqueness verified across all UNSAT cases.")
 
     leakage = calculate_leakage(dataset, config.mus_sizes)
 

@@ -12,7 +12,7 @@ def configure_logging() -> None:
         force=True,
     )
 
-    for logger_name in ("litellm", "httpx", "httpcore"):
+    for logger_name in ("litellm", "LiteLLM", "httpx", "httpcore"):
         logging.getLogger(logger_name).setLevel(logging.WARNING)
 
     litellm.suppress_debug_info = True

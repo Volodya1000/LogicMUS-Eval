@@ -28,6 +28,7 @@ class RulePrefix(StrEnum):
     NOISE_VAR = "N"
     CORE_RULE = "R"
     NOISE_RULE = "NR"
+    NEUTRAL_VAR = "p"
 
 
 class CaseStatus(StrEnum):
