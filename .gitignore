@@ -9,8 +9,10 @@ dataset_v1_frozen.manifest.json
 .idea/
 .vscode/
 *.log
-data
+data/
 *.egg-info/
 *.egg-info
 build/
 dist/
+experiments/
+.tiktoken_cache/

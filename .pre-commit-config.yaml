@@ -26,16 +26,16 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        entry: uv run mypy
+        entry: uv run --group analysis mypy
         language: system
-        types: [python]
+        types: [ python ]
         require_serial: true
 
       - id: pylint
         name: pylint
-        entry: uv run pylint
+        entry: uv run --group analysis pylint
         language: system
-        types: [python]
+        types: [ python ]
         require_serial: true
 
       - id: pytest

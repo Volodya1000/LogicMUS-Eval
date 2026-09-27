@@ -78,6 +78,8 @@ class StructuredOutputExtractor:
                 messages=[{"role": "user", "content": prompt}],
                 response_format=response_model,
                 temperature=0.0,
+                timeout=120,
+                max_retries=0,
             )
             elapsed_time = time.perf_counter() - start_time
 

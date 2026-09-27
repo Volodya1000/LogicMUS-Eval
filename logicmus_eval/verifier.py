@@ -75,36 +75,159 @@ def _rule_variables(rule: Any) -> set[str]:
     return out
 
 
+def _rule_signature(rule: Any) -> tuple[Any, ...] | None:
+    """Return a canonical signature for rule-interchangeability.
+
+    Two rules with identical signatures are logically equivalent in the
+    Bool fragment used by the generator (same operator type, same
+    variable(s), same polarities). Such a rule can substitute for the
+    other inside a MUS, producing an alternative MUS — which means MUS
+    uniqueness fails whenever such a pair exists across the
+    ``mus_expected`` boundary.
+
+    Returns ``None`` for rule kinds whose signature is not modelled here
+    (AndImplies, OrFact, Numeric). Those kinds always reference a
+    distinct variable shape and cannot collide with the concrete
+    generator output, so skipping them is safe.
+    """
+    if isinstance(rule, dict):
+        op = rule.get("operator_type")
+        var = rule.get("variable")
+        pol = rule.get("polarity")
+        ant = rule.get("antecedent")
+        cons = rule.get("consequent")
+        ant_pol = rule.get("antecedent_polarity")
+        cons_pol = rule.get("consequent_polarity")
+    else:
+        op = getattr(rule, "operator_type", None)
+        var = getattr(rule, "variable", None)
+        pol = getattr(rule, "polarity", None)
+        ant = getattr(rule, "antecedent", None)
+        cons = getattr(rule, "consequent", None)
+        ant_pol = getattr(rule, "antecedent_polarity", None)
+        cons_pol = getattr(rule, "consequent_polarity", None)
+
+    op_str = getattr(op, "value", op)  # unwrap StrEnum
+    if op_str in ("FACT", "TERMINAL", "NOISE"):
+        return (op_str, var, pol)
+    if op_str == "IMPLIES":
+        return (op_str, ant, cons, ant_pol, cons_pol)
+    return None
+
+
+def _build_rule_index(
+    case: LogicTestCase,
+) -> tuple[dict[str, Any], dict[str, set[str]]] | None:
+    """Build ``rule_id -> rule`` and ``rule_id -> variables`` maps.
+
+    Returns ``None`` if any rule lacks an id (malformed case).
+    """
+    rule_by_id: dict[str, Any] = {}
+    rule_vars: dict[str, set[str]] = {}
+    for rule in case.rules:
+        rule_id = (
+            rule.get("id") if isinstance(rule, dict) else getattr(rule, "id", None)
+        )
+        if rule_id is None:
+            return None
+        rule_by_id[rule_id] = rule
+        rule_vars[rule_id] = _rule_variables(rule)
+    return rule_by_id, rule_vars
+
+
+def _has_duplicate_across_mus_boundary(
+    rule_by_id: dict[str, Any], expected_ids: set[str]
+) -> bool:
+    """True if some rule outside the MUS is interchangeable with a MUS rule.
+
+    Such a duplicate can substitute for its twin inside the MUS, producing
+    an alternative MUS — uniqueness fails. The variable-closure step cannot
+    detect this on its own: it would absorb the duplicate into the closure
+    and wrongly declare uniqueness.
+    """
+    mus_signatures: set[tuple[Any, ...]] = set()
+    for rid in expected_ids:
+        sig = _rule_signature(rule_by_id[rid])
+        if sig is not None:
+            mus_signatures.add(sig)
+
+    for rid, rule in rule_by_id.items():
+        if rid in expected_ids:
+            continue
+        sig = _rule_signature(rule)
+        if sig is not None and sig in mus_signatures:
+            return True
+    return False
+
+
+def _variable_transitive_closure(
+    seed_ids: set[str], rule_vars: dict[str, set[str]]
+) -> set[str]:
+    """Expand ``seed_ids`` by the relation "shares a variable with the set"."""
+    core_ids: set[str] = set(seed_ids)
+    changed = True
+    while changed:
+        changed = False
+        core_vars_now: set[str] = set()
+        for rid in core_ids:
+            core_vars_now |= rule_vars[rid]
+        for rid, vars_ in rule_vars.items():
+            if rid in core_ids:
+                continue
+            if vars_ & core_vars_now:
+                core_ids.add(rid)
+                changed = True
+    return core_ids
+
+
+def _union_vars(ids: set[str], rule_vars: dict[str, set[str]]) -> set[str]:
+    """Union of all variables referenced by the given rule IDs."""
+    out: set[str] = set()
+    for rid in ids:
+        out |= rule_vars[rid]
+    return out
+
+
 def verify_mus_uniqueness_by_structure(case: LogicTestCase) -> bool:
     """Prove MUS uniqueness structurally, without enumeration.
 
     Argument (proof by construction):
 
-    Let ``C`` be the rules whose IDs appear in ``case.mus_expected`` (the
-    core) and ``N`` be the remaining rules. The generator is built so that
-    every core rule only mentions variables from ``V_c`` and every noise rule
-    only mentions variables from ``V_n``, with ``V_c ∩ V_n = ∅``. Then:
+    Let ``M`` be the set of rules whose IDs appear in ``case.mus_expected``
+    and let ``C`` be the *variable-transitive closure* of ``M`` — i.e. the
+    smallest set of rules containing ``M`` and closed under the relation
+    "shares at least one variable with a rule already in the set". Let
+    ``N`` be the complement of ``C``.
 
-    * ``N`` alone is satisfiable (noise rules share no variable with each
-      other in a way that forces a conflict — they are independent Bool
-      assignments over disjoint variables).
-    * Any unsat subset ``S ⊆ C ∪ N`` must, when restricted to ``N``, be
-      satisfiable; hence its unsat-ness comes entirely from ``S ∩ C``.
-    * Minimality then forces ``S = S ∩ C``: adding any noise rule would
-      enlarge ``S`` without contributing to the conflict, contradicting
-      minimality.
+    By generator construction, every core rule only mentions variables
+    from ``V_c`` and every noise rule only mentions variables from ``V_n``,
+    with ``V_c ∩ V_n = ∅``. Intermediate core rules that do not belong to
+    ``M`` (e.g. the branch implications of ``ForkPatternStrategy``) are
+    pulled into ``C`` by the closure step because they share the root
+    variable with ``M``; noise rules are not, because they are
+    variable-disjoint from ``V_c``.
 
-    So every minimal unsat subset is a minimal unsat subset of ``C``. Since
-    ``verify_case`` already asserts that ``case.mus_expected`` is a minimal
-    unsat subset of ``C``, and by generator design it is the *unique* one,
-    the overall MUS is unique.
+    Therefore ``V(C) ∩ V(N) = ∅``, and:
 
-    The assumption "the core has a unique minimal unsat subset" is a
-    generator invariant, verified empirically for each concrete strategy
-    (chain / direct / fork / idem / coverage / merge / math each construct
-    their core with a single linear contradiction).
+    * ``N`` alone is satisfiable — noise rules are independent Bool
+      assignments over disjoint variables.
+    * Any unsat subset of ``C ∪ N`` cannot mix rules from ``C`` and ``N``,
+      because they share no variables; hence it is entirely contained in
+      ``C``.
+    * Within ``C`` the generator invariant holds: ``M`` is the *unique*
+      minimal unsat subset (verified empirically for every concrete
+      strategy — chain / direct / fork / idem / coverage / merge / math
+      each construct their core as a single linear contradiction).
 
-    Complexity: O(len(case.rules) * |_RULE_VARIABLE_FIELDS|) — i.e. O(n).
+    So the overall MUS is unique iff ``V(C) ∩ V(N) = ∅`` *and* no rule
+    outside ``M`` is logically interchangeable with a rule inside ``M``.
+    The latter is a separate guard (see below): the variable-closure
+    step alone would absorb such a duplicate into ``C`` and wrongly
+    declare uniqueness.
+
+    Complexity: O(len(case.rules)^2 * |_RULE_VARIABLE_FIELDS|) in the worst
+    case for the closure loop, but with the generator's variable layout the
+    loop terminates after a single pass in practice.
 
     This replaces the previous brute-force ``count_minimal_unsat_subsets``,
     which for ``mus_size=9`` required enumerating ~10^6 combinations of
@@ -117,16 +240,23 @@ def verify_mus_uniqueness_by_structure(case: LogicTestCase) -> bool:
     if not expected_ids:
         return False
 
-    core_vars: set[str] = set()
-    noise_vars: set[str] = set()
-    for rule in case.rules:
-        rule_id = (
-            rule.get("id") if isinstance(rule, dict) else getattr(rule, "id", None)
-        )
-        if rule_id is None:
-            return False
-        target = core_vars if rule_id in expected_ids else noise_vars
-        target |= _rule_variables(rule)
+    index = _build_rule_index(case)
+    if index is None:
+        return False
+    rule_by_id, rule_vars = index
+
+    if not expected_ids.issubset(rule_vars.keys()):
+        # A mus_expected ID is not present among the rules — malformed case.
+        return False
+
+    if _has_duplicate_across_mus_boundary(rule_by_id, expected_ids):
+        return False
+
+    core_ids = _variable_transitive_closure(expected_ids, rule_vars)
+    core_vars = _union_vars(core_ids, rule_vars)
+
+    noise_ids = set(rule_vars.keys()) - core_ids
+    noise_vars = _union_vars(noise_ids, rule_vars)
 
     return core_vars.isdisjoint(noise_vars)
 
