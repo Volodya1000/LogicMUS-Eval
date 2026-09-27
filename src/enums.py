@@ -48,3 +48,13 @@ class AnalyzerType(StrEnum):
 class ManifestFilename(StrEnum):
     DATASET_JSONL = "dataset_v1_frozen.jsonl"
     MANIFEST_JSON = "dataset_v1_frozen.manifest.json"
+
+
+class FailureTag(StrEnum):
+    CORRECT = "correct"
+    REFUSAL_NO_FACTS = "refusal_no_facts"
+    WRONG_SAT = "wrong_sat"
+    WRONG_MUS_MISSING = "wrong_mus_missing"
+    WRONG_MUS_EXTRA = "wrong_mus_extra"
+    EXEC_ERROR = "exec_error"
+    UNKNOWN = "unknown"

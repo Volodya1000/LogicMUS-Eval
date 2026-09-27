@@ -42,6 +42,7 @@ class EvaluationCaseReport(BaseModel):
     reasoning: str
     generated_code: str | None = None
     error: str | None = None
+    failure_tags: list[str] = Field(default_factory=list)
 
 
 class RunInfo(BaseModel):

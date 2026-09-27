@@ -1,8 +1,52 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from collections.abc import Mapping
+from typing import Any, NotRequired, TypedDict
 
+from src.evaluation.diagnostics import is_refusal
 from src.models.evaluation import CasePrediction, ExtractionMetadata
 from src.models.test_case import LogicTestCase
+
+
+class SatAccuracyOutput(TypedDict):
+    sat_accuracy: float
+    total_evaluated: int
+    correct_sat: int
+
+
+class MusValidOutput(TypedDict):
+    mus_exact_match: float
+    mus_precision: float
+    mus_recall: float
+    mus_f1: float
+    unsat_evaluated: NotRequired[int]
+
+
+class TokenUsageOutput(TypedDict):
+    total_tokens_consumed: int
+    total_thinking_tokens: int
+    avg_prompt_tokens: float
+    avg_completion_tokens: float
+    avg_thinking_tokens: float
+
+
+class ExecutionTimeOutput(TypedDict):
+    total_execution_seconds: float
+    avg_latency_seconds: float
+
+
+class RefusalRateOutput(TypedDict):
+    refusal_count: int
+    refusal_rate: float
+
+
+class InfrastructureErrorOutput(TypedDict):
+    infra_error_count: int
+    infrastructure_error_rate: float
+
+
+class ValidResponseOutput(TypedDict):
+    valid_response_accuracy: float
+    valid_responses_evaluated: int
 
 
 class BaseMetric(ABC):
@@ -16,7 +60,7 @@ class BaseMetric(ABC):
         pass
 
     @abstractmethod
-    def compute(self) -> dict[str, Any]:
+    def compute(self) -> Mapping[str, Any]:
         pass
 
     @abstractmethod
@@ -40,7 +84,7 @@ class SatAccuracyMetric(BaseMetric):
             if prediction.is_sat == case.is_satisfiable:
                 self.correct_count += 1
 
-    def compute(self) -> dict[str, Any]:
+    def compute(self) -> SatAccuracyOutput:
         acc = self.correct_count / self.total_count if self.total_count > 0 else 0.0
         return {
             "sat_accuracy": round(acc, 4),
@@ -81,7 +125,7 @@ class MusValidMetric(BaseMetric):
             self.total_precision += prec
             self.total_recall += rec
 
-    def compute(self) -> dict[str, Any]:
+    def compute(self) -> MusValidOutput:
         if self.unsat_total == 0:
             return {
                 "mus_exact_match": 0.0,
@@ -133,7 +177,7 @@ class TokenUsageMetric(BaseMetric):
         self.total_thinking_tokens += metadata.thinking_tokens
         self.total_tokens += metadata.total_tokens
 
-    def compute(self) -> dict[str, Any]:
+    def compute(self) -> TokenUsageOutput:
         avg_prompt = (
             self.total_prompt_tokens / self.cases_count if self.cases_count > 0 else 0.0
         )
@@ -178,7 +222,7 @@ class ExecutionTimeMetric(BaseMetric):
         self.cases_count += 1
         self.total_duration_sec += metadata.latency_seconds
 
-    def compute(self) -> dict[str, Any]:
+    def compute(self) -> ExecutionTimeOutput:
         avg_time = (
             self.total_duration_sec / self.cases_count if self.cases_count > 0 else 0.0
         )
@@ -190,3 +234,97 @@ class ExecutionTimeMetric(BaseMetric):
     def reset(self) -> None:
         self.cases_count = 0
         self.total_duration_sec = 0.0
+
+
+class RefusalRateMetric(BaseMetric):
+    def __init__(self) -> None:
+        self.total_cases = 0
+        self.refusal_count = 0
+
+    def update(
+        self,
+        case: LogicTestCase,
+        prediction: CasePrediction,
+        metadata: ExtractionMetadata,
+    ) -> None:
+        self.total_cases += 1
+        if is_refusal(prediction.reasoning):
+            self.refusal_count += 1
+
+    def compute(self) -> RefusalRateOutput:
+        rate = self.refusal_count / self.total_cases if self.total_cases > 0 else 0.0
+        return {
+            "refusal_count": self.refusal_count,
+            "refusal_rate": round(rate, 4),
+        }
+
+    def reset(self) -> None:
+        self.total_cases = 0
+        self.refusal_count = 0
+
+
+class InfrastructureErrorRateMetric(BaseMetric):
+    def __init__(self) -> None:
+        self.total_cases = 0
+        self.infra_error_count = 0
+
+    def update(
+        self,
+        case: LogicTestCase,
+        prediction: CasePrediction,
+        metadata: ExtractionMetadata,
+    ) -> None:
+        self.total_cases += 1
+        if prediction.error is not None:
+            self.infra_error_count += 1
+
+    def compute(self) -> InfrastructureErrorOutput:
+        rate = (
+            self.infra_error_count / self.total_cases if self.total_cases > 0 else 0.0
+        )
+        return {
+            "infra_error_count": self.infra_error_count,
+            "infrastructure_error_rate": round(rate, 4),
+        }
+
+    def reset(self) -> None:
+        self.total_cases = 0
+        self.infra_error_count = 0
+
+
+class ValidResponseAccuracyMetric(BaseMetric):
+    def __init__(self) -> None:
+        self.valid_responses_evaluated = 0
+        self.correct_count = 0
+
+    def update(
+        self,
+        case: LogicTestCase,
+        prediction: CasePrediction,
+        metadata: ExtractionMetadata,
+    ) -> None:
+        if prediction.error is not None:
+            return
+        if is_refusal(prediction.reasoning):
+            return
+        if prediction.is_sat is None:
+            return
+
+        self.valid_responses_evaluated += 1
+        if prediction.is_sat == case.is_satisfiable:
+            self.correct_count += 1
+
+    def compute(self) -> ValidResponseOutput:
+        acc = (
+            self.correct_count / self.valid_responses_evaluated
+            if self.valid_responses_evaluated > 0
+            else 0.0
+        )
+        return {
+            "valid_response_accuracy": round(acc, 4),
+            "valid_responses_evaluated": self.valid_responses_evaluated,
+        }
+
+    def reset(self) -> None:
+        self.valid_responses_evaluated = 0
+        self.correct_count = 0

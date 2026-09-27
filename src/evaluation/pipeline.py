@@ -1,7 +1,9 @@
 import logging
 from collections.abc import Sequence
 from pathlib import Path
+from typing import Any
 
+from src.evaluation.diagnostics import classify_failure
 from src.evaluation.metrics import BaseMetric
 from src.evaluation.strategies import BaseEvaluationStrategy
 from src.extractor import ExtractorError, StructuredOutputExtractor
@@ -72,6 +74,9 @@ class EvaluationPipeline:
                         reasoning=prediction.reasoning,
                         generated_code=prediction.generated_code,
                         error=prediction.error,
+                        failure_tags=classify_failure(
+                            case, prediction, prediction.error
+                        ),
                     )
                 )
 
@@ -90,20 +95,21 @@ class EvaluationPipeline:
                         metadata=ExtractionMetadata(),
                         reasoning="",
                         error=str(e),
+                        failure_tags=classify_failure(case, None, str(e)),
                     )
                 )
 
             if output_path is not None:
-                aggregated_metrics = {}
+                partial_metrics: dict[str, Any] = {}
                 for metric in self.metrics:
-                    aggregated_metrics.update(metric.compute())
+                    partial_metrics.update(metric.compute())
                 partial_summary = EvaluationSummary(
-                    metrics=aggregated_metrics, details=details
+                    metrics=partial_metrics, details=details
                 )
                 with open(output_path, "w", encoding="utf-8") as f:
                     f.write(partial_summary.model_dump_json(indent=2))
 
-        aggregated_metrics = {}
+        aggregated_metrics: dict[str, Any] = {}
         for metric in self.metrics:
             aggregated_metrics.update(metric.compute())
 

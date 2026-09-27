@@ -9,9 +9,12 @@ from src.enums import ManifestFilename
 from src.evaluation.metrics import (
     BaseMetric,
     ExecutionTimeMetric,
+    InfrastructureErrorRateMetric,
     MusValidMetric,
+    RefusalRateMetric,
     SatAccuracyMetric,
     TokenUsageMetric,
+    ValidResponseAccuracyMetric,
 )
 from src.evaluation.pipeline import EvaluationPipeline
 from src.evaluation.strategies import (
@@ -46,6 +49,9 @@ def _build_metrics() -> list[BaseMetric]:
         MusValidMetric(),
         TokenUsageMetric(),
         ExecutionTimeMetric(),
+        RefusalRateMetric(),
+        InfrastructureErrorRateMetric(),
+        ValidResponseAccuracyMetric(),
     ]
 
 
