@@ -38,13 +38,16 @@ signal.signal(signal.SIGINT, _hard_exit)
 signal.signal(signal.SIGTERM, _hard_exit)
 
 
+# MODELS: list[str] = [
+#     "openai/qwen2.5-coder-14b-instruct",
+# ]
 MODELS: list[str] = [
-    "openai/qwen2.5-coder-14b-instruct",
+    "openai/google/gemma-4-e4b",
 ]
 
 STRATEGIES: list[str] = ["direct", "z3"]
 
-PAIRS = 5
+PAIRS = 10
 BASE_SEED = 42
 
 GRID: list[GridConfig] = [
@@ -76,6 +79,8 @@ GRID: list[GridConfig] = [
         "mus_size": 10,
         "total_rules": 20,
     },
+    # --- Experiment 3: stress — large MUS, minimal noise ---
+    {"exp": "exp3_stress", "name": "mus15_total18", "mus_size": 15, "total_rules": 18},
 ]
 
 
