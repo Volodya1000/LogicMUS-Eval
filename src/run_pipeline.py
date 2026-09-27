@@ -61,7 +61,13 @@ STRATEGY_REGISTRY: list[type[BasePatternStrategy]] = [
 
 
 def _eligible_strategies(mus_size: int) -> list[type[BasePatternStrategy]]:
-    return [cls for cls in STRATEGY_REGISTRY if mus_size >= cls.min_mus_size]
+    eligible = [cls for cls in STRATEGY_REGISTRY if cls.supports(mus_size)]
+    if not eligible:
+        raise ValueError(
+            f"No strategy supports mus_size={mus_size}. "
+            f"Registry: {[c.name for c in STRATEGY_REGISTRY]}"
+        )
+    return eligible
 
 
 def _compute_cv_f1_scores(

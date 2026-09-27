@@ -9,7 +9,11 @@ from src.templates import TEMPLATES
 
 class IdemPatternStrategy(BasePatternStrategy):
     name = "idem"
-    min_mus_size = 2
+
+    @classmethod
+    def supports(cls, mus_size: int) -> bool:
+        # Two conflicting implications over one antecedent → exactly 2 vars.
+        return mus_size == 2
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(

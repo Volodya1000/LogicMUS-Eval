@@ -9,7 +9,11 @@ from src.templates import TEMPLATES
 
 class CoveragePatternStrategy(BasePatternStrategy):
     name = "coverage"
-    min_mus_size = 2
+
+    @classmethod
+    def supports(cls, mus_size: int) -> bool:
+        # OR-fact pattern requires exactly 2 core variables.
+        return mus_size == 2
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(

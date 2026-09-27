@@ -15,21 +15,29 @@ class PatternGenerationResult(BaseModel):
 class BasePatternStrategy(ABC):
     """Base class for all pattern generation strategies.
 
-    Each concrete strategy declares its own constraints:
+    Each concrete strategy self-describes:
 
-    * ``name``           -- short unique identifier (CLI, logs).
-    * ``min_mus_size``   -- minimum supported ``mus_size``.
-    * ``forced_pack_id`` -- pin a specific template pack (or ``None``
-                           to let the generator pick one from the seed).
+    * ``name``           -- short unique identifier.
+    * ``forced_pack_id`` -- pin a template pack (``None`` = pick from seed).
 
-    This removes the central table with string keys and satisfies the
-    Open/Closed principle: to add a new strategy it is enough to declare
-    a subclass -- metadata lives inside the class itself.
+    Support for a given ``mus_size`` is queried via ``supports()``, not
+    declared as a ClassVar list: this keeps the registry free of external
+    constraints and satisfies the Open/Closed principle.
     """
 
     name: ClassVar[str] = "base"
-    min_mus_size: ClassVar[int] = 1
     forced_pack_id: ClassVar[TemplatePackId | None] = None
+
+    @classmethod
+    def supports(cls, mus_size: int) -> bool:
+        """Return True if this strategy can produce a valid case of the
+        requested ``mus_size``.
+
+        Default: any size >= 1. Fixed-structure strategies (idem, coverage,
+        merge) override this to advertise the exact set of sizes they can
+        honour.
+        """
+        return mus_size >= 1
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     @abstractmethod
