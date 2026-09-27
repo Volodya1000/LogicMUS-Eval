@@ -1,5 +1,6 @@
 import logging
 from collections.abc import Sequence
+from pathlib import Path
 
 from src.evaluation.metrics import BaseMetric
 from src.evaluation.strategies import BaseEvaluationStrategy
@@ -25,8 +26,12 @@ class EvaluationPipeline:
         self.extractor = extractor
         self.metrics = metrics
 
+    # pylint: disable=too-many-locals
     def run(
-        self, dataset: list[LogicTestCase], limit: int | None = None
+        self,
+        dataset: list[LogicTestCase],
+        limit: int | None = None,
+        output_path: Path | None = None,
     ) -> EvaluationSummary:
         for metric in self.metrics:
             metric.reset()
@@ -39,6 +44,11 @@ class EvaluationPipeline:
             logger.info("=" * 60)
             logger.info("PROCESSING CASE %d/%d (ID: %s)", i + 1, total, case.case_id)
             logger.info("=" * 60)
+
+            case_rules = [
+                rule if isinstance(rule, dict) else rule.model_dump()
+                for rule in case.rules
+            ]
 
             try:
                 prediction, metadata = self.strategy.evaluate_case(case, self.extractor)
@@ -57,10 +67,11 @@ class EvaluationPipeline:
                     EvaluationCaseReport(
                         case_id=case.case_id,
                         mus_size=case.mus_size,
+                        rules=case_rules,
                         expected_sat=case.is_satisfiable,
+                        expected_mus=case.mus_expected,
                         predicted_sat=prediction.is_sat,
                         is_sat_correct=is_sat_correct,
-                        expected_mus=case.mus_expected,
                         predicted_mus=prediction.conflict_core,
                         is_mus_correct=is_mus_correct,
                         metadata=metadata,
@@ -76,10 +87,11 @@ class EvaluationPipeline:
                     EvaluationCaseReport(
                         case_id=case.case_id,
                         mus_size=case.mus_size,
+                        rules=case_rules,
                         expected_sat=case.is_satisfiable,
+                        expected_mus=case.mus_expected,
                         predicted_sat=None,
                         is_sat_correct=False,
-                        expected_mus=case.mus_expected,
                         predicted_mus=[],
                         is_mus_correct=False,
                         metadata=ExtractionMetadata(),
@@ -87,6 +99,16 @@ class EvaluationPipeline:
                         error=str(e),
                     )
                 )
+
+            if output_path is not None:
+                aggregated_metrics = {}
+                for metric in self.metrics:
+                    aggregated_metrics.update(metric.compute())
+                partial_summary = EvaluationSummary(
+                    metrics=aggregated_metrics, details=details
+                )
+                with open(output_path, "w", encoding="utf-8") as f:
+                    f.write(partial_summary.model_dump_json(indent=2))
 
         aggregated_metrics = {}
         for metric in self.metrics:

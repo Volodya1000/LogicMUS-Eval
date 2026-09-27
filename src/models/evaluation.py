@@ -31,6 +31,7 @@ class Z3ExecutionResult(BaseModel):
 class EvaluationCaseReport(BaseModel):
     case_id: str
     mus_size: int
+    rules: list[dict[str, Any]] = Field(default_factory=list)
     expected_sat: bool
     predicted_sat: bool | None
     is_sat_correct: bool

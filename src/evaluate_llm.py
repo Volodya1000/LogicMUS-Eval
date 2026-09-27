@@ -88,11 +88,10 @@ def run_evaluation(
         "Target API Base: %s", os.environ.get("OPENAI_API_BASE", "Default (OpenAI)")
     )
 
-    report = pipeline.run(dataset, limit=limit)
-    _log_summary(report)
-
     output_path = Path(dataset_dir) / output_file
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(report.model_dump_json(indent=2))
+    logger.info("Intermediate and final reports will be saved to %s", output_path)
+
+    report = pipeline.run(dataset, limit=limit, output_path=output_path)
+    _log_summary(report)
 
     logger.info("Full report saved to %s", output_path)

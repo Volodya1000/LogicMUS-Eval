@@ -9,3 +9,4 @@ dataset_v1_frozen.manifest.json
 .idea/
 .vscode/
 *.log
+data
