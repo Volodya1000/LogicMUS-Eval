@@ -62,7 +62,6 @@ class StructuredOutputExtractor:
                 litellm.exceptions.APIConnectionError,
                 litellm.exceptions.RateLimitError,
                 litellm.exceptions.Timeout,
-                ExtractorError,
             )
         ),
         reraise=True,

@@ -67,6 +67,9 @@ TEMPLATES = {
             "Фоновый процесс зафиксировал: {var}.",
             "В логах найдена запись: {var}.",
             "Информационное сообщение: {var}.",
+            "Если интерпретировать буквально, то {var}.",
+            "Если не учитывать пограничные случаи, то {var}.",
+            "Если отталкиваться от текущей конфигурации, то {var}.",
         ],
         OperatorType.AND_IMPLIES: [
             "Если {ant1} и при этом {ant2}, то {cons}.",
@@ -111,6 +114,9 @@ TEMPLATES = {
             "Вспомогательная служба отмечает: {var}.",
             "Периферийный сенсор сообщает: {var}.",
             "Служебный журнал содержит запись: {var}.",
+            "Если опираться на записи реестра, то {var}.",
+            "Если доверять отчету системы, то {var}.",
+            "Если рассматривать стандартный сценарий, то {var}.",
         ],
         OperatorType.AND_IMPLIES: [
             "Связка условий ({ant1}) и ({ant2}) влечет: {cons}.",
@@ -155,6 +161,9 @@ TEMPLATES = {
             "Фоновый замер параметров регистрирует: {var}.",
             "Калибровочный датчик передает: {var}.",
             "Внешний индикатор показывает: {var}.",
+            "Если учитывать показания датчиков, то {var}.",
+            "Если верить телеметрии, то {var}.",
+            "Если анализировать сигналы напрямую, то {var}.",
         ],
         OperatorType.AND_IMPLIES: [
             "Сигнал подтверждает: если активны ({ant1}) и ({ant2}), то наступает ({cons}).",
@@ -199,6 +208,9 @@ TEMPLATES = {
             "Справочная таблица содержит пометку: {var}.",
             "Периодический отчет упоминает: {var}.",
             "Статистический модуль собрал сведения: {var}.",
+            "Если ссылаться на материалы аудита, то {var}.",
+            "Если следовать букве регламента, то {var}.",
+            "Если принимать во внимание отчет, то {var}.",
         ],
         OperatorType.AND_IMPLIES: [
             "Аудит установил: при одновременности ({ant1}) и ({ant2}) действует ({cons}).",
@@ -243,6 +255,9 @@ TEMPLATES = {
             "Сетевой трассировщик отметил: {var}.",
             "Мониторинг соединений передал сообщение: {var}.",
             "Контроллер шлюза зарегистрировал событие: {var}.",
+            "Если рассматривать политику безопасности, то {var}.",
+            "Если учесть состояние контура, то {var}.",
+            "Если отталкиваться от сетевых правил, то {var}.",
         ],
         OperatorType.AND_IMPLIES: [
             "Правило шлюза: совместное появление ({ant1}) и ({ant2}) влечет ({cons}).",
@@ -287,6 +302,9 @@ TEMPLATES = {
             "Фоновая лемма фиксирует: {var}.",
             "Вспомогательное вычисление показывает: {var}.",
             "Калибровочный расчет дает: {var}.",
+            "Если не вдаваться в детали, то {var}.",
+            "Если следовать логике доказательства, то {var}.",
+            "Если рассуждать формально, то {var}.",
         ],
         OperatorType.AND_IMPLIES: [
             "Совместная справедливость ({ant1}) и ({ant2}) доказывает ({cons}).",
@@ -315,3 +333,20 @@ TEMPLATES = {
         ],
     },
 }
+
+
+# Language-specific negation marker. Kept as a named constant so that the
+# dataset generator, pattern strategies and future language packs share a
+# single source of truth. Latin "not " must never appear in generated rule
+# text — only the sandbox/Z3 layer is allowed to use it.
+NEGATION_MARKER = "неверно, что "
+
+
+def negate(text: str) -> str:
+    """Wrap a predicate or clause with the language-specific negation marker.
+
+    Kept as a function rather than a plain constant so that future language
+    packs can implement non-prefix negation forms (suffix, circumfix, etc.)
+    without touching any call sites.
+    """
+    return f"{NEGATION_MARKER}{text}"

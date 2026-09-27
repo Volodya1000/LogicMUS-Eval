@@ -4,7 +4,7 @@ import random
 from src.enums import OperatorType, RulePrefix, TemplatePackId
 from src.models.rules import AndImpliesRule, BaseRule, FactRule, TerminalRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
-from src.templates import TEMPLATES
+from src.templates import TEMPLATES, negate
 
 
 class MergePatternStrategy(BasePatternStrategy):
@@ -72,7 +72,7 @@ class MergePatternStrategy(BasePatternStrategy):
         )
 
         term_polarity = bool(is_satisfiable)
-        term_text = cons_p if term_polarity else f"not {cons_p}"
+        term_text = cons_p if term_polarity else negate(cons_p)
 
         core_rules.append(
             TerminalRule(

@@ -1,5 +1,5 @@
 from src.enums import TemplatePackId
-from src.templates import TEMPLATES, get_template_pack_id
+from src.templates import NEGATION_MARKER, TEMPLATES, get_template_pack_id, negate
 
 
 def test_get_template_pack_id_deterministic():
@@ -13,3 +13,8 @@ def test_all_packs_in_templates():
     for pack_id in TemplatePackId:
         assert pack_id in TEMPLATES
         assert len(TEMPLATES[pack_id]) > 0
+
+
+def test_negate_uses_cyrillic_marker():
+    assert negate("сессия активна") == "неверно, что сессия активна"
+    assert NEGATION_MARKER == "неверно, что "

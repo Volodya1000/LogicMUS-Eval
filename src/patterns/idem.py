@@ -4,7 +4,7 @@ import random
 from src.enums import OperatorType, RulePrefix, TemplatePackId
 from src.models.rules import BaseRule, FactRule, ImpliesRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
-from src.templates import TEMPLATES
+from src.templates import TEMPLATES, negate
 
 
 class IdemPatternStrategy(BasePatternStrategy):
@@ -62,7 +62,7 @@ class IdemPatternStrategy(BasePatternStrategy):
         )
 
         conflict_polarity = bool(is_satisfiable)
-        conflict_text = pred_b if conflict_polarity else f"not {pred_b}"
+        conflict_text = pred_b if conflict_polarity else negate(pred_b)
         core_rules.append(
             ImpliesRule(
                 id=f"{RulePrefix.CORE_RULE}3",

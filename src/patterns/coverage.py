@@ -4,7 +4,7 @@ import random
 from src.enums import OperatorType, RulePrefix, TemplatePackId
 from src.models.rules import BaseRule, FactRule, OrFactRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
-from src.templates import TEMPLATES
+from src.templates import TEMPLATES, negate
 
 
 class CoveragePatternStrategy(BasePatternStrategy):
@@ -46,10 +46,12 @@ class CoveragePatternStrategy(BasePatternStrategy):
         )
 
         fact_template = rng.choice(pack_templates[OperatorType.FACT])
+        # Negative fact for `pred_a`: constant across SAT and UNSAT (required
+        # by the OR-pattern), so its negation marker does not discriminate.
         core_rules.append(
             FactRule(
                 id=f"{RulePrefix.CORE_RULE}2",
-                text=fact_template.replace("{var}", f"not {pred_a}"),
+                text=fact_template.replace("{var}", negate(pred_a)),
                 variable=var_a,
                 predicate=pred_a,
                 polarity=False,
@@ -57,7 +59,7 @@ class CoveragePatternStrategy(BasePatternStrategy):
         )
 
         polarity_b = bool(is_satisfiable)
-        text_b = pred_b if polarity_b else f"not {pred_b}"
+        text_b = pred_b if polarity_b else negate(pred_b)
         core_rules.append(
             FactRule(
                 id=f"{RulePrefix.CORE_RULE}3",

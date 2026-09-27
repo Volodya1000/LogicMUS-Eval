@@ -4,7 +4,7 @@ import random
 from src.enums import OperatorType, RulePrefix, TemplatePackId
 from src.models.rules import BaseRule, FactRule, ImpliesRule, TerminalRule
 from src.patterns.base import BasePatternStrategy, PatternGenerationResult
-from src.templates import TEMPLATES
+from src.templates import TEMPLATES, negate
 
 
 class ForkPatternStrategy(BasePatternStrategy):
@@ -61,12 +61,12 @@ class ForkPatternStrategy(BasePatternStrategy):
         term_pred = predicate_mapping[term_var]
         term_polarity = bool(is_satisfiable)
         term_template = rng.choice(pack_templates[OperatorType.TERMINAL])
-        prefix_not = "" if term_polarity else "not "
+        term_text = term_pred if term_polarity else negate(term_pred)
 
         core_rules.append(
             TerminalRule(
                 id=f"{RulePrefix.CORE_RULE}{len(core_variables) + 1}",
-                text=term_template.replace("{var}", f"{prefix_not}{term_pred}"),
+                text=term_template.replace("{var}", term_text),
                 variable=term_var,
                 predicate=term_pred,
                 polarity=term_polarity,

@@ -1,10 +1,25 @@
 import random
 
 from src.enums import CaseStatus, OperatorType, RulePrefix, TemplatePackId
-from src.models.rules import BaseRule, NoiseRule
+from src.models.rules import NoiseRule
 from src.models.test_case import LogicTestCase
 from src.patterns.base import BasePatternStrategy
-from src.templates import PREDICATE_POOL, TEMPLATES, get_template_pack_id
+from src.templates import (
+    PREDICATE_POOL,
+    TEMPLATES,
+    get_template_pack_id,
+    negate,
+)
+
+# Noise rules may reuse templates of any single-`{var}` operator so that
+# terminal-style phrases ("Главное требование:") also appear among noise.
+# Multi-placeholder operators (IMPLIES, AND_IMPLIES, OR_FACT) are excluded:
+# they require 2-3 distinct variables, which noise rules do not carry.
+_NOISE_POOL_OPERATORS: tuple[OperatorType, ...] = (
+    OperatorType.FACT,
+    OperatorType.TERMINAL,
+    OperatorType.NOISE,
+)
 
 
 class BenchmarkGenerator:
@@ -82,8 +97,15 @@ class BenchmarkGenerator:
             rng=rng,
         )
 
-        noise_rules: list[BaseRule] = []
-        noise_templates = TEMPLATES[pack_id][OperatorType.NOISE]
+        noise_rules: list[NoiseRule] = []
+        noise_template_pools = [
+            TEMPLATES[pack_id][op]
+            for op in _NOISE_POOL_OPERATORS
+            if op in TEMPLATES[pack_id]
+        ]
+        # Flatten to a single pool: template selection becomes a uniform draw
+        # over all eligible noise-compatible phrases.
+        noise_templates_flat = [tmpl for pool in noise_template_pools for tmpl in pool]
 
         num_core_rules = len(pattern_result.core_rules)
         num_distractors = max(0, self._total_rules - num_core_rules)
@@ -93,10 +115,9 @@ class BenchmarkGenerator:
             rule_id = f"{RulePrefix.NOISE_RULE}{idx + 1}"
             noise_pol = rng.random() > 0.5
             noise_pred = full_mapping[u_var]
-            noise_template = rng.choice(noise_templates)
-
-            prefix_not = "" if noise_pol else "неверно, что "
-            noise_text = noise_template.replace("{var}", f"{prefix_not}{noise_pred}")
+            wrapped = noise_pred if noise_pol else negate(noise_pred)
+            noise_template = rng.choice(noise_templates_flat)
+            noise_text = noise_template.replace("{var}", wrapped)
 
             noise_rules.append(
                 NoiseRule(
@@ -106,6 +127,20 @@ class BenchmarkGenerator:
                     predicate=noise_pred,
                     polarity=noise_pol,
                 )
+            )
+
+        # SAT-balance guard: on short cases the terminal-only negation in UNSAT
+        # was statistically visible. This is a defensive guard (fires rarely);
+        # a stronger policy is scheduled for a follow-up iteration if leakage
+        # stays above target.
+        if is_satisfiable and noise_rules and all(r.polarity for r in noise_rules):
+            first = noise_rules[0]
+            noise_rules[0] = NoiseRule(
+                id=first.id,
+                text=first.text.replace(first.predicate, negate(first.predicate), 1),
+                variable=first.variable,
+                predicate=first.predicate,
+                polarity=False,
             )
 
         all_rules = pattern_result.core_rules + noise_rules
