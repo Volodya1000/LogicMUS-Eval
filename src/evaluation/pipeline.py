@@ -45,11 +45,6 @@ class EvaluationPipeline:
             logger.info("PROCESSING CASE %d/%d (ID: %s)", i + 1, total, case.case_id)
             logger.info("=" * 60)
 
-            case_rules = [
-                rule if isinstance(rule, dict) else rule.model_dump()
-                for rule in case.rules
-            ]
-
             try:
                 prediction, metadata = self.strategy.evaluate_case(case, self.extractor)
 
@@ -67,7 +62,6 @@ class EvaluationPipeline:
                     EvaluationCaseReport(
                         case_id=case.case_id,
                         mus_size=case.mus_size,
-                        rules=case_rules,
                         expected_sat=case.is_satisfiable,
                         expected_mus=case.mus_expected,
                         predicted_sat=prediction.is_sat,
@@ -87,7 +81,6 @@ class EvaluationPipeline:
                     EvaluationCaseReport(
                         case_id=case.case_id,
                         mus_size=case.mus_size,
-                        rules=case_rules,
                         expected_sat=case.is_satisfiable,
                         expected_mus=case.mus_expected,
                         predicted_sat=None,

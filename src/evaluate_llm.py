@@ -1,5 +1,8 @@
+import hashlib
 import logging
 import os
+import subprocess
+from datetime import UTC, datetime
 from pathlib import Path
 
 from src.enums import ManifestFilename
@@ -12,11 +15,14 @@ from src.evaluation.metrics import (
 )
 from src.evaluation.pipeline import EvaluationPipeline
 from src.evaluation.strategies import (
+    DIRECT_PROMPT_TEMPLATE,
+    Z3_PROMPT_TEMPLATE,
     DirectEvaluationStrategy,
     Z3TranslationEvaluationStrategy,
 )
 from src.extractor import StructuredOutputExtractor
-from src.models.evaluation import EvaluationSummary
+from src.hashing import compute_file_sha256
+from src.models.evaluation import EvaluationSummary, RunInfo
 from src.storage import FileStorageManager
 
 logger = logging.getLogger(__name__)
@@ -52,6 +58,21 @@ def _log_summary(report: EvaluationSummary) -> None:
     logger.info("=" * 50)
 
 
+def _get_git_commit() -> str | None:
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+            cwd=Path.cwd(),
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return result.stdout.strip() or None
+
+
+# pylint: disable=too-many-locals
 def run_evaluation(
     dataset_dir: str,
     model_name: str,
@@ -64,6 +85,14 @@ def run_evaluation(
     if filename is None:
         logger.error("No .jsonl dataset files found in %s", dataset_dir)
         return
+
+    dataset_path = Path(dataset_dir) / filename
+    started_at = datetime.now(UTC)
+    dataset_sha256 = compute_file_sha256(dataset_path)
+    prompt_template_hash = hashlib.sha256(
+        (DIRECT_PROMPT_TEMPLATE + Z3_PROMPT_TEMPLATE).encode("utf-8")
+    ).hexdigest()
+    git_commit = _get_git_commit()
 
     storage = FileStorageManager(dataset_dir)
     dataset = storage.load_dataset(filename)
@@ -89,9 +118,26 @@ def run_evaluation(
     )
 
     output_path = Path(dataset_dir) / output_file
-    logger.info("Intermediate and final reports will be saved to %s", output_path)
+    logger.info("Final report will be saved to %s", output_path)
 
-    report = pipeline.run(dataset, limit=limit, output_path=output_path)
+    report = pipeline.run(dataset, limit=limit)
+    finished_at = datetime.now(UTC)
+
+    run_info = RunInfo(
+        model_name=model_name,
+        strategy=strategy_name,
+        dataset_filename=filename,
+        dataset_sha256=dataset_sha256,
+        prompt_template_hash=prompt_template_hash,
+        git_commit=git_commit,
+        started_at=started_at,
+        finished_at=finished_at,
+        limit=limit,
+        total_cases_processed=len(report.details),
+    )
+    report.run_info = run_info
+    output_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+
+    logger.info("RunInfo:\n%s", run_info.model_dump_json(indent=2))
     _log_summary(report)
-
     logger.info("Full report saved to %s", output_path)

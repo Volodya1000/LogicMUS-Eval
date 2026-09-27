@@ -1,10 +1,114 @@
+"""Evaluation strategies for direct reasoning and Z3 translation."""
+
+# pylint: disable=line-too-long
+
 from abc import ABC, abstractmethod
+from uuid import uuid4
 
 from src.extractor import StructuredOutputExtractor
 from src.models.evaluation import CasePrediction, ExtractionMetadata
 from src.models.llm import DirectReasoningResponse, LLMToZ3Response
 from src.models.test_case import LogicTestCase
 from src.sandbox.executor import Z3CodeExecutor
+
+DIRECT_PROMPT_TEMPLATE = r"""CASE_ID: {case_id}
+UUID: {uuid}
+
+Ты — экспертная система логического вывода. Проанализируй набор логических правил.
+
+ПРАВИЛА:
+{rules_block}
+
+ТВОЯ ЗАДАЧА:
+1. Выпиши все факты в виде "Факт: <предикат> = true/false".
+2. Применяй modus ponens к цепочкам импликаций: если антецедент истинен, то консеквент тоже истинен.
+3. Сравни выведенные значения с терминальными требованиями.
+4. Если обнаружено противоречие, определи минимальный набор правил, который его вызывает.
+5. Сначала заполни поле "reasoning" пошаговым выводом на русском языке.
+6. Затем установи "is_sat": true, если противоречий нет, и false, если есть.
+7. Если "is_sat": false, перечисли ID правил, образующих минимальное противоречие, в "conflict_core". Если true — "conflict_core": [].
+
+ФОРМАТ ОТВЕТА (JSON):
+{
+  "reasoning": "...",
+  "is_sat": true,
+  "conflict_core": []
+}
+
+ПРИМЕР 1 (SAT):
+Правила:
+R1: Установлен факт: A.
+R2: Если A, то B.
+R3: Главное требование: B.
+Ответ:
+{
+  "reasoning": "Факт: A = true. Применяю R2: A -> B, значит B = true. Терминал R3 требует B = true. Противоречий нет.",
+  "is_sat": true,
+  "conflict_core": []
+}
+
+ПРИМЕР 2 (UNSAT):
+Правила:
+R1: Установлен факт: A.
+R2: Если A, то B.
+R3: Главное требование: not B.
+Ответ:
+{
+  "reasoning": "Факт: A = true. Применяю R2: A -> B, значит B = true. Терминал R3 требует B = false. Противоречие. Минимальный набор: R1, R2, R3.",
+  "is_sat": false,
+  "conflict_core": ["R1", "R2", "R3"]
+}
+
+Теперь реши текущий кейс. Верни только JSON.
+"""
+
+Z3_PROMPT_TEMPLATE = r"""CASE_ID: {case_id}
+UUID: {uuid}
+
+Ты — эксперт по формальной верификации. Переведи логические правила в исполняемый Python-код с библиотекой z3-solver.
+
+ПРАВИЛА:
+{rules_block}
+
+ТРЕБОВАНИЯ К КОДУ:
+1. Создай solver = Solver().
+2. Для каждого предиката создай Bool-переменную.
+3. Каждое правило добавь через solver.assert_and_track(expr, 'RULE_ID').
+4. Импликации задавай через Implies(ant, cons), не утверждай консеквент напрямую.
+5. Проверь: is_sat = (solver.check() == sat).
+6. Если результат unsat, извлеки conflict_core = [str(c) for c in solver.unsat_core()]. Если sat, conflict_core = [].
+7. Сначала заполни "reasoning" на русском, затем "python_z3_code" с валидным Python-кодом.
+
+ФОРМАТ ОТВЕТА (JSON):
+{
+  "reasoning": "...",
+  "python_z3_code": "..."
+}
+
+ПРИМЕР 1 (SAT):
+Правила:
+R1: Установлен факт: A.
+R2: Если A, то B.
+R3: Главное требование: B.
+Ответ:
+{
+  "reasoning": "Создаю переменные A и B. R1 утверждает A. R2 задаёт Implies(A, B). R3 требует B. Проверка даёт sat.",
+  "python_z3_code": "from z3 import Solver, Bool, Implies, sat\n\nsolver = Solver()\nA = Bool('A')\nB = Bool('B')\nsolver.assert_and_track(A, 'R1')\nsolver.assert_and_track(Implies(A, B), 'R2')\nsolver.assert_and_track(B, 'R3')\nis_sat = (solver.check() == sat)\nconflict_core = []"
+}
+
+ПРИМЕР 2 (UNSAT):
+Правила:
+R1: Установлен факт: A.
+R2: Если A, то B.
+R3: Главное требование: not B.
+Ответ:
+{
+  "reasoning": "Создаю переменные A и B. R1 утверждает A. R2 задаёт Implies(A, B). R3 требует Not(B). Проверка даёт unsat, ядро содержит R1, R2, R3.",
+  "python_z3_code": "from z3 import Solver, Bool, Implies, Not, sat\n\nsolver = Solver()\nA = Bool('A')\nB = Bool('B')\nsolver.assert_and_track(A, 'R1')\nsolver.assert_and_track(Implies(A, B), 'R2')\nsolver.assert_and_track(Not(B), 'R3')\nis_sat = (solver.check() == sat)\nif not is_sat:\n    conflict_core = [str(c) for c in solver.unsat_core()]\nelse:\n    conflict_core = []"
+}
+
+Теперь переведи текущий кейс. Верни только JSON.
+"""
 
 
 class BaseEvaluationStrategy(ABC):
@@ -23,18 +127,9 @@ class DirectEvaluationStrategy(BaseEvaluationStrategy):
             rules_block += f"ID: {rule_dict['id']} | Rule: {rule_dict['text']}\n"
 
         return (
-            "You are an expert logical reasoning system. "
-            "Analyze the following set of logical rules.\n\n"
-            f"RULES:\n{rules_block}\n\n"
-            "You MUST write your step-by-step logical deduction "
-            "in the 'reasoning' JSON field FIRST.\n"
-            "Inside your reasoning, explicitly write out:\n"
-            "1. FACT: What are the initial given true/false states?\n"
-            "2. CHAIN: Apply implications step-by-step.\n"
-            "3. CONTRADICTION CHECK: Compare derived states with requirements.\n"
-            "4. CONCLUSION: State clearly if there is a contradiction or not.\n\n"
-            "Only AFTER writing this detailed reasoning, set 'is_sat' to true or false. "
-            "If there is a contradiction, list the conflicting rule IDs in 'conflict_core'."
+            DIRECT_PROMPT_TEMPLATE.replace("{case_id}", case.case_id)
+            .replace("{uuid}", str(uuid4()))
+            .replace("{rules_block}", rules_block)
         )
 
     def evaluate_case(
@@ -61,19 +156,9 @@ class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
             rules_block += f"ID: {rule_dict['id']} | Rule: {rule_dict['text']}\n"
 
         return (
-            "You are an expert formal verification engineer. Translate the following logical rules "
-            "into valid, executable Python code using the z3-solver library.\n\n"
-            f"RULES:\n{rules_block}\n\n"
-            "CODE CONVENTIONS:\n"
-            "1. Instantiate a solver: `solver = Solver()`\n"
-            "2. Define boolean variables for each predicate, e.g. `p1 = Bool('...')`\n"
-            "3. Assert each rule using trackable assertions: "
-            "`solver.assert_and_track(assertion, 'RULE_ID')`\n"
-            "4. Check satisfiability: `is_sat = (solver.check() == sat)`\n"
-            "5. If unsatisfiable, extract core: "
-            "`conflict_core = [str(c) for c in solver.unsat_core()]`, "
-            "else `conflict_core = []`\n"
-            "Return valid Python code in the `python_z3_code` field."
+            Z3_PROMPT_TEMPLATE.replace("{case_id}", case.case_id)
+            .replace("{uuid}", str(uuid4()))
+            .replace("{rules_block}", rules_block)
         )
 
     def evaluate_case(

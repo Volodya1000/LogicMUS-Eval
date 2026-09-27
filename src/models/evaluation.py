@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -31,7 +32,6 @@ class Z3ExecutionResult(BaseModel):
 class EvaluationCaseReport(BaseModel):
     case_id: str
     mus_size: int
-    rules: list[dict[str, Any]] = Field(default_factory=list)
     expected_sat: bool
     predicted_sat: bool | None
     is_sat_correct: bool
@@ -44,6 +44,20 @@ class EvaluationCaseReport(BaseModel):
     error: str | None = None
 
 
+class RunInfo(BaseModel):
+    model_name: str
+    strategy: str
+    dataset_filename: str
+    dataset_sha256: str
+    prompt_template_hash: str
+    git_commit: str | None = None
+    started_at: datetime
+    finished_at: datetime | None = None
+    limit: int | None = None
+    total_cases_processed: int = 0
+
+
 class EvaluationSummary(BaseModel):
     metrics: dict[str, Any]
     details: list[EvaluationCaseReport]
+    run_info: RunInfo | None = None

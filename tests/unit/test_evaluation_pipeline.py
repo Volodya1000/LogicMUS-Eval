@@ -1,12 +1,18 @@
 import json
 import tempfile
+from datetime import UTC, datetime
 from pathlib import Path
 
 from src.enums import TemplatePackId
 from src.evaluation.pipeline import EvaluationPipeline
 from src.evaluation.strategies import DirectEvaluationStrategy
 from src.extractor import ExtractionResult
-from src.models.evaluation import ExtractionMetadata
+from src.models.evaluation import (
+    EvaluationCaseReport,
+    EvaluationSummary,
+    ExtractionMetadata,
+    RunInfo,
+)
 from src.models.llm import DirectReasoningResponse
 from src.models.test_case import LogicTestCase
 
@@ -45,6 +51,56 @@ def test_pipeline_saves_intermediate_results():
 
         assert len(data["details"]) == 1
         assert data["details"][0]["case_id"] == "test_id_1"
-        assert len(data["details"][0]["rules"]) == 1
-        assert data["details"][0]["rules"][0]["id"] == "R1"
         assert data["details"][0]["reasoning"] == "dummy reasoning"
+
+
+def test_evaluation_summary_preserves_run_info():
+    started = datetime(2024, 1, 1, 12, 0, 0, tzinfo=UTC)
+    finished = datetime(2024, 1, 1, 12, 5, 0, tzinfo=UTC)
+
+    run_info = RunInfo(
+        model_name="test-model",
+        strategy="direct",
+        dataset_filename="dataset_v1_frozen.jsonl",
+        dataset_sha256="abc123",
+        prompt_template_hash="def456",
+        git_commit="0123456789abcdef",
+        started_at=started,
+        finished_at=finished,
+        limit=2,
+        total_cases_processed=2,
+    )
+
+    case_report = EvaluationCaseReport(
+        case_id="c1",
+        mus_size=2,
+        expected_sat=True,
+        predicted_sat=True,
+        is_sat_correct=True,
+        expected_mus=[],
+        predicted_mus=[],
+        is_mus_correct=False,
+        metadata=ExtractionMetadata(),
+        reasoning="ok",
+    )
+
+    summary = EvaluationSummary(
+        metrics={"sat_accuracy": 1.0},
+        details=[case_report],
+        run_info=run_info,
+    )
+
+    dumped = summary.model_dump()
+    assert "run_info" in dumped
+    assert dumped["run_info"]["model_name"] == "test-model"
+    assert dumped["run_info"]["dataset_filename"] == "dataset_v1_frozen.jsonl"
+    assert dumped["run_info"]["dataset_sha256"] == "abc123"
+    assert dumped["run_info"]["prompt_template_hash"] == "def456"
+    assert dumped["run_info"]["git_commit"] == "0123456789abcdef"
+    assert dumped["run_info"]["limit"] == 2
+    assert dumped["run_info"]["total_cases_processed"] == 2
+
+    restored = EvaluationSummary.model_validate(dumped)
+    assert restored.run_info is not None
+    assert restored.run_info.dataset_sha256 == "abc123"
+    assert restored.run_info.total_cases_processed == 2
