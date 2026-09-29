@@ -1,47 +1,79 @@
 # LogicMUS-Eval
 
-Пайплайн для генерации парных SAT/UNSAT логических бенчмарков со строгой
-Z3-верификацией, проверкой минимальных невыполнимых ядер (MUS) и диагностикой
-лексической утечки. Включает модуль оценки LLM на сгенерированном датасете
-(direct reasoning и Z3-translation стратегии).
+Пайплайн для генерации парных SAT/UNSAT логических бенчмарков с заданной
+кардинальностью минимального невыполнимого подмножества требований (MUS),
+строгой Z3-верификацией, структурным доказательством уникальности конфликта
+и контролем лексической утечки. Включает модуль оценки LLM по двум стратегиям:
+прямому текстовому выводу и нейросимвольной трансляции в Z3 (Python).
 
-## Структура проекта
+## Содержание
+
+- [О проекте](#о-проекте)
+- [Структура](#структура)
+- [Установка](#установка)
+- [Быстрый старт](#быстрый-старт)
+  - [Генерация датасета](#генерация-датасета)
+  - [Оценка LLM](#оценка-llm)
+- [Эксперименты](#эксперименты)
+  - [Smoke-grid](#smoke-grid)
+  - [Full-grid](#full-grid)
+  - [Проверка жизненного цикла моделей](#проверка-жизненного-цикла-моделей)
+  - [Анализ результатов](#анализ-результатов)
+- [Метрики](#метрики)
+- [Таксономия ошибок](#таксономия-ошибок)
+- [Воспроизводимость](#воспроизводимость)
+- [Подключение к LLM-серверу для запуска оценки](#подключение-к-llm-серверу-для-запуска-оценки)
+- [Ограничения](#ограничения)
+- [Разработка](#разработка)
+
+## О проекте
+
+Методология и эталонный датасет для оценки способности LLM выявлять
+логические конфликты в спецификациях требований. Основной параметр задачи —
+кардинальность MUS, обозначаемая $K$. Генератор создаёт SAT/UNSAT-пары с
+контролируемым уровнем независимого шума, скрывая от модели различие между
+смысловым ядром и шумом (нейтральные ID $R_1 \dots R_N$).
+
+Ключевые элементы:
+
+- **7 топологических паттернов конфликта**: `direct`, `chain`, `fork`,
+  `merge`, `coverage`, `idem`, `math` — реализованы в
+  `logicmus_eval/patterns/`.
+- **Z3-оракул** для проверки SAT/UNSAT, валидности и минимальности MUS
+  (`logicmus_eval/verifier.py`).
+- **Структурное доказательство уникальности MUS** за линейное время
+  $O(|V| + |E|)$ через анализ компонент связности графа общих переменных
+  (`logicmus_eval/verifier.py::verify_mus_uniqueness_by_structure`,
+  см. `tests/unit/test_verifier.py`).
+- **Контроль лексической утечки** через TF-IDF + LogisticRegression с
+  StratifiedGroupKFold (порог F1 = 0.55, `logicmus_eval/run_pipeline.py`).
+- **Изолированный sandbox** для исполнения сгенерированного LLM кода на Z3
+  (`logicmus_eval/sandbox/executor.py`).
+- **Две стратегии оценки**: `direct` (прямой текстовый вывод) и
+  `z3` (нейросимвольная трансляция в исполняемый Python + алгоритмическая
+  минимизация `unsat_core`).
+
+## Структура
 
 ```
-data/
-    generated_cases/        # dataset_v1_frozen.jsonl, манифест, отчёты
-src/
-    config.py               # настройки (pydantic-settings)
-    enums.py                # StrEnum-типы (включая FailureTag)
-    cli.py                  # CLI-слой на Typer
-    run_pipeline.py         # генерация + верификация + манифест
-    evaluate_llm.py         # оценка LLM на датасете
-    generator.py            # детерминированный генератор кейсов
-    verifier.py             # Z3-оракул и MUS-валидатор
-    extractor.py            # обёртка над litellm со structured output
-    hashing.py              # SHA-256 файлов и бандла исходников
-    storage.py              # FileStorageManager
-    templates.py            # шаблоны правил и пул предикатов
-    evaluation/
-        diagnostics.py      # classify_failure + is_refusal
-        metrics.py          # Sat, Mus, Token, Time, Refusal, Infra, ValidResponse
-        pipeline.py         # EvaluationPipeline
-        strategies.py       # DirectEvaluationStrategy, Z3TranslationEvaluationStrategy
-    models/
-        evaluation.py       # DTO метрик, RunInfo, failure_tags
-        llm.py              # схемы ответов LLM
-        manifests.py        # BenchmarkManifest
-        pipeline.py         # DatasetValidationMetrics, LeakageReport
-        rules.py            # типы правил и Z3-представление
-        test_case.py        # LogicTestCase
-    patterns/
-        base.py, chain.py, coverage.py, direct.py,
-        fork.py, idem.py, math.py, merge.py
-    sandbox/
-        executor.py         # Z3CodeExecutor
-tests/
-    integration/
-    unit/
+logicmus_eval/          # основной пакет
+    cli.py              # CLI (Typer): generate, evaluate
+    run_pipeline.py     # генерация + верификация + манифест
+    evaluate_llm.py     # оценка LLM на датасете
+    generator.py        # детерминированный генератор SAT/UNSAT пар
+    verifier.py         # Z3-оракул + структурная проверка уникальности MUS
+    extractor.py        # обёртка над litellm (structured output)
+    hashing.py          # SHA-256 датасета, шаблонов и бандла исходников
+    storage.py          # FileStorageManager
+    templates.py        # шаблоны правил (5 текстовых пакетов + math_pack)
+    patterns/           # 7 паттернов (chain, fork, merge, ...)
+    evaluation/         # метрики, диагностика, пайплайн, стратегии
+    models/             # pydantic-схемы (rules, test_case, manifests, ...)
+    sandbox/executor.py # Z3CodeExecutor
+scripts/                # экспериментальные скрипты (см. ниже)
+tests/                  # unit + integration
+data/                   # артефакты генерации (gitignored)
+experiments/            # результаты запусков (gitignored)
 ```
 
 ## Установка
@@ -50,12 +82,15 @@ tests/
 uv sync
 ```
 
-## Команды
-### 1. Генерация датасета
+Требуется Python 3.13+.
+
+## Быстрый старт
+
+### Генерация датасета
 
 **bash**
 ```bash
-uv run -m logicmus_eval.cli generate \
+uv run python -m logicmus_eval.cli generate \
     --mus-size-min 2 --mus-size-max 5 \
     --pairs-per-group 25 \
     --total-rules 20 \
@@ -65,7 +100,7 @@ uv run -m logicmus_eval.cli generate \
 
 **PowerShell**
 ```powershell
-uv run -m logicmus_eval.cli generate `
+uv run python -m logicmus_eval.cli generate `
     --mus-size-min 2 --mus-size-max 5 `
     --pairs-per-group 25 `
     --total-rules 20 `
@@ -73,111 +108,159 @@ uv run -m logicmus_eval.cli generate `
     --output-dir data/generated_cases
 ```
 
-Флаги:
-
-| Флаг | По умолчанию | Описание |
-|---|---|---|
-| `--mus-size-min` | `2` | Минимальный размер MUS (включительно). |
-| `--mus-size-max` | `5` | Максимальный размер MUS (включительно). |
-| `--pairs-per-group` | `25` | Пар SAT/UNSAT на каждый размер MUS. |
-| `--total-rules` | `20` | Общее число правил в кейсе (core + noise). |
-| `--base-seed` | `42` | Базовый seed. |
-| `--output-dir` | `data/generated_cases` | Каталог для артефактов. |
+После `uv sync` также доступен короткий entry point: `uv run logicmus-eval generate ...`.
 
 Сохраняются:
 
 - `data/generated_cases/dataset_v1_frozen.jsonl`
 - `data/generated_cases/dataset_v1_frozen.manifest.json`
 
-### 2. Оценка LLM — стратегия `direct`
+| Флаг | По умолчанию | Описание |
+|---|---|---|
+| `--mus-size-min` | `2` | Минимальная кардинальность MUS. |
+| `--mus-size-max` | `5` | Максимальная кардинальность MUS. |
+| `--pairs-per-group` | `25` | Пар SAT/UNSAT на каждый размер MUS. |
+| `--total-rules` | `20` | Общее число правил (core + noise). |
+| `--base-seed` | `42` | Базовый seed генератора. |
+| `--output-dir` | `data/generated_cases` | Каталог артефактов. |
 
-**PowerShell**
-```powershell
-uv run -m logicmus_eval.cli evaluate `
-    --strategy direct `
-    --model-name openai/qwen2.5-coder-14b-instruct `
-    --dataset-dir data/generated_cases `
-    --limit 10 `
+### Оценка LLM
+
+**bash**
+```bash
+# Прямой текстовый вывод
+uv run python -m logicmus_eval.cli evaluate \
+    --strategy direct \
+    --model-name openai/qwen2.5-coder-14b-instruct \
+    --dataset-dir data/generated_cases \
+    --limit 20 \
     --output-file evaluation_direct.json
-```
 
-### 3. Оценка LLM — стратегия `z3`
-
-**PowerShell**
-```powershell
-uv run -m logicmus_eval.cli evaluate `
-    --strategy z3 `
-    --model-name openai/qwen2.5-coder-14b-instruct `
-    --dataset-dir data/generated_cases `
-    --limit 10 `
+# Нейросимвольная трансляция в Z3
+uv run python -m logicmus_eval.cli evaluate \
+    --strategy z3 \
+    --model-name openai/qwen2.5-coder-14b-instruct \
+    --dataset-dir data/generated_cases \
+    --limit 20 \
     --output-file evaluation_z3.json
 ```
 
-Флаги команды `evaluate`:
+**PowerShell**
+```powershell
+# Прямой текстовый вывод
+uv run python -m logicmus_eval.cli evaluate `
+    --strategy direct `
+    --model-name openai/qwen2.5-coder-14b-instruct `
+    --dataset-dir data/generated_cases `
+    --limit 20 `
+    --output-file evaluation_direct.json
+
+# Нейросимвольная трансляция в Z3
+uv run python -m logicmus_eval.cli evaluate `
+    --strategy z3 `
+    --model-name openai/qwen2.5-coder-14b-instruct `
+    --dataset-dir data/generated_cases `
+    --limit 20 `
+    --output-file evaluation_z3.json
+```
 
 | Флаг | По умолчанию | Описание |
 |---|---|---|
 | `--strategy` | `direct` | `direct` или `z3`. |
 | `--model-name` | `openai/qwen2.5-coder-14b-instruct` | Идентификатор модели для litellm. |
-| `--dataset-dir` | `data/generated_cases` | Каталог с `dataset_v1_frozen.jsonl`. |
+| `--dataset-dir` | `data/generated_cases` | Каталог с датасетом. |
 | `--limit` | `10` | Сколько кейсов обработать. |
-| `--output-file` | `evaluation_results.json` | Имя файла отчёта (сохраняется в `--dataset-dir`). |
+| `--output-file` | автогенерируется | Имя отчёта (сохраняется в `--dataset-dir`). |
 
-### 4. Локальный LLM-сервер
+## Эксперименты
 
-**PowerShell**
-```powershell
-$env:OPENAI_API_BASE = "http://127.0.0.1:1234/v1"
-$env:OPENAI_API_KEY  = "lm-studio"
+Скрипты повторяют дизайн эксперимента из статьи: три серии на трёх моделях
+(`Qwen2.5-Coder-14B`, `Gemma-4-E4B`, `GPT-OSS-20B`) и двух стратегиях.
+
+### Smoke-grid
+
+Быстрый прогон на одной модели, 7 конфигураций.
+
+```bash
+uv run python scripts/run_smoke_grid.py
 ```
+
+### Full-grid
+
+Полный прогон трёх серий эксперимента (EXP1: рост шума при $K=3$;
+EXP2: рост $K$ при фиксированном $N$; EXP3: стресс-тест) со сменой
+моделей на LM Studio.
+
+```bash
+uv run python scripts/run_full_grid.py --pairs 10 --context-length 4096
+```
+
+Требуется запущенный OpenAI-совместимый endpoint — см. раздел
+[Подключение к LLM-серверу](#подключение-к-llm-серверу-для-запуска-оценки).
+
+Скрипт возобновляем: уже существующие отчёты пропускаются.
+
+### Проверка жизненного цикла моделей
+
+Минимальный smoke-тест: загрузка → 1 инференс → выгрузка для каждой модели.
+
+```bash
+uv run python scripts/check_model_lifecycle.py
+```
+
+### Анализ результатов
 
 **bash**
 ```bash
-export OPENAI_API_BASE="http://127.0.0.1:1234/v1"
-export OPENAI_API_KEY="lm-studio"
+# Построить summary.csv и графики для одного запуска
+uv run python scripts/analyze_experiments.py experiments/<timestamp>_full_grid
+
+# Сравнить несколько запусков
+uv run python scripts/compare_runs.py \
+    experiments/run1 experiments/run2 \
+    --output experiments/_combined
 ```
 
-Имя модели берётся из `GET $OPENAI_API_BASE/models` и передаётся в
-`--model-name` с префиксом `openai/`.
+**PowerShell**
+```powershell
+# Построить summary.csv и графики для одного запуска
+uv run python scripts/analyze_experiments.py experiments/<timestamp>_full_grid
 
-### 5. Справка
-
-```bash
-uv run -m logicmus_eval.cli --help
-uv run -m logicmus_eval.cli generate --help
-uv run -m logicmus_eval.cli evaluate --help
+# Сравнить несколько запусков
+uv run python scripts/compare_runs.py `
+    experiments/run1 experiments/run2 `
+    --output experiments/_combined
 ```
 
-## Метрики оценки
+## Метрики
 
 | Метрика | Что показывает |
 |---|---|
 | `sat_accuracy` | Доля кейсов, где `is_sat` совпал с эталоном (по всем ответам, включая отказы и ошибки). |
-| `valid_response_accuracy` | Доля верных ответов **среди ответов, где модель реально рассуждала** (без отказов и инфраструктурных ошибок). Главная новая метрика. |
-| `mus_exact_match` | Доля UNSAT-кейсов с точным совпадением множеств `conflict_core`. |
-| `mus_precision` / `mus_recall` / `mus_f1` | Усреднённые по UNSAT-кейсам precision/recall/F1 по MUS. |
-| `refusal_rate` | Доля кейсов, где модель отказалась рассуждать («нет начальных состояний» и т.п.). |
+| `valid_response_accuracy` | Доля верных ответов среди тех, где модель реально рассуждала (без отказов и инфраструктурных ошибок). |
+| `mus_exact_match` | Доля UNSAT-кейсов с точным совпадением множества `conflict_core` с эталонным MUS. |
+| `mus_precision` / `mus_recall` / `mus_f1` | Усреднённые по UNSAT-кейсам precision/recall/F1 по элементам MUS. |
+| `refusal_rate` | Доля кейсов, где модель отказалась рассуждать. |
 | `infrastructure_error_rate` | Доля кейсов с инфраструктурными ошибками (JSON parse, Z3 execution error). |
-| `total_tokens_consumed`, `total_thinking_tokens` | Расход токенов. |
-| `avg_prompt_tokens`, `avg_completion_tokens`, `avg_thinking_tokens` | Средние значения. |
-| `total_execution_seconds`, `avg_latency_seconds` | Время работы. |
+| `total_tokens_consumed` / `total_thinking_tokens` | Расход токенов. |
+| `avg_prompt_tokens` / `avg_completion_tokens` / `avg_thinking_tokens` | Средние значения. |
+| `total_execution_seconds` / `avg_latency_seconds` | Время работы. |
 
 ## Таксономия ошибок
 
-Каждая запись в `details[*]` содержит поле `failure_tags` — список
-классификаторов из `FailureTag`:
+Каждая запись в `details[*]` содержит `failure_tags`:
 
 | Тег | Значение |
 |---|---|
-| `correct` | Ответ верен и MUS (для UNSAT) совпал. |
-| `refusal_no_facts` | Модель заявила, что не может рассуждать (нет начальных фактов и т.п.). |
-| `wrong_sat` | Модель ошиблась в SAT/UNSAT. |
-| `wrong_mus_missing` | Модель верно распознала UNSAT, но пропустила часть правил из MUS. |
-| `wrong_mus_extra` | Модель верно распознала UNSAT, но добавила лишние правила. |
+| `correct` | Ответ верен, MUS (для UNSAT) совпал. |
+| `refusal_no_facts` | Модель заявила, что не может рассуждать. |
+| `wrong_sat` | Ошибка в определении SAT/UNSAT. |
+| `wrong_mus_missing` | UNSAT распознан, но часть MUS пропущена. |
+| `wrong_mus_extra` | UNSAT распознан, но добавлены лишние правила. |
 | `exec_error` | Инфраструктурная ошибка (JSON parse, sandbox exec). |
-| `unknown` | Не попало ни в одну категорию. |
+| `unknown` | Не попало ни в одну категорию (включая случаи без ответа и без ошибки исполнителя). |
 
-## Run metadata
+## Воспроизводимость
 
 Каждый отчёт `evaluation_*.json` содержит блок `run_info`:
 
@@ -189,34 +272,59 @@ uv run -m logicmus_eval.cli evaluate --help
 | `dataset_sha256` | SHA-256 датасета на момент прогона. |
 | `prompt_template_hash` | SHA-256 шаблонов промптов. |
 | `git_commit` | Git HEAD на момент прогона (или `null`). |
-| `started_at`, `finished_at` | Временные метки в UTC. |
+| `started_at`, `finished_at` | Метки времени (UTC). |
 | `limit` | Лимит кейсов. |
-| `total_cases_processed` | Сколько кейсов реально обработано. |
+| `total_cases_processed` | Обработано кейсов. |
 
-## Тесты
+Манифест датасета `dataset_v1_frozen.manifest.json`:
+
+- `artifacts` — SHA-256 датасета и бандла исходников;
+- `environment` — версии Python, z3, numpy, scikit-learn;
+- `parameters` — MUS-размеры, пары на группу, всего кейсов, правил на кейс, seed;
+- `validation_results` — результаты Z3-верификации (SAT/UNSAT/MUS/MUS-minimality);
+- `leakage_metrics_global` — TF-IDF F1 (word и char) по всему датасету;
+- `leakage_metrics_by_mus_size` — то же по каждому размеру MUS.
+
+## Подключение к LLM-серверу для запуска оценки
+
+Модели подаются через OpenAI-совместимый endpoint (например, LM Studio).
+
+**bash**
+```bash
+export OPENAI_API_BASE="http://127.0.0.1:1234/v1"
+export OPENAI_API_KEY="lm-studio"
+```
+
+**PowerShell**
+```powershell
+$env:OPENAI_API_BASE = "http://127.0.0.1:1234/v1"
+$env:OPENAI_API_KEY  = "lm-studio"
+```
+
+Имя модели берётся из `GET $OPENAI_API_BASE/models` и передаётся в
+`--model-name` с префиксом `openai/`.
+
+## Ограничения
+
+- Промпты и шаблоны — русскоязычные; `evaluation/refusal_patterns.py`
+  содержит legacy-паттерны на английском только для обратной совместимости
+  с историческими отчётами.
+- Sandbox в `sandbox/executor.py` защищает от случайных ошибок LLM,
+  а не от целенаправленных атак.
+- Пул предикатов (`templates.py::PREDICATE_POOL`) ограничен, поэтому
+  `--total-rules` имеет верхнюю границу.
+- Паттерны `coverage`, `idem` и `merge` определены только для фиксированных
+  размеров MUS и в текущей версии не масштабируются на произвольное $K$.
+
+## Разработка
 
 ```bash
 uv run pytest
 uv run pytest tests/unit -v
 uv run pytest tests/integration -v
+
+uv run ruff check logicmus_eval tests
+uv run ruff format logicmus_eval tests
+uv run mypy logicmus_eval
+uv run pylint logicmus_eval
 ```
-
-## Линтеры и форматирование
-
-```bash
-uv run ruff check src tests
-uv run ruff format src tests
-uv run mypy src
-uv run pylint src
-```
-
-## Что сохраняется в манифест
-
-`dataset_v1_frozen.manifest.json`:
-
-- `artifacts` — имя файла датасета, его SHA-256 и SHA-256 бандла исходников;
-- `environment` — версии Python, z3, numpy, scikit-learn;
-- `parameters` — размеры MUS, пары на группу, всего кейсов, правил на кейс, seed;
-- `validation_results` — результаты Z3-верификации (SAT/UNSAT/MUS/MUS-minimality);
-- `leakage_metrics_global` — TF-IDF F1 (word и char) по всему датасету;
-- `leakage_metrics_by_mus_size` — то же в разрезе каждого размера MUS.
