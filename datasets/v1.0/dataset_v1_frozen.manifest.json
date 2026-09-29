@@ -1,0 +1,83 @@
+{
+  "artifacts": {
+    "dataset_filename": "dataset_v1_frozen.jsonl",
+    "dataset_sha256": "2b8b9e7e25df104aa94df75a13dee45a8fed05dff21cf2c05d88785089dc1f9b",
+    "source_bundle_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "environment": {
+    "python": "3.13.9",
+    "z3": "5.1.0",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1"
+  },
+  "parameters": {
+    "mus_sizes": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "pairs_per_group": 25,
+    "total_cases": 200,
+    "rules_per_case": 20,
+    "base_seed": 42
+  },
+  "validation_results": {
+    "sat_correctness": "100/100",
+    "unsat_correctness": "100/100",
+    "mus_validity": "100/100",
+    "mus_minimality": "100/100"
+  },
+  "leakage_metrics_global": {
+    "word_tfidf": {
+      "mean_f1": 0.6662,
+      "std_f1": 0.0114
+    },
+    "char_tfidf": {
+      "mean_f1": 0.5746,
+      "std_f1": 0.0756
+    }
+  },
+  "leakage_metrics_by_mus_size": {
+    "mus_size=2": {
+      "word_tfidf": {
+        "mean_f1": 0.6621,
+        "std_f1": 0.0375
+      },
+      "char_tfidf": {
+        "mean_f1": 0.5467,
+        "std_f1": 0.1485
+      }
+    },
+    "mus_size=3": {
+      "word_tfidf": {
+        "mean_f1": 0.6469,
+        "std_f1": 0.049
+      },
+      "char_tfidf": {
+        "mean_f1": 0.5697,
+        "std_f1": 0.1044
+      }
+    },
+    "mus_size=4": {
+      "word_tfidf": {
+        "mean_f1": 0.7145,
+        "std_f1": 0.0406
+      },
+      "char_tfidf": {
+        "mean_f1": 0.4976,
+        "std_f1": 0.0869
+      }
+    },
+    "mus_size=5": {
+      "word_tfidf": {
+        "mean_f1": 0.6933,
+        "std_f1": 0.0533
+      },
+      "char_tfidf": {
+        "mean_f1": 0.6788,
+        "std_f1": 0.1842
+      }
+    }
+  }
+}

@@ -4,8 +4,6 @@
 .venv/
 venv/
 .pytest_cache/
-dataset_v1_frozen.jsonl
-dataset_v1_frozen.manifest.json
 .idea/
 .vscode/
 *.log
@@ -16,3 +14,9 @@ build/
 dist/
 experiments/
 .tiktoken_cache/
+
+data/**/dataset_v1_frozen.jsonl
+data/**/dataset_v1_frozen.manifest.json
+
+.mypy_cache/
+.ruff_cache/

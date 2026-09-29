@@ -9,6 +9,7 @@
 ## Содержание
 
 - [О проекте](#о-проекте)
+- [Готовый датасет](#готовый-датасет)
 - [Структура](#структура)
 - [Установка](#установка)
 - [Быстрый старт](#быстрый-старт)
@@ -53,6 +54,48 @@
   `z3` (нейросимвольная трансляция в исполняемый Python + алгоритмическая
   минимизация `unsat_core`).
 
+## Готовый датасет
+
+В репозитории опубликована замороженная версия датасета — её можно
+использовать напрямую, без повторной генерации:
+
+- [`datasets/v1.0/dataset_v1_frozen.jsonl`](datasets/v1.0/dataset_v1_frozen.jsonl) —
+  200 кейсов (100 SAT / 100 UNSAT).
+- [`datasets/v1.0/dataset_v1_frozen.manifest.json`](datasets/v1.0/dataset_v1_frozen.manifest.json) —
+  параметры генерации, версии окружения, результаты Z3-верификации,
+  leakage-метрики.
+
+Параметры v1.0: MUS = 2..5, `total_rules` = 20, `pairs_per_group` = 25,
+`base_seed` = 42. Все кейсы прошли Z3-проверку: SAT-корректность 100/100,
+UNSAT-корректность 100/100, MUS-валидность 100/100, MUS-минимальность 100/100,
+уникальность MUS подтверждена для всех UNSAT-кейсов.
+
+Пример оценки LLM на опубликованном датасете:
+
+**bash**
+```bash
+uv run python -m logicmus_eval.cli evaluate \
+    --strategy direct \
+    --model-name openai/qwen2.5-coder-14b-instruct \
+    --dataset-dir datasets/v1.0 \
+    --limit 20 \
+    --output-file evaluation_direct.json
+```
+
+**PowerShell**
+```powershell
+uv run python -m logicmus_eval.cli evaluate `
+    --strategy direct `
+    --model-name openai/qwen2.5-coder-14b-instruct `
+    --dataset-dir datasets/v1.0 `
+    --limit 20 `
+    --output-file evaluation_direct.json
+```
+
+Воспроизведение датасета с нуля описано в разделе
+[Генерация датасета](#генерация-датасета); для точного совпадения с v1.0
+используйте те же параметры и `--output-dir datasets/v1.0`.
+
 ## Структура
 
 ```
@@ -72,7 +115,8 @@ logicmus_eval/          # основной пакет
     sandbox/executor.py # Z3CodeExecutor
 scripts/                # экспериментальные скрипты (см. ниже)
 tests/                  # unit + integration
-data/                   # артефакты генерации (gitignored)
+datasets/               # опубликованные замороженные датасеты (в git)
+data/                   # локальные артефакты генерации (gitignored)
 experiments/            # результаты запусков (gitignored)
 ```
 
