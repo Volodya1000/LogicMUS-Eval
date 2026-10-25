@@ -207,8 +207,11 @@ def plot_errors(details: pd.DataFrame, out: Path) -> None:
     counts = frame.groupby(["model", "strategy", "error"]).size().unstack(fill_value=0)
     counts = counts.reindex(columns=list(ERROR_LABELS), fill_value=0)
     shares = counts.div(counts.sum(axis=1), axis=0)
-    labels = [f"{m}\n{STRATEGY_LABELS[s]}" for m, s in shares.index]
-    fig, ax = plt.subplots(figsize=(12, 6))
+    labels = []
+    for model, strategy in shares.index:
+        display_model = model.replace("Qwen2.5-Coder-14B", "Qwen2.5-Coder-\n14B")
+        labels.append(f"{display_model}\n{STRATEGY_LABELS[strategy]}")
+    fig, ax = plt.subplots(figsize=(15, 8))
     bottom = np.zeros(len(shares))
     for error, error_label in ERROR_LABELS.items():
         values = shares[error].to_numpy()
@@ -217,10 +220,11 @@ def plot_errors(details: pd.DataFrame, out: Path) -> None:
         )
         bottom += values
     ax.set_ylim(0, 1)
-    ax.set_ylabel("Доля случаев")
-    ax.set_title("Состав ошибок по модели и подходу")
-    ax.tick_params(axis="x", labelsize=8)
-    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1))
+    ax.set_ylabel("Доля случаев", fontsize=15)
+    ax.set_title("Состав ошибок по модели и подходу", fontsize=18, pad=16)
+    ax.tick_params(axis="x", labelsize=12, pad=8)
+    ax.tick_params(axis="y", labelsize=12)
+    ax.legend(loc="upper left", bbox_to_anchor=(1.01, 1), fontsize=12)
     _save(fig, out / "fig_error_composition.png")
 
 
