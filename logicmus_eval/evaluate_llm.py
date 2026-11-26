@@ -26,6 +26,7 @@ from logicmus_eval.evaluation.strategies import (
 from logicmus_eval.extractor import StructuredOutputExtractor
 from logicmus_eval.hashing import compute_file_sha256
 from logicmus_eval.models.evaluation import EvaluationSummary, RunInfo
+from logicmus_eval.release import assert_dataset_approved
 from logicmus_eval.storage import FileStorageManager
 
 logger = logging.getLogger(__name__)
@@ -93,6 +94,7 @@ def run_evaluation(
         return
 
     dataset_path = Path(dataset_dir) / filename
+    assert_dataset_approved(dataset_path)
     started_at = datetime.now(UTC)
     dataset_sha256 = compute_file_sha256(dataset_path)
     prompt_template_hash = hashlib.sha256(

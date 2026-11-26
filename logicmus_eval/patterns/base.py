@@ -33,7 +33,7 @@ class BasePatternStrategy(ABC):
         """Return True if this strategy can produce a valid case of the
         requested ``mus_size``.
 
-        Default: any size >= 1. Fixed-structure strategies (idem, coverage,
+        Default: any size >= 2. Fixed-structure strategies (idem, coverage,
         merge) override this to advertise the exact set of sizes they can
         honour.
         """

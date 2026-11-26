@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class ValidationResultDTO(BaseModel):
@@ -27,11 +29,26 @@ class ParametersManifest(BaseModel):
     total_cases: int
     rules_per_case: int
     base_seed: int
+    generator_version: int = 1
 
 
 class TfidfMetrics(BaseModel):
-    mean_f1: float
-    std_f1: float
+    mean_f1: float | None = None
+    std_f1: float | None = None
+    mean_balanced_accuracy: float | None = None
+    std_balanced_accuracy: float | None = None
+    fold_balanced_accuracies: list[float] = Field(default_factory=list)
+    n_splits: int = 0
+    status: Literal["ok", "unavailable", "legacy"] = "legacy"
+    reason: str | None = None
+
+
+class LeakageAcceptance(BaseModel):
+    metric: str = "balanced_accuracy"
+    threshold: float
+    passed: bool
+    failures: list[str] = Field(default_factory=list)
+    cv_grouping: str = "pair_id"
 
 
 class LeakageMetricsGlobal(BaseModel):
@@ -53,3 +70,4 @@ class BenchmarkManifest(BaseModel):
     validation_results: ValidationResultsManifest
     leakage_metrics_global: LeakageMetricsGlobal
     leakage_metrics_by_mus_size: dict[str, dict[str, TfidfMetrics]]
+    leakage_acceptance: LeakageAcceptance | None = None

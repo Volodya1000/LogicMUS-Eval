@@ -1,20 +1,7 @@
 import hashlib
 from pathlib import Path
 
-SOURCE_BUNDLE_FILES: list[Path] = [
-    Path("src/models/rules.py"),
-    Path("src/models/test_case.py"),
-    Path("src/models/manifests.py"),
-    Path("src/models/pipeline.py"),
-    Path("src/models/llm.py"),
-    Path("src/templates.py"),
-    Path("src/generator.py"),
-    Path("src/verifier.py"),
-    Path("src/extractor.py"),
-    Path("src/run_pipeline.py"),
-    Path("src/storage.py"),
-    Path("src/hashing.py"),
-]
+SOURCE_ROOT = Path(__file__).resolve().parent
 
 
 def _update_hash_from_file(hasher: "hashlib._Hash", file_path: Path) -> None:
@@ -38,4 +25,15 @@ def compute_source_hash(files: list[Path]) -> str:
 
 
 def compute_source_bundle_hash(files: list[Path] | None = None) -> str:
-    return compute_source_hash(files if files is not None else SOURCE_BUNDLE_FILES)
+    if files is not None:
+        return compute_source_hash(files)
+    hasher = hashlib.sha256()
+    sources = sorted(SOURCE_ROOT.rglob("*.py"))
+    if not sources:
+        raise RuntimeError("Source bundle is empty")
+    for source in sources:
+        hasher.update(
+            source.relative_to(SOURCE_ROOT).as_posix().encode("utf-8") + b"\0"
+        )
+        _update_hash_from_file(hasher, source)
+    return hasher.hexdigest()

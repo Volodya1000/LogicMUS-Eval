@@ -15,7 +15,7 @@ __all__ = [
 ]
 
 # Common prompt tail shared by both strategies. Kept in one place so the
-# <RULES> framing, CASE_ID/UUID epilogue and the final instruction stay
+# <RULES> framing and the final instruction stay
 # in sync. Extracted from the per-strategy templates to avoid pylint
 # duplicate-code warnings between direct.py and z3.py.
 PROMPT_TAIL = "\n\n<RULES>\n{rules_block}\n</RULES>\n\nВерни только JSON.\n"

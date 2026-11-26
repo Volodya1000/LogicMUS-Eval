@@ -205,7 +205,10 @@ class BenchmarkGenerator:
                 "case_seed": case_seed,
                 "pattern_id": self._strategy.name,
                 "pair_id": hashlib.sha256(
-                    f"v2:{self._base_seed}:{mus_size}:{index_in_batch}:{self._strategy.name}:{self._total_rules}".encode()
+                    (
+                        f"v2:{self._base_seed}:{mus_size}:{index_in_batch}:"
+                        f"{self._strategy.name}:{self._total_rules}"
+                    ).encode()
                 ).hexdigest()[:24],
                 "generator_version": 2,
             },
