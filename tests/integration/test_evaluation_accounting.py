@@ -278,7 +278,7 @@ def test_bad_json_keeps_known_usage_latency_and_unknowns(monkeypatch):
     assert report.metrics["usage_known_cases"]["total_tokens"] == 1
     assert report.metrics["usage_coverage"]["total_tokens"] == 0.5
     assert report.metrics["avg_prompt_tokens"] == 11
-    assert report.metrics["total_execution_seconds"] == 5
+    assert report.metrics["total_llm_seconds"] == 5
 
 
 @pytest.mark.parametrize(
@@ -335,8 +335,8 @@ def test_legacy_read_does_not_assign_new_semantics(monkeypatch):
     assert legacy.details[0].metadata.total_tokens == 0
     assert legacy.details[0].failure_tags == ["exec_error"]
     new = offline_pipeline(monkeypatch, []).run([])
-    assert new.metric_definitions_version == "2"
-    assert new.report_schema_version == 2
+    assert new.metric_definitions_version == "3"
+    assert new.report_schema_version == 3
 
 
 def test_missing_verdict_from_strategy_is_a_processed_failure(monkeypatch):
@@ -382,6 +382,12 @@ def test_execution_failure_retains_prediction_but_earns_zero(monkeypatch):
     assert not detail.is_sat_correct and not detail.is_mus_correct
     assert detail.error_type == "exec_error" and detail.error_stage == "execution"
     assert report.metrics["sat_accuracy"] == report.metrics["mus_f1"] == 0
+    assert report.metrics["execution_error_count"] == report.metrics["error_count"] == 1
+    assert (
+        report.metrics["infra_error_count"]
+        == report.metrics["response_error_count"]
+        == 0
+    )
 
 
 def test_entrypoint_writes_versioned_report_with_run_info(monkeypatch, tmp_path):
@@ -391,7 +397,7 @@ def test_entrypoint_writes_versioned_report_with_run_info(monkeypatch, tmp_path)
     report = EvaluationSummary.model_validate_json(
         (tmp_path / "report.json").read_text()
     )
-    assert report.status == "completed" and report.metric_definitions_version == "2"
+    assert report.status == "completed" and report.metric_definitions_version == "3"
     assert report.run_info.total_cases_processed == report.metrics["processed"] == 1
     assert report.run_info.finished_at is not None
 
@@ -458,7 +464,8 @@ def test_refusal_in_broken_response_is_counted_once_per_category(monkeypatch):
         monkeypatch, [response("no explicit initial; broken JSON")]
     ).run([case()])
     assert report.metrics["processed"] == report.metrics["refusal_count"] == 1
-    assert report.metrics["error_count"] == report.metrics["infra_error_count"] == 1
+    assert report.metrics["error_count"] == report.metrics["response_error_count"] == 1
+    assert report.metrics["infra_error_count"] == 0
     assert report.metrics["error_counts"] == {"json_error": 1}
     assert set(report.details[0].failure_tags) == {"json_error", "refusal_no_facts"}
 
@@ -496,3 +503,105 @@ def test_generated_process_interrupt_is_not_a_model_failure(monkeypatch, error):
     monkeypatch.setitem(SAFE_BUILTINS, error.__name__, error)
     with pytest.raises(error):
         Z3CodeExecutor().execute(f"raise {error.__name__}()")
+
+
+def test_error_rates_separate_api_response_and_execution(monkeypatch):
+    outcomes = [litellm.exceptions.Timeout("timeout", "offline", "openai")] * 3
+    report = offline_pipeline(
+        monkeypatch, outcomes + [response("broken"), answer()]
+    ).run([case(i) for i in range(3)])
+    assert report.metrics["infra_error_count"] == 1
+    assert report.metrics["response_error_count"] == 1
+    assert report.metrics["execution_error_count"] == 0
+    assert report.metrics["infrastructure_error_rate"] == pytest.approx(1 / 3)
+    assert report.metrics["response_error_rate"] == pytest.approx(1 / 3)
+
+
+def test_case_latency_includes_z3_and_keeps_request_latency(monkeypatch):
+    executor = SimpleNamespace(
+        execute=lambda _code: Z3ExecutionResult(success=True, is_sat=True)
+    )
+    pipeline = offline_pipeline(
+        monkeypatch,
+        [
+            response(
+                json.dumps(
+                    {
+                        "reasoning": "analysis",
+                        "python_z3_code": "pass",
+                    }
+                )
+            )
+        ],
+        strategy=Z3TranslationEvaluationStrategy(executor=executor),
+    )
+    request_ticks = iter([10.0, 12.0])
+    monkeypatch.setattr(
+        "logicmus_eval.extractor.time.perf_counter", lambda: next(request_ticks)
+    )
+    # A distinct clock at the pipeline boundary includes prompt, parsing and Z3.
+    monkeypatch.setattr(
+        "logicmus_eval.evaluation.pipeline.perf_counter",
+        iter([10.0, 17.0]).__next__,
+        raising=False,
+    )
+    report = pipeline.run([case()])
+    assert report.details[0].metadata.llm_latency_seconds == 2
+    assert report.details[0].metadata.case_latency_seconds == 7
+    assert report.metrics["avg_llm_latency_seconds"] == 2
+    assert report.metrics["avg_latency_seconds"] == 7
+
+
+@pytest.mark.parametrize(
+    "reasoning",
+    [
+        "Цитата из правила: «не могу определить». Правила совместимы.",
+        "Неверно, что невозможно выполнить логический вывод. Ответ SAT.",
+        'The phrase "cannot perform logical deduction" is irrelevant. SAT.',
+        "The rule says 'cannot perform logical deduction'; the answer is SAT.",
+        "The identifier `cannot perform logical deduction` is irrelevant. SAT.",
+    ],
+)
+def test_quoted_or_negated_refusal_marker_is_not_a_refusal(monkeypatch, reasoning):
+    report = offline_pipeline(monkeypatch, [answer(reasoning=reasoning)]).run([case()])
+    assert report.details[0].valid_response
+    assert report.metrics["refusal_count"] == 0
+
+
+def test_refusal_marker_in_generated_code_does_not_invalidate_answer(monkeypatch):
+    executor = SimpleNamespace(
+        execute=lambda _code: Z3ExecutionResult(success=True, is_sat=True)
+    )
+    pipeline = offline_pipeline(
+        monkeypatch,
+        [
+            response(
+                json.dumps(
+                    {
+                        "reasoning": "Rules are satisfiable",
+                        "python_z3_code": "# cannot perform logical deduction\nis_sat = True",
+                    }
+                )
+            )
+        ],
+        strategy=Z3TranslationEvaluationStrategy(executor=executor),
+    )
+    report = pipeline.run([case()])
+    assert report.metrics["sat_accuracy"] == 1
+    assert report.metrics["refusal_count"] == 0
+
+
+def test_unrelated_negation_does_not_hide_an_actual_refusal(monkeypatch):
+    report = offline_pipeline(
+        monkeypatch,
+        [
+            answer(
+                reasoning=(
+                    "It is not true that the rules are contradictory, "
+                    "but I cannot perform logical deduction."
+                )
+            )
+        ],
+    ).run([case()])
+    assert report.metrics["refusal_count"] == 1
+    assert report.metrics["coverage"] == report.metrics["sat_accuracy"] == 0

@@ -1,11 +1,23 @@
 from datetime import datetime
-from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, JsonValue
+
+from logicmus_eval.enums import (
+    EvaluationErrorCategory,
+    EvaluationErrorStage,
+    EvaluationErrorType,
+    EvaluationStatus,
+)
+
+REPORT_SCHEMA_VERSION = 3
+METRIC_DEFINITIONS_VERSION = "3"
 
 
 class ExtractionMetadata(BaseModel):
+    # Legacy alias for request time; never reinterpret old measurements as E2E.
     latency_seconds: float | None = None
+    llm_latency_seconds: float | None = None
+    case_latency_seconds: float | None = None
     prompt_tokens: int | None = None
     completion_tokens: int | None = None
     thinking_tokens: int | None = None
@@ -20,8 +32,8 @@ class CasePrediction(BaseModel):
     generated_code: str | None = None
     execution_success: bool = True
     error: str | None = None
-    error_type: str | None = None
-    error_stage: str | None = None
+    error_type: EvaluationErrorType | None = None
+    error_stage: EvaluationErrorStage | None = None
     raw_response: str | None = None
     refusal: bool = False
 
@@ -51,8 +63,9 @@ class EvaluationCaseReport(BaseModel):
     # None means not recorded by the historical report, not a new verdict.
     valid_response: bool | None = None
     refusal: bool | None = None
-    error_type: str | None = None
-    error_stage: str | None = None
+    error_type: EvaluationErrorType | None = None
+    error_stage: EvaluationErrorStage | None = None
+    error_category: EvaluationErrorCategory | None = None
     raw_response: str | None = None
     mus_precision: float | None = None
     mus_recall: float | None = None
@@ -73,10 +86,10 @@ class RunInfo(BaseModel):
 
 
 class EvaluationSummary(BaseModel):
-    metrics: dict[str, Any]
+    metrics: dict[str, JsonValue]
     details: list[EvaluationCaseReport]
     run_info: RunInfo | None = None
     # Assigned by the new pipeline only; loading legacy JSON never upgrades it.
     report_schema_version: int | None = None
     metric_definitions_version: str | None = None
-    status: Literal["running", "completed"] | None = None
+    status: EvaluationStatus | None = None

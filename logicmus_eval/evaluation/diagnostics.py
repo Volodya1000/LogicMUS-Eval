@@ -2,7 +2,7 @@
 
 import re
 
-from logicmus_eval.enums import FailureTag
+from logicmus_eval.enums import EvaluationErrorStage, EvaluationErrorType, FailureTag
 from logicmus_eval.evaluation.refusal_patterns import REFUSAL_PATTERNS
 from logicmus_eval.models.evaluation import (
     CasePrediction,
@@ -22,7 +22,24 @@ def is_refusal(reasoning: str | None) -> bool:
     """Return whether text contains one of the project's refusal markers."""
     if not reasoning:
         return False
-    return any(pattern.search(reasoning) for pattern in _COMPILED_REFUSAL_PATTERNS)
+    # Quoted rules, fenced code and negated statements are not refusals.
+    text = re.sub(
+        r"""```[\s\S]*?```|`[^`\n]*`|"[^"\n]*"|«[^»]*»|“[^”]*”|(?<!\w)'[^'\n]*'(?!\w)""",
+        "",
+        reasoning,
+    )
+    for sentence in re.split(
+        r"[.!?;\n]|\b(?:but|но|однако)\b", text, flags=re.IGNORECASE
+    ):
+        if re.search(
+            r"\b(?:неверно,? что|неправда,? что|not true that|not the case that)\b",
+            sentence,
+            re.IGNORECASE,
+        ):
+            continue
+        if any(pattern.search(sentence) for pattern in _COMPILED_REFUSAL_PATTERNS):
+            return True
+    return False
 
 
 def _response_error(case: LogicTestCase, prediction: CasePrediction) -> str | None:
@@ -46,27 +63,29 @@ def build_case_report(
 ) -> EvaluationCaseReport:
     """Single source for eligibility, correctness, scores and diagnostic tags."""
     core = sorted(set(prediction.conflict_core))
-    refusal = (
-        prediction.refusal
-        or is_refusal(prediction.reasoning)
-        or is_refusal(prediction.raw_response)
-    )
+    refusal = prediction.refusal or is_refusal(prediction.reasoning)
     error = prediction.error
     error_type = prediction.error_type
     error_stage = prediction.error_stage
     if error is not None or not prediction.execution_success:
         error = error or "Execution failed without an error message"
-        error_type = error_type or "exec_error"
-        error_stage = error_stage or "execution"
+        error_type = error_type or EvaluationErrorType.EXEC_ERROR
+        error_stage = error_stage or EvaluationErrorStage.EXECUTION
     elif error_type is not None:
         error = f"Response failed: {error_type}"
     else:
         error = _response_error(case, prediction)
         if error is not None:
-            error_type, error_stage = "invalid_response", "response_validation"
+            error_type, error_stage = (
+                EvaluationErrorType.INVALID_RESPONSE,
+                EvaluationErrorStage.RESPONSE_VALIDATION,
+            )
         elif prediction.is_sat is None and not refusal:
             error = "Missing SAT/UNSAT verdict"
-            error_type, error_stage = "missing_answer", "response_validation"
+            error_type, error_stage = (
+                EvaluationErrorType.MISSING_ANSWER,
+                EvaluationErrorStage.RESPONSE_VALIDATION,
+            )
 
     valid = error is None and not refusal and prediction.is_sat is not None
     sat_correct = valid and prediction.is_sat == case.is_satisfiable
@@ -86,9 +105,9 @@ def build_case_report(
                 else 0.0
             )
 
-    tags = []
+    tags: list[str] = []
     if error_type is not None:
-        tags.append(error_type)
+        tags.append(error_type.value)
     if refusal:
         tags.append(FailureTag.REFUSAL_NO_FACTS.value)
     if valid:
@@ -123,6 +142,7 @@ def build_case_report(
         error=error,
         error_type=error_type,
         error_stage=error_stage,
+        error_category=error_type.category if error_type is not None else None,
         failure_tags=tags or [FailureTag.UNKNOWN.value],
     )
 

@@ -1,17 +1,19 @@
 import json
 import logging
 import time
-from typing import Any, Generic, TypeVar
+from typing import TypeVar
 
-import litellm  # type: ignore
+import litellm
 from pydantic import BaseModel, ValidationError
-from tenacity import (  # type: ignore
+from tenacity import (
     Retrying,
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
 )
 
+from logicmus_eval.enums import EvaluationErrorStage, EvaluationErrorType
+from logicmus_eval.evaluation.diagnostics import is_refusal
 from logicmus_eval.models.evaluation import ExtractionMetadata
 
 T = TypeVar("T", bound=BaseModel)
@@ -25,33 +27,38 @@ TRANSIENT_API_ERRORS = (
 class ExtractorError(Exception):
     """An expected request/response failure, with all observed diagnostics."""
 
+    # Each keyword preserves a distinct observed request/response diagnostic.
+    # pylint: disable=too-many-arguments
     def __init__(
         self,
         message: str,
         *,
-        error_type: str = "extraction_error",
-        stage: str = "extraction",
+        error_type: EvaluationErrorType = EvaluationErrorType.EXTRACTION_ERROR,
+        stage: EvaluationErrorStage = EvaluationErrorStage.EXTRACTION,
         metadata: ExtractionMetadata | None = None,
         raw_response: str | None = None,
+        refusal: bool = False,
     ) -> None:
         super().__init__(message)
         self.error_type = error_type
         self.stage = stage
         self.metadata = metadata if metadata is not None else ExtractionMetadata()
         self.raw_response = raw_response
+        self.refusal = refusal
 
 
-class ExtractionResult(BaseModel, Generic[T]):  # noqa: UP046
+class ExtractionResult[T: BaseModel](BaseModel):
     data: T
     metadata: ExtractionMetadata
     raw_response: str | None = None
 
 
-def _field(obj: Any, name: str) -> Any:
-    return obj.get(name) if isinstance(obj, dict) else getattr(obj, name, None)
+def _field(obj: object, name: str) -> object:
+    value: object = obj.get(name) if isinstance(obj, dict) else getattr(obj, name, None)
+    return value
 
 
-def _token_count(value: Any) -> int | None:
+def _token_count(value: object) -> int | None:
     # A provider may omit any field independently; mocks/invalid metadata are
     # not measurements. In particular, preserve an explicitly reported zero.
     return (
@@ -61,11 +68,14 @@ def _token_count(value: Any) -> int | None:
     )
 
 
-def _extract_usage_metadata(response: Any, elapsed_time: float) -> ExtractionMetadata:
+def _extract_usage_metadata(
+    response: object, elapsed_time: float
+) -> ExtractionMetadata:
     usage = _field(response, "usage")
     details = _field(usage, "completion_tokens_details")
     return ExtractionMetadata(
         latency_seconds=elapsed_time,
+        llm_latency_seconds=elapsed_time,
         prompt_tokens=_token_count(_field(usage, "prompt_tokens")),
         completion_tokens=_token_count(_field(usage, "completion_tokens")),
         thinking_tokens=_token_count(_field(details, "reasoning_tokens")),
@@ -95,7 +105,7 @@ class StructuredOutputExtractor:
                 with attempt:
                     attempts += 1
                     self.logger.info("Sending request to model: %s", self.model_name)
-                    response = litellm.completion(
+                    response: object = litellm.completion(
                         model=self.model_name,
                         messages=[{"role": "user", "content": prompt}],
                         response_format=response_model,
@@ -108,16 +118,17 @@ class StructuredOutputExtractor:
                 latency_seconds=time.perf_counter() - start_time,
                 request_attempts=attempts,
             )
+            metadata.llm_latency_seconds = metadata.latency_seconds
             if isinstance(exc, litellm.exceptions.Timeout):
-                kind = "api_timeout"
+                kind = EvaluationErrorType.API_TIMEOUT
             elif isinstance(exc, litellm.exceptions.RateLimitError):
-                kind = "api_rate_limit"
+                kind = EvaluationErrorType.API_RATE_LIMIT
             else:
-                kind = "api_connection"
+                kind = EvaluationErrorType.API_CONNECTION
             raise ExtractorError(
                 str(exc),
                 error_type=kind,
-                stage="request",
+                stage=EvaluationErrorStage.REQUEST,
                 metadata=metadata,
             ) from exc
 
@@ -126,17 +137,23 @@ class StructuredOutputExtractor:
         metadata = _extract_usage_metadata(response, time.perf_counter() - start_time)
         metadata.request_attempts = attempts
         choices = _field(response, "choices")
-        message = _field(choices[0], "message") if choices else None
+        message = (
+            _field(choices[0], "message")
+            if isinstance(choices, (list, tuple)) and choices
+            else None
+        )
         content = _field(message, "content")
         self.logger.info("RAW LLM OUTPUT:\n%s", content)
         refusal = _field(message, "refusal")
         if isinstance(refusal, str) and refusal:
             raise ExtractorError(
                 refusal,
-                error_type="refusal",
-                stage="response",
+                error_type=EvaluationErrorType.REFUSAL,
+                stage=EvaluationErrorStage.RESPONSE,
                 metadata=metadata,
-                raw_response=content or refusal,
+                raw_response=content
+                if isinstance(content, str) and content
+                else refusal,
             )
         if (
             content is None
@@ -145,36 +162,39 @@ class StructuredOutputExtractor:
         ):
             raise ExtractorError(
                 "Empty response from LLM",
-                error_type="empty_response",
-                stage="response",
+                error_type=EvaluationErrorType.EMPTY_RESPONSE,
+                stage=EvaluationErrorStage.RESPONSE,
                 metadata=metadata,
-                raw_response=content,
+                raw_response=content if isinstance(content, str) else None,
             )
         if not isinstance(content, str):
             raise ExtractorError(
                 "Response content must be text",
-                error_type="schema_error",
-                stage="schema",
+                error_type=EvaluationErrorType.SCHEMA_ERROR,
+                stage=EvaluationErrorStage.SCHEMA,
                 metadata=metadata,
                 raw_response=repr(content),
             )
         try:
-            data = json.loads(content)
+            data: object = json.loads(content)
         except json.JSONDecodeError as exc:
             raise ExtractorError(
                 f"Failed to parse JSON: {exc}",
-                error_type="json_error",
-                stage="parse",
+                error_type=EvaluationErrorType.JSON_ERROR,
+                stage=EvaluationErrorStage.PARSE,
                 metadata=metadata,
                 raw_response=content,
+                # Inspect only unstructured prose, never JSON/code payloads.
+                refusal=not content.lstrip().startswith(("{", "[", "```"))
+                and is_refusal(content),
             ) from exc
         try:
             parsed_response = response_model.model_validate(data, strict=True)
         except ValidationError as exc:
             raise ExtractorError(
                 f"Response schema validation failed: {exc}",
-                error_type="schema_error",
-                stage="schema",
+                error_type=EvaluationErrorType.SCHEMA_ERROR,
+                stage=EvaluationErrorStage.SCHEMA,
                 metadata=metadata,
                 raw_response=content,
             ) from exc

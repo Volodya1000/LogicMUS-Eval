@@ -2,13 +2,18 @@ import logging
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from time import perf_counter
 
+from pydantic import JsonValue
+
+from logicmus_eval.enums import EvaluationErrorType, EvaluationStatus
 from logicmus_eval.evaluation.diagnostics import build_case_report
 from logicmus_eval.evaluation.metrics import BaseMetric, accounting_counts
 from logicmus_eval.evaluation.strategies import BaseEvaluationStrategy
 from logicmus_eval.extractor import ExtractorError, StructuredOutputExtractor
 from logicmus_eval.models.evaluation import (
+    METRIC_DEFINITIONS_VERSION,
+    REPORT_SCHEMA_VERSION,
     CasePrediction,
     EvaluationCaseReport,
     EvaluationSummary,
@@ -37,7 +42,7 @@ class EvaluationPipeline:
         completed: bool,
         run_info: RunInfo | None,
     ) -> EvaluationSummary:
-        aggregated: dict[str, Any] = {}
+        aggregated: dict[str, JsonValue] = {}
         for metric in self.metrics:
             aggregated.update(metric.compute())
         aggregated.update(accounting_counts(details, planned))
@@ -48,9 +53,11 @@ class EvaluationPipeline:
             metrics=aggregated,
             details=details,
             run_info=run_info,
-            report_schema_version=2,
-            metric_definitions_version="2",
-            status="completed" if completed else "running",
+            report_schema_version=REPORT_SCHEMA_VERSION,
+            metric_definitions_version=METRIC_DEFINITIONS_VERSION,
+            status=EvaluationStatus.COMPLETED
+            if completed
+            else EvaluationStatus.RUNNING,
         )
 
     # pylint: disable=too-many-locals
@@ -89,23 +96,25 @@ class EvaluationPipeline:
                     len(cases),
                     case.case_id,
                 )
+                case_started = perf_counter()
                 try:
                     prediction, metadata = self.strategy.evaluate_case(
                         case, self.extractor
                     )
                 except ExtractorError as exc:
                     logger.error("Request failed on case %s: %s", case.case_id, exc)
-                    refusal = exc.error_type == "refusal"
+                    refusal = exc.error_type is EvaluationErrorType.REFUSAL
                     prediction = CasePrediction(
                         error=None if refusal else str(exc),
                         error_type=None if refusal else exc.error_type,
                         error_stage=None if refusal else exc.stage,
                         raw_response=exc.raw_response,
-                        refusal=refusal,
+                        refusal=refusal or exc.refusal,
                         reasoning=str(exc) if refusal else "",
                     )
                     metadata = exc.metadata
                 outcome = build_case_report(case, prediction, metadata)
+                metadata.case_latency_seconds = perf_counter() - case_started
                 for metric in self.metrics:
                     metric.update_report(outcome)
                 details.append(outcome)

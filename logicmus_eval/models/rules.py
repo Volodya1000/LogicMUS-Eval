@@ -1,6 +1,6 @@
 from typing import Literal
 
-import z3  # type: ignore
+import z3  # type: ignore[import-untyped]
 from pydantic import BaseModel
 
 from logicmus_eval.enums import OperatorType

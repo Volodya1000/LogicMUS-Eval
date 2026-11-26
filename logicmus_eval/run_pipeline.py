@@ -3,8 +3,8 @@ import platform
 from dataclasses import dataclass
 
 import numpy as np
-import sklearn  # type: ignore
-import z3  # type: ignore
+import sklearn  # type: ignore[import-untyped]
+import z3  # type: ignore[import-untyped]
 
 from logicmus_eval.enums import ManifestFilename, MetricType
 from logicmus_eval.generator import BenchmarkGenerator

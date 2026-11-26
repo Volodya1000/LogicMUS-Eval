@@ -1,6 +1,6 @@
 import logging
 
-import litellm  # type: ignore
+import litellm
 
 
 def configure_logging() -> None:
@@ -16,4 +16,3 @@ def configure_logging() -> None:
         logging.getLogger(logger_name).setLevel(logging.WARNING)
 
     litellm.suppress_debug_info = True
-    litellm.set_verbose = False

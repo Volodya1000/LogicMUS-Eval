@@ -59,3 +59,48 @@ class FailureTag(StrEnum):
     WRONG_MUS_EXTRA = "wrong_mus_extra"
     EXEC_ERROR = "exec_error"
     UNKNOWN = "unknown"
+
+
+class EvaluationStatus(StrEnum):
+    RUNNING = "running"
+    COMPLETED = "completed"
+
+
+class EvaluationErrorStage(StrEnum):
+    REQUEST = "request"
+    RESPONSE = "response"
+    PARSE = "parse"
+    SCHEMA = "schema"
+    EXTRACTION = "extraction"
+    EXECUTION = "execution"
+    RESPONSE_VALIDATION = "response_validation"
+
+
+class EvaluationErrorCategory(StrEnum):
+    API = "api"
+    RESPONSE = "response"
+    EXECUTION = "execution"
+
+
+class EvaluationErrorType(StrEnum):
+    API_TIMEOUT = "api_timeout"
+    API_CONNECTION = "api_connection"
+    API_RATE_LIMIT = "api_rate_limit"
+    EMPTY_RESPONSE = "empty_response"
+    JSON_ERROR = "json_error"
+    SCHEMA_ERROR = "schema_error"
+    EXTRACTION_ERROR = "extraction_error"
+    EXEC_ERROR = "exec_error"
+    INVALID_RESPONSE = "invalid_response"
+    MISSING_ANSWER = "missing_answer"
+    REFUSAL = "refusal"
+
+    @property
+    def category(self) -> EvaluationErrorCategory | None:
+        if self in {self.API_TIMEOUT, self.API_CONNECTION, self.API_RATE_LIMIT}:
+            return EvaluationErrorCategory.API
+        if self is self.EXEC_ERROR:
+            return EvaluationErrorCategory.EXECUTION
+        if self is self.REFUSAL:
+            return None
+        return EvaluationErrorCategory.RESPONSE

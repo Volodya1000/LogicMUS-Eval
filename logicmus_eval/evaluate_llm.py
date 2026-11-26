@@ -8,10 +8,12 @@ from pathlib import Path
 from logicmus_eval.enums import ManifestFilename
 from logicmus_eval.evaluation.metrics import (
     BaseMetric,
+    CodeExecutionErrorRateMetric,
     ExecutionTimeMetric,
     InfrastructureErrorRateMetric,
     MusValidMetric,
     RefusalRateMetric,
+    ResponseErrorRateMetric,
     SatAccuracyMetric,
     TokenUsageMetric,
     ValidResponseAccuracyMetric,
@@ -60,6 +62,8 @@ def _build_metrics() -> list[BaseMetric]:
         ExecutionTimeMetric(),
         RefusalRateMetric(),
         InfrastructureErrorRateMetric(),
+        ResponseErrorRateMetric(),
+        CodeExecutionErrorRateMetric(),
         ValidResponseAccuracyMetric(),
     ]
 

@@ -34,3 +34,13 @@ Delivery: commit, push and open a PR into master, without merge.
 - Final full-suite check: 185 passed, including all PR #2 release-gate tests.
 - Ruff on source/tests and mypy pass; pylint on changed files scores 10/10. Repository-wide Ruff reports 10 pre-existing findings in unchanged scripts.
 - Independent review found quadratic CLI report serialization. A regression was observed failing, then passed after preserving initial/final/failure saves and disabling per-case snapshots in CLI. Direct pipeline callers retain optional per-case saves. No additional accounting correctness findings.
+
+## Review follow-up
+
+- Shared completion checks now inspect status, counters and finish metadata in full/smoke/lifecycle runners and analysis. Legacy unversioned files may also be partial: without completed run metadata, completion requires matching dataset/limit or manifest expected counts. Ambiguous old files remain readable but cannot suppress a rerun.
+- Schema/metric definitions version 3 separates API, response and execution error categories and rates. Version 2 and unversioned values remain unchanged on read.
+- Per-case end-to-end timing includes prompt preparation, requests/retries, validation, Z3 execution and finalization; request timing is retained separately. Historical request timings are never promoted to end-to-end measurements.
+- Refusal detection no longer searches arbitrary raw JSON/generated code. Quoted text, inline/fenced code and negated clauses have regression coverage; unrelated negation must not hide a genuine refusal. Explicit provider refusals retain priority.
+- Analysis preserves null/NaN, records versions, filters incomplete input and separates versioned comparisons and plots. It does not deduplicate or average different metric definitions together.
+- Strict mypy now covers all 52 source/script modules; domain error/status fields use enums and JSON fields have explicit types. Unused ignores were removed, missing-stub ignores narrowed to `import-untyped`, and remaining sandbox/CLI complexity exceptions are documented. Generation/verifier changes are import-annotation comments only.
+- Independent follow-up review found legacy partial completion and two additional refusal quoting/negation gaps. Each was reproduced with failing tests before correction; the final targeted regression group passed 64 tests.
