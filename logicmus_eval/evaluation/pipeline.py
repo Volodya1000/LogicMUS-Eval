@@ -1,16 +1,18 @@
 import logging
 from collections.abc import Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from logicmus_eval.evaluation.diagnostics import classify_failure
-from logicmus_eval.evaluation.metrics import BaseMetric
+from logicmus_eval.evaluation.diagnostics import build_case_report
+from logicmus_eval.evaluation.metrics import BaseMetric, accounting_counts
 from logicmus_eval.evaluation.strategies import BaseEvaluationStrategy
 from logicmus_eval.extractor import ExtractorError, StructuredOutputExtractor
 from logicmus_eval.models.evaluation import (
+    CasePrediction,
     EvaluationCaseReport,
     EvaluationSummary,
-    ExtractionMetadata,
+    RunInfo,
 )
 from logicmus_eval.models.test_case import LogicTestCase
 
@@ -28,89 +30,91 @@ class EvaluationPipeline:
         self.extractor = extractor
         self.metrics = metrics
 
+    def _summary(
+        self,
+        details: list[EvaluationCaseReport],
+        planned: int,
+        completed: bool,
+        run_info: RunInfo | None,
+    ) -> EvaluationSummary:
+        aggregated: dict[str, Any] = {}
+        for metric in self.metrics:
+            aggregated.update(metric.compute())
+        aggregated.update(accounting_counts(details, planned))
+        if run_info is not None:
+            run_info.total_cases_processed = len(details)
+            run_info.finished_at = datetime.now(UTC) if completed else None
+        return EvaluationSummary(
+            metrics=aggregated,
+            details=details,
+            run_info=run_info,
+            report_schema_version=2,
+            metric_definitions_version="2",
+            status="completed" if completed else "running",
+        )
+
     # pylint: disable=too-many-locals
     def run(
         self,
         dataset: list[LogicTestCase],
         limit: int | None = None,
         output_path: Path | None = None,
+        run_info: RunInfo | None = None,
+        save_each_case: bool = True,
     ) -> EvaluationSummary:
+        if limit is not None and limit < 0:
+            raise ValueError("limit must be nonnegative")
         for metric in self.metrics:
             metric.reset()
-
-        cases_to_process = dataset[:limit] if limit is not None else dataset
-        total = len(cases_to_process)
+        if run_info is not None:
+            run_info.finished_at = None
+        cases = dataset[:limit] if limit is not None else dataset
         details: list[EvaluationCaseReport] = []
 
-        for i, case in enumerate(cases_to_process):
-            logger.info("=" * 60)
-            logger.info("PROCESSING CASE %d/%d (ID: %s)", i + 1, total, case.case_id)
-            logger.info("=" * 60)
-
-            try:
-                prediction, metadata = self.strategy.evaluate_case(case, self.extractor)
-
-                is_sat_correct = prediction.is_sat == case.is_satisfiable
-                is_mus_correct = False
-                if not case.is_satisfiable and prediction.is_sat is False:
-                    is_mus_correct = set(case.mus_expected) == set(
-                        prediction.conflict_core
-                    )
-
-                for metric in self.metrics:
-                    metric.update(case, prediction, metadata)
-
-                details.append(
-                    EvaluationCaseReport(
-                        case_id=case.case_id,
-                        mus_size=case.mus_size,
-                        expected_sat=case.is_satisfiable,
-                        expected_mus=case.mus_expected,
-                        predicted_sat=prediction.is_sat,
-                        is_sat_correct=is_sat_correct,
-                        predicted_mus=prediction.conflict_core,
-                        is_mus_correct=is_mus_correct,
-                        metadata=metadata,
-                        reasoning=prediction.reasoning,
-                        generated_code=prediction.generated_code,
-                        error=prediction.error,
-                        failure_tags=classify_failure(
-                            case, prediction, prediction.error
-                        ),
-                    )
-                )
-
-            except ExtractorError as e:
-                logger.error("Extractor error on case %s: %s", case.case_id, str(e))
-                details.append(
-                    EvaluationCaseReport(
-                        case_id=case.case_id,
-                        mus_size=case.mus_size,
-                        expected_sat=case.is_satisfiable,
-                        expected_mus=case.mus_expected,
-                        predicted_sat=None,
-                        is_sat_correct=False,
-                        predicted_mus=[],
-                        is_mus_correct=False,
-                        metadata=ExtractionMetadata(),
-                        reasoning="",
-                        error=str(e),
-                        failure_tags=classify_failure(case, None, str(e)),
-                    )
-                )
-
+        def snapshot(completed: bool = False) -> EvaluationSummary:
+            report = self._summary(details, len(cases), completed, run_info)
             if output_path is not None:
-                partial_metrics: dict[str, Any] = {}
-                for metric in self.metrics:
-                    partial_metrics.update(metric.compute())
-                partial_summary = EvaluationSummary(
-                    metrics=partial_metrics, details=details
+                output_path.write_text(
+                    report.model_dump_json(indent=2), encoding="utf-8"
                 )
-                with open(output_path, "w", encoding="utf-8") as f:
-                    f.write(partial_summary.model_dump_json(indent=2))
+            return report
 
-        aggregated_metrics: dict[str, Any] = {}
-        for metric in self.metrics:
-            aggregated_metrics.update(metric.compute())
+        snapshot()
+        completed = False
+        try:
+            for index, case in enumerate(cases):
+                logger.info(
+                    "PROCESSING CASE %d/%d (ID: %s)",
+                    index + 1,
+                    len(cases),
+                    case.case_id,
+                )
+                try:
+                    prediction, metadata = self.strategy.evaluate_case(
+                        case, self.extractor
+                    )
+                except ExtractorError as exc:
+                    logger.error("Request failed on case %s: %s", case.case_id, exc)
+                    refusal = exc.error_type == "refusal"
+                    prediction = CasePrediction(
+                        error=None if refusal else str(exc),
+                        error_type=None if refusal else exc.error_type,
+                        error_stage=None if refusal else exc.stage,
+                        raw_response=exc.raw_response,
+                        refusal=refusal,
+                        reasoning=str(exc) if refusal else "",
+                    )
+                    metadata = exc.metadata
+                outcome = build_case_report(case, prediction, metadata)
+                for metric in self.metrics:
+                    metric.update_report(outcome)
+                details.append(outcome)
+                if output_path is not None and save_each_case:
+                    snapshot()
+            completed = True
+        finally:
+            # Flush without converting unexpected exceptions or interrupts.
+            # CLI disables per-case snapshots to avoid quadratic serialization.
+            report = snapshot(completed=completed)
 
-        return EvaluationSummary(metrics=aggregated_metrics, details=details)
+        return report

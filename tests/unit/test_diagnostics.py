@@ -11,7 +11,7 @@ def _case(is_satisfiable: bool, mus_expected: list[str] | None = None) -> LogicT
         is_satisfiable=is_satisfiable,
         template_pack_id=TemplatePackId.PACK_00,
         predicate_mapping={},
-        rules=[],
+        rules=[{"id": "R1"}, {"id": "R2"}],
         mus_expected=mus_expected or [],
     )
 

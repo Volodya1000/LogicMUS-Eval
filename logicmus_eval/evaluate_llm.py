@@ -96,6 +96,8 @@ def run_evaluation(
     output_file: str,
 ) -> None:
     """Library entry point for LLM evaluation (no CLI parsing)."""
+    if strategy_name not in {"direct", "z3"}:
+        raise ValueError(f"Unknown evaluation strategy: {strategy_name}")
     filename = _resolve_dataset_filename(dataset_dir)
     if filename is None:
         logger.error("No .jsonl dataset files found in %s", dataset_dir)
@@ -136,9 +138,6 @@ def run_evaluation(
     output_path = Path(dataset_dir) / output_file
     logger.info("Final report will be saved to %s", output_path)
 
-    report = pipeline.run(dataset, limit=limit)
-    finished_at = datetime.now(UTC)
-
     run_info = RunInfo(
         model_name=model_name,
         strategy=strategy_name,
@@ -147,12 +146,15 @@ def run_evaluation(
         prompt_template_hash=prompt_template_hash,
         git_commit=git_commit,
         started_at=started_at,
-        finished_at=finished_at,
         limit=limit,
-        total_cases_processed=len(report.details),
     )
-    report.run_info = run_info
-    output_path.write_text(report.model_dump_json(indent=2), encoding="utf-8")
+    report = pipeline.run(
+        dataset,
+        limit=limit,
+        output_path=output_path,
+        run_info=run_info,
+        save_each_case=False,
+    )
 
     logger.info("RunInfo:\n%s", run_info.model_dump_json(indent=2))
     _log_summary(report)

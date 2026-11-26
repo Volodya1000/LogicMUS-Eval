@@ -1,6 +1,10 @@
 import logging
+import os
 
 import pytest
+
+# Tests must not download LiteLLM's cost map at import time.
+os.environ["LITELLM_LOCAL_MODEL_COST_MAP"] = "True"
 
 
 @pytest.fixture(autouse=True)

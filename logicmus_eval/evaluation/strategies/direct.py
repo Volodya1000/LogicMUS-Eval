@@ -53,5 +53,6 @@ class DirectEvaluationStrategy(BaseEvaluationStrategy):
             is_sat=result.data.is_sat,
             conflict_core=result.data.conflict_core,
             reasoning=result.data.reasoning,
+            raw_response=result.raw_response,
         )
         return prediction, result.metadata

@@ -112,6 +112,8 @@ class Z3CodeExecutor:
 
         if exception_holder:
             e = exception_holder[0]
+            if isinstance(e, (KeyboardInterrupt, SystemExit)):
+                raise e
             if isinstance(e, SyntaxError):
                 return Z3ExecutionResult(
                     success=False,

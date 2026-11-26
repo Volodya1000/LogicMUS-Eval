@@ -38,7 +38,7 @@ def test_mus_valid_metric():
         is_satisfiable=False,
         template_pack_id=TemplatePackId.PACK_00,
         predicate_mapping={},
-        rules=[],
+        rules=[{"id": "R1"}, {"id": "R2"}],
         mus_expected=["R1", "R2"],
     )
     metric.update(

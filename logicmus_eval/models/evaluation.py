@@ -1,15 +1,16 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 
 class ExtractionMetadata(BaseModel):
-    latency_seconds: float = 0.0
-    prompt_tokens: int = 0
-    completion_tokens: int = 0
-    thinking_tokens: int = 0
-    total_tokens: int = 0
+    latency_seconds: float | None = None
+    prompt_tokens: int | None = None
+    completion_tokens: int | None = None
+    thinking_tokens: int | None = None
+    total_tokens: int | None = None
+    request_attempts: int | None = None
 
 
 class CasePrediction(BaseModel):
@@ -19,6 +20,10 @@ class CasePrediction(BaseModel):
     generated_code: str | None = None
     execution_success: bool = True
     error: str | None = None
+    error_type: str | None = None
+    error_stage: str | None = None
+    raw_response: str | None = None
+    refusal: bool = False
 
 
 class Z3ExecutionResult(BaseModel):
@@ -43,6 +48,15 @@ class EvaluationCaseReport(BaseModel):
     generated_code: str | None = None
     error: str | None = None
     failure_tags: list[str] = Field(default_factory=list)
+    # None means not recorded by the historical report, not a new verdict.
+    valid_response: bool | None = None
+    refusal: bool | None = None
+    error_type: str | None = None
+    error_stage: str | None = None
+    raw_response: str | None = None
+    mus_precision: float | None = None
+    mus_recall: float | None = None
+    mus_f1: float | None = None
 
 
 class RunInfo(BaseModel):
@@ -62,3 +76,7 @@ class EvaluationSummary(BaseModel):
     metrics: dict[str, Any]
     details: list[EvaluationCaseReport]
     run_info: RunInfo | None = None
+    # Assigned by the new pipeline only; loading legacy JSON never upgrades it.
+    report_schema_version: int | None = None
+    metric_definitions_version: str | None = None
+    status: Literal["running", "completed"] | None = None
