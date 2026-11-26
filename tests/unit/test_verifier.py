@@ -338,7 +338,7 @@ def test_mus_uniqueness_real_generator_case():
     _sat_case, unsat_case = generator.generate_pair(mus_size=4, index_in_batch=0)
 
     assert unsat_case.is_satisfiable is False
-    assert len(unsat_case.mus_expected) == 5  # mus_size=4 → 4 implicits + 1 terminal
+    assert len(unsat_case.mus_expected) == 4  # K counts requirements, not variables.
 
     assert verify_mus_uniqueness_by_structure(unsat_case) is True
     # Cross-check with the existing verifier: MUS must also be valid & minimal.

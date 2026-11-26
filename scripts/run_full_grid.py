@@ -65,8 +65,8 @@ from typing import Any
 
 from logicmus_eval.enums import ManifestFilename
 from logicmus_eval.evaluate_llm import run_evaluation
+from logicmus_eval.release import assert_dataset_approved
 from logicmus_eval.run_pipeline import GenerationConfig, run_generation
-
 
 # ============================================================================
 # Global configuration
@@ -397,6 +397,7 @@ def generate_dataset(
 
     # Resume support.
     if dataset_path.exists():
+        assert_dataset_approved(dataset_path)
         print(
             f"[DATASET SKIP] {cfg.name}: "
             f"{dataset_path}",
@@ -699,6 +700,9 @@ def main() -> None:
         flush=True,
     )
 
+    if not dataset_paths:
+        raise RuntimeError("No approved datasets; inference was not started")
+
     # ------------------------------------------------------------------
     # STEP 2
     # Evaluate all configs model-by-model.
@@ -759,6 +763,8 @@ def main() -> None:
                 # ------------------------------------------------------
 
                 for cfg in grid:
+                    if cfg.name not in dataset_paths:
+                        continue
                     dataset_dir = (
                         datasets_root
                         / cfg.exp

@@ -24,7 +24,7 @@ def test_generator_respects_total_rules_constraint():
     assert len(sat.rules) == 15
     assert len(unsat.rules) == 15
     assert len(sat.mus_expected) == 0
-    assert len(unsat.mus_expected) == 5
+    assert len(unsat.mus_expected) == 4
 
 
 def test_generator_different_mus_size():
@@ -35,8 +35,8 @@ def test_generator_different_mus_size():
     core_rules = [r for r in sat.rules if not r.is_noise]
     noise_rules = [r for r in sat.rules if r.is_noise]
 
-    assert len(core_rules) == 6
-    assert len(noise_rules) == 4
+    assert len(core_rules) == 5
+    assert len(noise_rules) == 5
 
 
 def test_generated_cases_are_logically_valid():

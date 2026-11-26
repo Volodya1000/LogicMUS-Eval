@@ -1,7 +1,5 @@
 """Direct-reasoning evaluation strategy (no Z3 translation)."""
 
-from uuid import uuid4
-
 from logicmus_eval.evaluation.strategies.base import (
     PROMPT_TAIL,
     BaseEvaluationStrategy,
@@ -44,11 +42,7 @@ class DirectEvaluationStrategy(BaseEvaluationStrategy):
 
     def build_prompt(self, case: LogicTestCase) -> str:
         rules_block = format_rules_block(case)
-        return (
-            DIRECT_PROMPT_TEMPLATE.replace("{case_id}", case.case_id)
-            .replace("{uuid}", str(uuid4()))
-            .replace("{rules_block}", rules_block)
-        )
+        return DIRECT_PROMPT_TEMPLATE.replace("{rules_block}", rules_block)
 
     def evaluate_case(
         self, case: LogicTestCase, extractor: StructuredOutputExtractor

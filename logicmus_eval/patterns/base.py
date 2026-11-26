@@ -33,11 +33,23 @@ class BasePatternStrategy(ABC):
         """Return True if this strategy can produce a valid case of the
         requested ``mus_size``.
 
-        Default: any size >= 1. Fixed-structure strategies (idem, coverage,
+        Default: any size >= 2. Fixed-structure strategies (idem, coverage,
         merge) override this to advertise the exact set of sizes they can
         honour.
         """
-        return mus_size >= 1
+        return mus_size >= 2
+
+    @classmethod
+    def core_variable_count(cls, mus_size: int) -> int:
+        """Number of variables needed for an exact-K construction."""
+        if not cls.supports(mus_size):
+            raise ValueError(f"{cls.name} does not support mus_size={mus_size}")
+        return mus_size
+
+    @classmethod
+    def core_rule_count(cls, mus_size: int) -> int:
+        cls.core_variable_count(mus_size)
+        return mus_size
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments
     @abstractmethod

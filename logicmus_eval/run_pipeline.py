@@ -5,21 +5,17 @@ from dataclasses import dataclass
 import numpy as np
 import sklearn  # type: ignore
 import z3  # type: ignore
-from sklearn.feature_extraction.text import TfidfVectorizer  # type: ignore
-from sklearn.linear_model import LogisticRegression  # type: ignore
-from sklearn.metrics import f1_score  # type: ignore
-from sklearn.model_selection import StratifiedGroupKFold  # type: ignore
 
-from logicmus_eval.enums import AnalyzerType, ManifestFilename, MetricType
+from logicmus_eval.enums import ManifestFilename, MetricType
 from logicmus_eval.generator import BenchmarkGenerator
 from logicmus_eval.hashing import compute_file_sha256, compute_source_bundle_hash
+from logicmus_eval.leakage import calculate_leakage
 from logicmus_eval.models.manifests import (
     ArtifactsManifest,
     BenchmarkManifest,
     EnvironmentManifest,
     LeakageMetricsGlobal,
     ParametersManifest,
-    TfidfMetrics,
     ValidationResultsManifest,
 )
 from logicmus_eval.models.pipeline import DatasetValidationMetrics, LeakageReport
@@ -33,7 +29,8 @@ from logicmus_eval.patterns.idem import IdemPatternStrategy
 from logicmus_eval.patterns.math import MathPatternStrategy
 from logicmus_eval.patterns.merge import MergePatternStrategy
 from logicmus_eval.storage import FileStorageManager, StorageProtocol
-from logicmus_eval.verifier import verify_case, verify_mus_uniqueness_by_structure
+from logicmus_eval.templates import PREDICATE_POOL
+from logicmus_eval.verifier import build_z3_solver, verify_case
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +42,7 @@ class GenerationConfig:
     total_rules: int
     base_seed: int
     output_dir: str
+    leakage_threshold: float = 0.55
 
 
 # Registry is a plain list of classes. Each strategy self-describes its
@@ -60,8 +58,22 @@ STRATEGY_REGISTRY: list[type[BasePatternStrategy]] = [
 ]
 
 
-def _eligible_strategies(mus_size: int) -> list[type[BasePatternStrategy]]:
-    eligible = [cls for cls in STRATEGY_REGISTRY if cls.supports(mus_size)]
+def _eligible_strategies(
+    mus_size: int, total_rules: int | None = None
+) -> list[type[BasePatternStrategy]]:
+    eligible = [
+        cls
+        for cls in STRATEGY_REGISTRY
+        if cls.supports(mus_size)
+        and (total_rules is None or cls.core_rule_count(mus_size) <= total_rules)
+        and (
+            total_rules is None
+            or cls.core_variable_count(mus_size)
+            + total_rules
+            - cls.core_rule_count(mus_size)
+            <= len(PREDICATE_POOL)
+        )
+    ]
     if not eligible:
         raise ValueError(
             f"No strategy supports mus_size={mus_size}. "
@@ -70,59 +82,20 @@ def _eligible_strategies(mus_size: int) -> list[type[BasePatternStrategy]]:
     return eligible
 
 
-def _compute_cv_f1_scores(
-    analyzer_type: AnalyzerType,
-    texts: list[str],
-    labels: np.ndarray,
-    groups: list[str],
-    n_splits: int,
-) -> list[float]:
-    sgkf = StratifiedGroupKFold(n_splits=n_splits)
-    f1_scores: list[float] = []
-    for train_idx, test_idx in sgkf.split(texts, labels, groups=groups):
-        vectorizer = TfidfVectorizer(
-            analyzer=analyzer_type.value, ngram_range=(1, 2), min_df=1
-        )
-        x_train = vectorizer.fit_transform([texts[i] for i in train_idx])
-        x_test = vectorizer.transform([texts[i] for i in test_idx])
-        clf = LogisticRegression(max_iter=1000, random_state=42)
-        clf.fit(x_train, labels[train_idx])
-        preds = clf.predict(x_test)
-        f1_scores.append(f1_score(labels[test_idx], preds, zero_division=0))
-    return f1_scores
-
-
-def evaluate_vectorizer_subset(
-    analyzer_type: AnalyzerType,
-    custom_texts: list[str],
-    custom_labels: np.ndarray,
-    custom_groups: list[str],
-) -> tuple[float, float]:
-    if len(custom_texts) < 2 or len(np.unique(custom_labels)) < 2:
-        return 0.0, 0.0
-
-    min_class_samples = int(min(np.bincount(custom_labels)))
-    n_splits = min(5, len(set(custom_groups)), min_class_samples)
-
-    if n_splits < 2:
-        return 0.0, 0.0
-
-    try:
-        f1_scores = _compute_cv_f1_scores(
-            analyzer_type, custom_texts, custom_labels, custom_groups, n_splits
-        )
-        if not f1_scores:
-            return 0.0, 0.0
-        return float(np.mean(f1_scores)), float(np.std(f1_scores))
-    except ValueError:
-        return 0.0, 0.0
-
-
 def generate_dataset(config: GenerationConfig) -> list[LogicTestCase]:
     """Generate SAT/UNSAT pairs cycling through all compatible strategies."""
+    if not 0.5 <= config.leakage_threshold <= 1.0:
+        raise ValueError("leakage_threshold must be between 0.5 and 1.0")
+    if not config.mus_sizes or len(set(config.mus_sizes)) != len(config.mus_sizes):
+        raise ValueError("mus_sizes must be non-empty and contain no duplicates")
+    if config.pairs_per_group < 1 or config.total_rules < 2:
+        raise ValueError("pairs_per_group must be >= 1 and total_rules >= 2")
+    # Validate the entire grid before constructing any case.
+    for size in config.mus_sizes:
+        _eligible_strategies(size, config.total_rules)
     dataset: list[LogicTestCase] = []
     for target_mus_size in config.mus_sizes:
-        eligible = _eligible_strategies(target_mus_size)
+        eligible = _eligible_strategies(target_mus_size, config.total_rules)
         for i in range(config.pairs_per_group):
             strategy_cls = eligible[i % len(eligible)]
             generator = BenchmarkGenerator(
@@ -158,58 +131,6 @@ def verify_dataset_correctness(
     return metrics
 
 
-def _leakage_for_subset(
-    texts: list[str],
-    labels: np.ndarray,
-    groups: list[str],
-) -> dict[str, TfidfMetrics]:
-    word_m, word_s = evaluate_vectorizer_subset(
-        AnalyzerType.WORD, texts, labels, groups
-    )
-    char_m, char_s = evaluate_vectorizer_subset(
-        AnalyzerType.CHAR_WB, texts, labels, groups
-    )
-    return {
-        MetricType.WORD_TFIDF.value: TfidfMetrics(
-            mean_f1=round(word_m, 4), std_f1=round(word_s, 4)
-        ),
-        MetricType.CHAR_TFIDF.value: TfidfMetrics(
-            mean_f1=round(char_m, 4), std_f1=round(char_s, 4)
-        ),
-    }
-
-
-def calculate_leakage(
-    dataset: list[LogicTestCase], mus_sizes: list[int]
-) -> LeakageReport:
-    texts = [" ".join([r.text for r in case.rules]) for case in dataset]
-    labels = np.array([0 if case.is_satisfiable else 1 for case in dataset])
-    groups = [str(case.template_pack_id) for case in dataset]
-
-    global_metrics = _leakage_for_subset(texts, labels, groups)
-
-    leakage_by_mus_size: dict[str, dict[str, TfidfMetrics]] = {}
-    for target_mus_size in mus_sizes:
-        indices = [
-            idx for idx, case in enumerate(dataset) if case.mus_size == target_mus_size
-        ]
-        sub_texts = [texts[idx] for idx in indices]
-        sub_labels = labels[indices]
-        sub_groups = [groups[idx] for idx in indices]
-        leakage_by_mus_size[f"mus_size={target_mus_size}"] = _leakage_for_subset(
-            sub_texts, sub_labels, sub_groups
-        )
-
-    word_metric = global_metrics[MetricType.WORD_TFIDF.value]
-    char_metric = global_metrics[MetricType.CHAR_TFIDF.value]
-
-    return LeakageReport(
-        global_word=(word_metric.mean_f1, word_metric.std_f1),
-        global_char=(char_metric.mean_f1, char_metric.std_f1),
-        by_mus_size=leakage_by_mus_size,
-    )
-
-
 def save_artifacts(
     dataset: list[LogicTestCase],
     metrics: DatasetValidationMetrics,
@@ -243,6 +164,7 @@ def save_artifacts(
             total_cases=total_cases,
             rules_per_case=config.total_rules,
             base_seed=config.base_seed,
+            generator_version=2,
         ),
         validation_results=ValidationResultsManifest(
             sat_correctness=f"{metrics.sat_valid}/{half}",
@@ -251,16 +173,14 @@ def save_artifacts(
             mus_minimality=f"{metrics.mus_minimal}/{half}",
         ),
         leakage_metrics_global=LeakageMetricsGlobal(
-            word_tfidf=TfidfMetrics(
-                mean_f1=round(leakage.global_word[0], 4),
-                std_f1=round(leakage.global_word[1], 4),
-            ),
-            char_tfidf=TfidfMetrics(
-                mean_f1=round(leakage.global_char[0], 4),
-                std_f1=round(leakage.global_char[1], 4),
-            ),
+            word_tfidf=leakage.global_word,
+            char_tfidf=leakage.global_char,
         ),
         leakage_metrics_by_mus_size=leakage.by_mus_size,
+        leakage_acceptance=leakage.acceptance(
+            config.leakage_threshold, config.mus_sizes, ("direct", "z3")
+        ),
+        leakage_metrics_by_input=leakage.by_input,
     )
 
     manifest_path = storage.save_manifest(
@@ -289,21 +209,20 @@ def run_generation(config: GenerationConfig) -> None:
     logger.info("MUS minimality    : %d/%d", metrics.mus_minimal, half)
     logger.info("=" * 50)
 
-    # Structural MUS-uniqueness check: O(n) per UNSAT case, replaces the
-    # previous brute-force enumeration that would have taken hours at
-    # mus_size=9. See ``verify_mus_uniqueness_by_structure`` for the proof.
-    if metrics.mus_valid > 0:
-        non_unique = [
-            c.case_id for c in dataset if not verify_mus_uniqueness_by_structure(c)
-        ]
-        if non_unique:
-            logger.warning(
-                "Non-unique MUS in %d cases (first 5): %s",
-                len(non_unique),
-                non_unique[:5],
-            )
-        else:
-            logger.info("MUS uniqueness verified across all UNSAT cases.")
+    if any(value != half for value in metrics.model_dump().values()):
+        raise ValueError("Logical validation failed; dataset is not releasable")
+    # Independent uniqueness witness: every MUS must contain every member of M
+    # if removing each member makes the WHOLE instance satisfiable. Since M is
+    # already minimal UNSAT, this proves uniqueness with K solver checks.
+    for case in dataset:
+        if case.is_satisfiable:
+            continue
+        for rid in case.mus_expected:
+            if (
+                build_z3_solver([r for r in case.rules if r.id != rid]).check()
+                != z3.sat
+            ):
+                raise ValueError(f"MUS uniqueness validation failed for {case.case_id}")
 
     leakage = calculate_leakage(dataset, config.mus_sizes)
 
@@ -312,10 +231,10 @@ def run_generation(config: GenerationConfig) -> None:
     logger.info("=" * 50)
     for mus_size_key, leak_metrics in leakage.by_mus_size.items():
         logger.info(
-            "%s -> Word F1: %.4f | Char F1: %.4f",
+            "%s -> Word balanced accuracy: %s | Char balanced accuracy: %s",
             mus_size_key,
-            leak_metrics[MetricType.WORD_TFIDF.value].mean_f1,
-            leak_metrics[MetricType.CHAR_TFIDF.value].mean_f1,
+            leak_metrics[MetricType.WORD_TFIDF.value].mean_balanced_accuracy,
+            leak_metrics[MetricType.CHAR_TFIDF.value].mean_balanced_accuracy,
         )
     logger.info("=" * 50)
 
@@ -327,3 +246,8 @@ def run_generation(config: GenerationConfig) -> None:
         config=config,
         storage=storage,
     )
+    acceptance = leakage.acceptance(
+        config.leakage_threshold, config.mus_sizes, ("direct", "z3")
+    )
+    if not acceptance.passed:
+        raise ValueError("Leakage audit failed: " + "; ".join(acceptance.failures))

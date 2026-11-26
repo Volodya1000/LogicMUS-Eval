@@ -80,13 +80,22 @@ class AndImpliesRule(BaseRule):
     antecedent1_predicate: str
     antecedent2_predicate: str
     consequent_predicate: str
+    antecedent1_polarity: bool = True
+    antecedent2_polarity: bool = True
+    consequent_polarity: bool = True
     operator_type: Literal[OperatorType.AND_IMPLIES] = OperatorType.AND_IMPLIES
 
     def to_z3(self) -> z3.ExprRef:
         ant1 = z3.Bool(self.antecedent1)
         ant2 = z3.Bool(self.antecedent2)
         cons = z3.Bool(self.consequent)
-        return z3.Implies(z3.And(ant1, ant2), cons)
+        return z3.Implies(
+            z3.And(
+                ant1 if self.antecedent1_polarity else z3.Not(ant1),
+                ant2 if self.antecedent2_polarity else z3.Not(ant2),
+            ),
+            cons if self.consequent_polarity else z3.Not(cons),
+        )
 
 
 class OrFactRule(BaseRule):
@@ -94,12 +103,17 @@ class OrFactRule(BaseRule):
     variable2: str
     predicate1: str
     predicate2: str
+    polarity1: bool = True
+    polarity2: bool = True
     operator_type: Literal[OperatorType.OR_FACT] = OperatorType.OR_FACT
 
     def to_z3(self) -> z3.ExprRef:
         var1 = z3.Bool(self.variable1)
         var2 = z3.Bool(self.variable2)
-        return z3.Or(var1, var2)
+        return z3.Or(
+            var1 if self.polarity1 else z3.Not(var1),
+            var2 if self.polarity2 else z3.Not(var2),
+        )
 
 
 class NumericRule(BaseRule):

@@ -1,7 +1,5 @@
 """Z3-translation evaluation strategy."""
 
-from uuid import uuid4
-
 from logicmus_eval.evaluation.strategies.base import (
     PROMPT_TAIL,
     BaseEvaluationStrategy,
@@ -25,7 +23,7 @@ Z3_PROMPT_TEMPLATE = (
     "\n"
     "ТРЕБОВАНИЯ К КОДУ:\n"
     "1. Создай solver = Solver().\n"
-    "2. Объяви ровно те Bool-переменные, которые перечислены ниже.\n"
+    "2. Объяви перечисленные ниже переменные с указанными типами Bool или Real.\n"
     "3. Для каждого правила добавь ограничение "
     "через solver.assert_and_track(expr, '{ID правила}').\n"
     "4. Импликации задавай через Implies(ant, cons), "
@@ -65,11 +63,8 @@ class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
     def build_prompt(self, case: LogicTestCase) -> str:
         rules_block = format_rules_block(case)
         variable_block = format_variable_block(case)
-        return (
-            Z3_PROMPT_TEMPLATE.replace("{case_id}", case.case_id)
-            .replace("{uuid}", str(uuid4()))
-            .replace("{rules_block}", rules_block)
-            .replace("{variable_block}", variable_block)
+        return Z3_PROMPT_TEMPLATE.replace("{rules_block}", rules_block).replace(
+            "{variable_block}", variable_block
         )
 
     def evaluate_case(

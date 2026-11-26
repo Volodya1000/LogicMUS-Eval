@@ -47,8 +47,8 @@ class AnalyzerType(StrEnum):
 
 
 class ManifestFilename(StrEnum):
-    DATASET_JSONL = "dataset_v1_frozen.jsonl"
-    MANIFEST_JSON = "dataset_v1_frozen.manifest.json"
+    DATASET_JSONL = "dataset_v2.jsonl"
+    MANIFEST_JSON = "dataset_v2.manifest.json"
 
 
 class FailureTag(StrEnum):

@@ -1,7 +1,9 @@
+import hashlib
 import random
 import re
 
 from logicmus_eval.enums import CaseStatus, OperatorType, RulePrefix, TemplatePackId
+from logicmus_eval.generation_rendering import present_rules
 from logicmus_eval.models.rules import NoiseRule
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.patterns.base import BasePatternStrategy
@@ -44,21 +46,35 @@ class BenchmarkGenerator:
     def generate_pair(
         self, mus_size: int, index_in_batch: int
     ) -> tuple[LogicTestCase, LogicTestCase]:
+        if index_in_batch < 0:
+            raise ValueError("index_in_batch must be non-negative")
+        num_core_variables = self._strategy.core_variable_count(mus_size)
+        core_rule_count = self._strategy.core_rule_count(mus_size)
+        if self._total_rules < core_rule_count:
+            raise ValueError(
+                f"total_rules must be >= {core_rule_count} for {self._strategy.name}"
+            )
         case_seed = self._base_seed + mus_size * 1000 + index_in_batch
         pack_id = self._pack_id or get_template_pack_id(case_seed)
 
         # Neutral variable names: single prefix `p`, continuous numbering.
         # The model must not be able to distinguish core from noise by name.
         core_variables = [
-            f"{RulePrefix.NEUTRAL_VAR}{i}" for i in range(1, mus_size + 1)
+            f"{RulePrefix.NEUTRAL_VAR}{i}" for i in range(1, num_core_variables + 1)
         ]
-        num_distractor_candidates = max(0, self._total_rules - 1)
+        num_distractor_candidates = self._total_rules - core_rule_count
         distractor_variables = [
             f"{RulePrefix.NEUTRAL_VAR}{i}"
-            for i in range(mus_size + 1, mus_size + 1 + num_distractor_candidates)
+            for i in range(
+                num_core_variables + 1,
+                num_core_variables + 1 + num_distractor_candidates,
+            )
         ]
 
         all_variables = core_variables + distractor_variables
+        random.Random(f"aliases:{case_seed}").shuffle(all_variables)
+        core_variables = all_variables[:num_core_variables]
+        distractor_variables = all_variables[num_core_variables:]
         full_mapping = self._get_predicate_mapping(case_seed, all_variables)
 
         sat_case = self._generate_single(
@@ -118,6 +134,10 @@ class BenchmarkGenerator:
         noise_templates_flat = [tmpl for pool in noise_template_pools for tmpl in pool]
 
         num_core_rules = len(pattern_result.core_rules)
+        if num_core_rules != self._strategy.core_rule_count(mus_size):
+            raise RuntimeError("Pattern returned an unexpected number of core rules")
+        if not is_satisfiable and len(set(pattern_result.expected_mus_ids)) != mus_size:
+            raise RuntimeError("Pattern returned a MUS with incorrect mus_size")
         num_distractors = max(0, self._total_rules - num_core_rules)
 
         for idx in range(num_distractors):
@@ -139,28 +159,9 @@ class BenchmarkGenerator:
                 )
             )
 
-        # SAT-balance guard: on short cases the terminal-only negation in UNSAT
-        # was statistically visible. This is a defensive guard (fires rarely);
-        # a stronger policy is scheduled for a follow-up iteration if leakage
-        # stays above target.
-        #
-        # We re-render from a fresh template instead of substring-replacing the
-        # predicate inside the already-rendered text: the predicate string may
-        # legitimately occur more than once (e.g. as part of another phrase), in
-        # which case `.replace(..., 1)` would corrupt the wrong occurrence.
-        if is_satisfiable and noise_rules and all(r.polarity for r in noise_rules):
-            first = noise_rules[0]
-            flipped_template = rng.choice(noise_templates_flat)
-            flipped_text = flipped_template.replace("{var}", negate(first.predicate))
-            noise_rules[0] = NoiseRule(
-                id=first.id,
-                text=flipped_text,
-                variable=first.variable,
-                predicate=first.predicate,
-                polarity=False,
-            )
-
-        all_rules = pattern_result.core_rules + noise_rules
+        all_rules = present_rules(
+            pattern_result.core_rules + noise_rules, full_mapping, pack_id, case_seed
+        )
         rng.shuffle(all_rules)
 
         # Renumber rules sequentially R1..R_total. The core/noise distinction
@@ -200,7 +201,17 @@ class BenchmarkGenerator:
             predicate_mapping=full_mapping,
             rules=all_rules,
             mus_expected=expected_mus_remapped,
-            metadata={"case_seed": case_seed},
+            metadata={
+                "case_seed": case_seed,
+                "pattern_id": self._strategy.name,
+                "pair_id": hashlib.sha256(
+                    (
+                        f"v2:{self._base_seed}:{mus_size}:{index_in_batch}:"
+                        f"{self._strategy.name}:{self._total_rules}"
+                    ).encode()
+                ).hexdigest()[:24],
+                "generator_version": 2,
+            },
         )
 
     def _get_predicate_mapping(

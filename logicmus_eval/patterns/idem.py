@@ -13,7 +13,12 @@ class IdemPatternStrategy(BasePatternStrategy):
     @classmethod
     def supports(cls, mus_size: int) -> bool:
         # Two conflicting implications over one antecedent → exactly 2 vars.
-        return mus_size == 2
+        return mus_size == 3
+
+    @classmethod
+    def core_variable_count(cls, mus_size: int) -> int:
+        super().core_variable_count(mus_size)
+        return 2
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(

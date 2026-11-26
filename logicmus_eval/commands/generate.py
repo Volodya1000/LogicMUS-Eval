@@ -39,6 +39,15 @@ def generate(
         str,
         typer.Option("--output-dir", help="Output directory for artifacts."),
     ] = "data/generated_cases",
+    leakage_threshold: Annotated[
+        float,
+        typer.Option(
+            "--leakage-threshold",
+            min=0.5,
+            max=1.0,
+            help="Maximum pair-CV balanced accuracy (chance=0.5).",
+        ),
+    ] = 0.55,
 ) -> None:
     """Generate, verify and save the LogicMUS-Eval dataset."""
     configure_logging()
@@ -56,5 +65,6 @@ def generate(
         total_rules=total_rules,
         base_seed=base_seed,
         output_dir=output_dir,
+        leakage_threshold=leakage_threshold,
     )
     run_generation(config)

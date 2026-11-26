@@ -25,7 +25,7 @@ def test_merge_strategy_pipeline():
     strategy = MergePatternStrategy()
     generator = BenchmarkGenerator(strategy=strategy, total_rules=6)
 
-    _sat_case, unsat_case = generator.generate_pair(mus_size=3, index_in_batch=2)
+    _sat_case, unsat_case = generator.generate_pair(mus_size=4, index_in_batch=2)
 
     unsat_verification = verify_case(unsat_case)
     assert unsat_verification.is_sat_correct is True
