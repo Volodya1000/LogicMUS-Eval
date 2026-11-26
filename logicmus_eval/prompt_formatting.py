@@ -19,23 +19,25 @@ def _extract_variable_expr(rule_dict: dict[str, Any]) -> str | None:
     antecedent = rule_dict.get("antecedent")
     consequent = rule_dict.get("consequent")
     if antecedent and consequent:
-        return f"{antecedent} -> {consequent}"
+        return f"antecedent={antecedent}; consequent={consequent}"
 
     antecedent1 = rule_dict.get("antecedent1")
     antecedent2 = rule_dict.get("antecedent2")
     if antecedent1 and antecedent2 and consequent:
-        return f"{antecedent1} & {antecedent2} -> {consequent}"
+        return (
+            f"antecedent1={antecedent1}; antecedent2={antecedent2}; "
+            f"consequent={consequent}"
+        )
 
     variable1 = rule_dict.get("variable1")
     variable2 = rule_dict.get("variable2")
     if variable1 and variable2:
-        return f"{variable1} | {variable2}"
+        return f"variable1={variable1}; variable2={variable2}"
 
     left_var = rule_dict.get("left_var")
     right_var = rule_dict.get("right_var")
     if left_var and right_var:
-        operator = rule_dict.get("operator", "?")
-        return f"{left_var} {operator} {right_var}"
+        return f"left={left_var}; right={right_var}"
 
     return None
 
@@ -61,7 +63,7 @@ def format_rules_block(case: LogicTestCase) -> str:
 
 
 def format_variable_block(case: LogicTestCase) -> str:
-    """Format the list of Bool variables expected by the Z3 prompt."""
+    """Format typed variables expected by the Z3 prompt."""
     if case.predicate_mapping:
         numeric_variables: set[str] = set()
         for rule in case.rules:

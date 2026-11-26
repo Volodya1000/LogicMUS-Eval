@@ -17,6 +17,7 @@ import time
 from pathlib import Path
 from typing import TypedDict
 
+from logicmus_eval.enums import ManifestFilename
 from logicmus_eval.evaluate_llm import run_evaluation
 from logicmus_eval.logging_utils import configure_logging
 from logicmus_eval.run_pipeline import GenerationConfig, run_generation
@@ -101,7 +102,7 @@ def main() -> None:
         cfg_dir = out_root / cfg["name"]
         ds_dir = cfg_dir / "dataset"
         ds_dir.mkdir(parents=True, exist_ok=True)
-        dataset_file = ds_dir / "dataset_v1_frozen.jsonl"
+        dataset_file = ds_dir / ManifestFilename.DATASET_JSONL.value
 
         print(
             f"[GEN] {cfg['name']} (mus={cfg['mus_size']}, rules={cfg['total_rules']})",

@@ -1,0 +1,3259 @@
+{
+  "purpose": "Offline development validation only; no LLM inference. All three originally chosen seeds retained.",
+  "small_sample_audit": {
+    "seeds_predeclared": [
+      7,
+      42,
+      2026
+    ],
+    "pairs": 25,
+    "total_rules": 20,
+    "mus_sizes": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "reports": [
+      {
+        "seed": 7,
+        "cases": 200,
+        "validation": {
+          "sat_valid": 100,
+          "unsat_valid": 100,
+          "mus_valid": 100,
+          "mus_minimal": 100
+        },
+        "leakage": {
+          "global_word": {
+            "mean_f1": 0.4482203082203083,
+            "std_f1": 0.07986762534025393,
+            "mean_balanced_accuracy": 0.45,
+            "std_balanced_accuracy": 0.02236067977499788,
+            "fold_balanced_accuracies": [
+              0.42500000000000004,
+              0.45,
+              0.475,
+              0.42500000000000004,
+              0.47500000000000003
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "global_char": {
+            "mean_f1": 0.4927694645779752,
+            "std_f1": 0.0856743219352082,
+            "mean_balanced_accuracy": 0.505,
+            "std_balanced_accuracy": 0.043011626335213125,
+            "fold_balanced_accuracies": [
+              0.45,
+              0.575,
+              0.475,
+              0.5,
+              0.525
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "by_mus_size": {
+            "mus_size=2": {
+              "word_tfidf": {
+                "mean_f1": 0.3557575757575758,
+                "std_f1": 0.19277681848375838,
+                "mean_balanced_accuracy": 0.4,
+                "std_balanced_accuracy": 0.10954451150103323,
+                "fold_balanced_accuracies": [
+                  0.2,
+                  0.4,
+                  0.5,
+                  0.4,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.45516483516483514,
+                "std_f1": 0.24386336225796004,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.11999999999999998,
+                "fold_balanced_accuracies": [
+                  0.3,
+                  0.6,
+                  0.4,
+                  0.4,
+                  0.6
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=3": {
+              "word_tfidf": {
+                "mean_f1": 0.5335531135531135,
+                "std_f1": 0.13518927283378035,
+                "mean_balanced_accuracy": 0.56,
+                "std_balanced_accuracy": 0.048989794855663585,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.5,
+                  0.6000000000000001,
+                  0.6000000000000001,
+                  0.6
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5608369408369408,
+                "std_f1": 0.0922661757639465,
+                "mean_balanced_accuracy": 0.56,
+                "std_balanced_accuracy": 0.04898979485566357,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.6000000000000001,
+                  0.6,
+                  0.5,
+                  0.6
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=4": {
+              "word_tfidf": {
+                "mean_f1": 0.5279797979797979,
+                "std_f1": 0.1214398534095082,
+                "mean_balanced_accuracy": 0.52,
+                "std_balanced_accuracy": 0.14696938456699069,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.5,
+                  0.4,
+                  0.8,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5159595959595958,
+                "std_f1": 0.061695263019398434,
+                "mean_balanced_accuracy": 0.52,
+                "std_balanced_accuracy": 0.039999999999999994,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.6,
+                  0.5,
+                  0.5,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=5": {
+              "word_tfidf": {
+                "mean_f1": 0.5816849816849817,
+                "std_f1": 0.16200914871988648,
+                "mean_balanced_accuracy": 0.5399999999999999,
+                "std_balanced_accuracy": 0.10198039027185568,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.5,
+                  0.6000000000000001,
+                  0.7,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5685780885780886,
+                "std_f1": 0.09268909455814911,
+                "mean_balanced_accuracy": 0.5,
+                "std_balanced_accuracy": 0.0632455532033676,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.4,
+                  0.5,
+                  0.6000000000000001,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            }
+          },
+          "by_input": {
+            "direct": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.4482203082203083,
+                  "std_f1": 0.07986762534025393,
+                  "mean_balanced_accuracy": 0.45,
+                  "std_balanced_accuracy": 0.02236067977499788,
+                  "fold_balanced_accuracies": [
+                    0.42500000000000004,
+                    0.45,
+                    0.475,
+                    0.42500000000000004,
+                    0.47500000000000003
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4927694645779752,
+                  "std_f1": 0.0856743219352082,
+                  "mean_balanced_accuracy": 0.505,
+                  "std_balanced_accuracy": 0.043011626335213125,
+                  "fold_balanced_accuracies": [
+                    0.45,
+                    0.575,
+                    0.475,
+                    0.5,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.3557575757575758,
+                  "std_f1": 0.19277681848375838,
+                  "mean_balanced_accuracy": 0.4,
+                  "std_balanced_accuracy": 0.10954451150103323,
+                  "fold_balanced_accuracies": [
+                    0.2,
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.45516483516483514,
+                  "std_f1": 0.24386336225796004,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.11999999999999998,
+                  "fold_balanced_accuracies": [
+                    0.3,
+                    0.6,
+                    0.4,
+                    0.4,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5335531135531135,
+                  "std_f1": 0.13518927283378035,
+                  "mean_balanced_accuracy": 0.56,
+                  "std_balanced_accuracy": 0.048989794855663585,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.6000000000000001,
+                    0.6000000000000001,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5608369408369408,
+                  "std_f1": 0.0922661757639465,
+                  "mean_balanced_accuracy": 0.56,
+                  "std_balanced_accuracy": 0.04898979485566357,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.6000000000000001,
+                    0.6,
+                    0.5,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5279797979797979,
+                  "std_f1": 0.1214398534095082,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.14696938456699069,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.4,
+                    0.8,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5159595959595958,
+                  "std_f1": 0.061695263019398434,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.039999999999999994,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.6,
+                    0.5,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.5816849816849817,
+                  "std_f1": 0.16200914871988648,
+                  "mean_balanced_accuracy": 0.5399999999999999,
+                  "std_balanced_accuracy": 0.10198039027185568,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.6000000000000001,
+                    0.7,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5685780885780886,
+                  "std_f1": 0.09268909455814911,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.0632455532033676,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.5,
+                    0.6000000000000001,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            },
+            "z3": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.45174299384825706,
+                  "std_f1": 0.0629161856553368,
+                  "mean_balanced_accuracy": 0.45499999999999996,
+                  "std_balanced_accuracy": 0.05787918451395114,
+                  "fold_balanced_accuracies": [
+                    0.35,
+                    0.475,
+                    0.45,
+                    0.475,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.47706959706959706,
+                  "std_f1": 0.052056503680270726,
+                  "mean_balanced_accuracy": 0.47000000000000003,
+                  "std_balanced_accuracy": 0.03674234614174766,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.5,
+                    0.5,
+                    0.475,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.34853146853146855,
+                  "std_f1": 0.22886931400485083,
+                  "mean_balanced_accuracy": 0.4,
+                  "std_balanced_accuracy": 0.15491933384829668,
+                  "fold_balanced_accuracies": [
+                    0.1,
+                    0.5,
+                    0.5,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.45516483516483514,
+                  "std_f1": 0.24386336225796004,
+                  "mean_balanced_accuracy": 0.48,
+                  "std_balanced_accuracy": 0.116619037896906,
+                  "fold_balanced_accuracies": [
+                    0.3,
+                    0.6,
+                    0.5,
+                    0.4,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.4893106893106893,
+                  "std_f1": 0.17467885985183682,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.039999999999999994,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.5,
+                    0.5,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5108369408369409,
+                  "std_f1": 0.15683348262981842,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.0748331477354788,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.6,
+                    0.5,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.4446464646464646,
+                  "std_f1": 0.07431048896712777,
+                  "mean_balanced_accuracy": 0.48,
+                  "std_balanced_accuracy": 0.0748331477354788,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.4,
+                    0.6,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5084559884559884,
+                  "std_f1": 0.13303470365017034,
+                  "mean_balanced_accuracy": 0.5599999999999999,
+                  "std_balanced_accuracy": 0.07999999999999999,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.6,
+                    0.5,
+                    0.7,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.5278388278388277,
+                  "std_f1": 0.13284336169436486,
+                  "mean_balanced_accuracy": 0.48,
+                  "std_balanced_accuracy": 0.07483314773547885,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.5,
+                    0.6000000000000001,
+                    0.5,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5764102564102564,
+                  "std_f1": 0.06617968090256668,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.08944271909999159,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.6,
+                    0.6000000000000001,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "metric": "balanced_accuracy",
+          "threshold": 0.55,
+          "passed": false,
+          "failures": [
+            "primary.mus_size=3.word_tfidf: 0.5600 > 0.5500",
+            "primary.mus_size=3.char_tfidf: 0.5600 > 0.5500",
+            "direct.mus_size=3.word_tfidf: 0.5600 > 0.5500",
+            "direct.mus_size=3.char_tfidf: 0.5600 > 0.5500",
+            "z3.mus_size=4.char_tfidf: 0.5600 > 0.5500"
+          ],
+          "cv_grouping": "pair_id"
+        }
+      },
+      {
+        "seed": 42,
+        "cases": 200,
+        "validation": {
+          "sat_valid": 100,
+          "unsat_valid": 100,
+          "mus_valid": 100,
+          "mus_minimal": 100
+        },
+        "leakage": {
+          "global_word": {
+            "mean_f1": 0.42060515128782194,
+            "std_f1": 0.09824600518850833,
+            "mean_balanced_accuracy": 0.43500000000000005,
+            "std_balanced_accuracy": 0.033911649915626334,
+            "fold_balanced_accuracies": [
+              0.42500000000000004,
+              0.4,
+              0.4,
+              0.47500000000000003,
+              0.475
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "global_char": {
+            "mean_f1": 0.4240761822157171,
+            "std_f1": 0.1032090611444619,
+            "mean_balanced_accuracy": 0.45,
+            "std_balanced_accuracy": 0.05477225575051661,
+            "fold_balanced_accuracies": [
+              0.5,
+              0.42500000000000004,
+              0.375,
+              0.425,
+              0.525
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "by_mus_size": {
+            "mus_size=2": {
+              "word_tfidf": {
+                "mean_f1": 0.4890909090909091,
+                "std_f1": 0.07933608810644155,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.07999999999999999,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.4,
+                  0.6,
+                  0.4,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.46515151515151515,
+                "std_f1": 0.14482185630725478,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.13564659966250533,
+                "fold_balanced_accuracies": [
+                  0.7,
+                  0.30000000000000004,
+                  0.4,
+                  0.4,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=3": {
+              "word_tfidf": {
+                "mean_f1": 0.6081318681318681,
+                "std_f1": 0.08845873997348105,
+                "mean_balanced_accuracy": 0.64,
+                "std_balanced_accuracy": 0.048989794855663536,
+                "fold_balanced_accuracies": [
+                  0.7,
+                  0.6000000000000001,
+                  0.6,
+                  0.6,
+                  0.7
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.4867132867132867,
+                "std_f1": 0.25227605898482763,
+                "mean_balanced_accuracy": 0.54,
+                "std_balanced_accuracy": 0.07999999999999999,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.5,
+                  0.5,
+                  0.7,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=4": {
+              "word_tfidf": {
+                "mean_f1": 0.3373626373626374,
+                "std_f1": 0.27790685189667313,
+                "mean_balanced_accuracy": 0.4,
+                "std_balanced_accuracy": 0.0632455532033676,
+                "fold_balanced_accuracies": [
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.5,
+                  0.3
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.45307692307692304,
+                "std_f1": 0.12231494898646744,
+                "mean_balanced_accuracy": 0.42000000000000004,
+                "std_balanced_accuracy": 0.039999999999999994,
+                "fold_balanced_accuracies": [
+                  0.4,
+                  0.4,
+                  0.5,
+                  0.4,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=5": {
+              "word_tfidf": {
+                "mean_f1": 0.5052447552447552,
+                "std_f1": 0.13494872904144273,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.04898979485566354,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.5,
+                  0.4,
+                  0.5,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.46626262626262627,
+                "std_f1": 0.14975353012098092,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.13564659966250533,
+                "fold_balanced_accuracies": [
+                  0.6,
+                  0.6,
+                  0.30000000000000004,
+                  0.30000000000000004,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            }
+          },
+          "by_input": {
+            "direct": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.42060515128782194,
+                  "std_f1": 0.09824600518850833,
+                  "mean_balanced_accuracy": 0.43500000000000005,
+                  "std_balanced_accuracy": 0.033911649915626334,
+                  "fold_balanced_accuracies": [
+                    0.42500000000000004,
+                    0.4,
+                    0.4,
+                    0.47500000000000003,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4240761822157171,
+                  "std_f1": 0.1032090611444619,
+                  "mean_balanced_accuracy": 0.45,
+                  "std_balanced_accuracy": 0.05477225575051661,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.42500000000000004,
+                    0.375,
+                    0.425,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.4890909090909091,
+                  "std_f1": 0.07933608810644155,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.07999999999999999,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.6,
+                    0.4,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.46515151515151515,
+                  "std_f1": 0.14482185630725478,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.13564659966250533,
+                  "fold_balanced_accuracies": [
+                    0.7,
+                    0.30000000000000004,
+                    0.4,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.6081318681318681,
+                  "std_f1": 0.08845873997348105,
+                  "mean_balanced_accuracy": 0.64,
+                  "std_balanced_accuracy": 0.048989794855663536,
+                  "fold_balanced_accuracies": [
+                    0.7,
+                    0.6000000000000001,
+                    0.6,
+                    0.6,
+                    0.7
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4867132867132867,
+                  "std_f1": 0.25227605898482763,
+                  "mean_balanced_accuracy": 0.54,
+                  "std_balanced_accuracy": 0.07999999999999999,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    0.7,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.3373626373626374,
+                  "std_f1": 0.27790685189667313,
+                  "mean_balanced_accuracy": 0.4,
+                  "std_balanced_accuracy": 0.0632455532033676,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.5,
+                    0.3
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.45307692307692304,
+                  "std_f1": 0.12231494898646744,
+                  "mean_balanced_accuracy": 0.42000000000000004,
+                  "std_balanced_accuracy": 0.039999999999999994,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.5052447552447552,
+                  "std_f1": 0.13494872904144273,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.04898979485566354,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.4,
+                    0.5,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.46626262626262627,
+                  "std_f1": 0.14975353012098092,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.13564659966250533,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.6,
+                    0.30000000000000004,
+                    0.30000000000000004,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            },
+            "z3": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.46311294367917216,
+                  "std_f1": 0.08309912293592608,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.05147815070493499,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.4,
+                    0.4,
+                    0.525,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.43871467286101434,
+                  "std_f1": 0.08417905376819318,
+                  "mean_balanced_accuracy": 0.4600000000000001,
+                  "std_balanced_accuracy": 0.053851648071345036,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.42500000000000004,
+                    0.375,
+                    0.525,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.530909090909091,
+                  "std_f1": 0.08712108036880682,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.1095445115010332,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.30000000000000004,
+                    0.6,
+                    0.5,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.44272727272727275,
+                  "std_f1": 0.12222455962369679,
+                  "mean_balanced_accuracy": 0.42000000000000004,
+                  "std_balanced_accuracy": 0.09797958971132709,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.30000000000000004,
+                    0.4,
+                    0.4,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5384126984126985,
+                  "std_f1": 0.13371977257016132,
+                  "mean_balanced_accuracy": 0.5800000000000001,
+                  "std_balanced_accuracy": 0.03999999999999999,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.5,
+                    0.6,
+                    0.6,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5064935064935066,
+                  "std_f1": 0.26513870452311367,
+                  "mean_balanced_accuracy": 0.5599999999999999,
+                  "std_balanced_accuracy": 0.07999999999999999,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.5,
+                    0.5,
+                    0.7,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.4350427350427351,
+                  "std_f1": 0.2274275301428374,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.04898979485566354,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.5,
+                    0.5,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4475213675213675,
+                  "std_f1": 0.1316845237379695,
+                  "mean_balanced_accuracy": 0.4,
+                  "std_balanced_accuracy": 0.06324555320336757,
+                  "fold_balanced_accuracies": [
+                    0.30000000000000004,
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.4924242424242424,
+                  "std_f1": 0.135688564710534,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.08000000000000002,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.6000000000000001,
+                    0.4,
+                    0.4,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5081818181818182,
+                  "std_f1": 0.13137543199636453,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.07483314773547882,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.6,
+                    0.4,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "metric": "balanced_accuracy",
+          "threshold": 0.55,
+          "passed": false,
+          "failures": [
+            "primary.mus_size=3.word_tfidf: 0.6400 > 0.5500",
+            "direct.mus_size=3.word_tfidf: 0.6400 > 0.5500",
+            "z3.mus_size=3.word_tfidf: 0.5800 > 0.5500",
+            "z3.mus_size=3.char_tfidf: 0.5600 > 0.5500"
+          ],
+          "cv_grouping": "pair_id"
+        }
+      },
+      {
+        "seed": 2026,
+        "cases": 200,
+        "validation": {
+          "sat_valid": 100,
+          "unsat_valid": 100,
+          "mus_valid": 100,
+          "mus_minimal": 100
+        },
+        "leakage": {
+          "global_word": {
+            "mean_f1": 0.48477747274026894,
+            "std_f1": 0.1016087308790204,
+            "mean_balanced_accuracy": 0.495,
+            "std_balanced_accuracy": 0.024494897427831768,
+            "fold_balanced_accuracies": [
+              0.525,
+              0.47500000000000003,
+              0.475,
+              0.5249999999999999,
+              0.475
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "global_char": {
+            "mean_f1": 0.5197119967999644,
+            "std_f1": 0.03183481017792518,
+            "mean_balanced_accuracy": 0.485,
+            "std_balanced_accuracy": 0.025495097567963948,
+            "fold_balanced_accuracies": [
+              0.44999999999999996,
+              0.525,
+              0.475,
+              0.5,
+              0.475
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "by_mus_size": {
+            "mus_size=2": {
+              "word_tfidf": {
+                "mean_f1": 0.44559884559884555,
+                "std_f1": 0.23376694635845283,
+                "mean_balanced_accuracy": 0.48,
+                "std_balanced_accuracy": 0.13266499161421597,
+                "fold_balanced_accuracies": [
+                  0.3,
+                  0.5,
+                  0.5,
+                  0.7,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.45998445998445997,
+                "std_f1": 0.16028680458632197,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.14966629547095764,
+                "fold_balanced_accuracies": [
+                  0.30000000000000004,
+                  0.5,
+                  0.5,
+                  0.7,
+                  0.3
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=3": {
+              "word_tfidf": {
+                "mean_f1": 0.4830769230769231,
+                "std_f1": 0.07985193398375988,
+                "mean_balanced_accuracy": 0.42000000000000004,
+                "std_balanced_accuracy": 0.039999999999999994,
+                "fold_balanced_accuracies": [
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.4,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.48524475524475524,
+                "std_f1": 0.14149540515398704,
+                "mean_balanced_accuracy": 0.45999999999999996,
+                "std_balanced_accuracy": 0.04898979485566355,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.4,
+                  0.5,
+                  0.4,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=4": {
+              "word_tfidf": {
+                "mean_f1": 0.5555555555555556,
+                "std_f1": 0.11243653902820902,
+                "mean_balanced_accuracy": 0.54,
+                "std_balanced_accuracy": 0.08000000000000002,
+                "fold_balanced_accuracies": [
+                  0.6000000000000001,
+                  0.5,
+                  0.6000000000000001,
+                  0.6,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.4691086691086691,
+                "std_f1": 0.12453676159776467,
+                "mean_balanced_accuracy": 0.5,
+                "std_balanced_accuracy": 0.06324555320336757,
+                "fold_balanced_accuracies": [
+                  0.6,
+                  0.5,
+                  0.5,
+                  0.5,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=5": {
+              "word_tfidf": {
+                "mean_f1": 0.5345054945054944,
+                "std_f1": 0.17797801655000955,
+                "mean_balanced_accuracy": 0.52,
+                "std_balanced_accuracy": 0.14696938456699069,
+                "fold_balanced_accuracies": [
+                  0.4,
+                  0.5,
+                  0.5,
+                  0.8,
+                  0.4
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5597868797868798,
+                "std_f1": 0.08987456680372394,
+                "mean_balanced_accuracy": 0.5,
+                "std_balanced_accuracy": 0.1095445115010332,
+                "fold_balanced_accuracies": [
+                  0.4,
+                  0.5,
+                  0.4,
+                  0.7,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            }
+          },
+          "by_input": {
+            "direct": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.48477747274026894,
+                  "std_f1": 0.1016087308790204,
+                  "mean_balanced_accuracy": 0.495,
+                  "std_balanced_accuracy": 0.024494897427831768,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.47500000000000003,
+                    0.475,
+                    0.5249999999999999,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5197119967999644,
+                  "std_f1": 0.03183481017792518,
+                  "mean_balanced_accuracy": 0.485,
+                  "std_balanced_accuracy": 0.025495097567963948,
+                  "fold_balanced_accuracies": [
+                    0.44999999999999996,
+                    0.525,
+                    0.475,
+                    0.5,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.44559884559884555,
+                  "std_f1": 0.23376694635845283,
+                  "mean_balanced_accuracy": 0.48,
+                  "std_balanced_accuracy": 0.13266499161421597,
+                  "fold_balanced_accuracies": [
+                    0.3,
+                    0.5,
+                    0.5,
+                    0.7,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.45998445998445997,
+                  "std_f1": 0.16028680458632197,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.14966629547095764,
+                  "fold_balanced_accuracies": [
+                    0.30000000000000004,
+                    0.5,
+                    0.5,
+                    0.7,
+                    0.3
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.4830769230769231,
+                  "std_f1": 0.07985193398375988,
+                  "mean_balanced_accuracy": 0.42000000000000004,
+                  "std_balanced_accuracy": 0.039999999999999994,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.48524475524475524,
+                  "std_f1": 0.14149540515398704,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.04898979485566355,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5555555555555556,
+                  "std_f1": 0.11243653902820902,
+                  "mean_balanced_accuracy": 0.54,
+                  "std_balanced_accuracy": 0.08000000000000002,
+                  "fold_balanced_accuracies": [
+                    0.6000000000000001,
+                    0.5,
+                    0.6000000000000001,
+                    0.6,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4691086691086691,
+                  "std_f1": 0.12453676159776467,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.06324555320336757,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.5,
+                    0.5,
+                    0.5,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.5345054945054944,
+                  "std_f1": 0.17797801655000955,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.14696938456699069,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.5,
+                    0.5,
+                    0.8,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5597868797868798,
+                  "std_f1": 0.08987456680372394,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.1095445115010332,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.7,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            },
+            "z3": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.5048773850269372,
+                  "std_f1": 0.11856527634579028,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.02,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.5,
+                    0.475,
+                    0.5249999999999999,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5370866673093608,
+                  "std_f1": 0.029383458919799484,
+                  "mean_balanced_accuracy": 0.485,
+                  "std_balanced_accuracy": 0.020000000000000018,
+                  "fold_balanced_accuracies": [
+                    0.44999999999999996,
+                    0.5,
+                    0.475,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.4397402597402598,
+                  "std_f1": 0.24437624757633594,
+                  "mean_balanced_accuracy": 0.48,
+                  "std_balanced_accuracy": 0.14696938456699069,
+                  "fold_balanced_accuracies": [
+                    0.3,
+                    0.4,
+                    0.6000000000000001,
+                    0.7,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.48888888888888893,
+                  "std_f1": 0.19688939051854837,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.16733200530681513,
+                  "fold_balanced_accuracies": [
+                    0.30000000000000004,
+                    0.5,
+                    0.5,
+                    0.8,
+                    0.4
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.4705982905982906,
+                  "std_f1": 0.14796311039131269,
+                  "mean_balanced_accuracy": 0.42000000000000004,
+                  "std_balanced_accuracy": 0.0748331477354788,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.30000000000000004,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5152447552447552,
+                  "std_f1": 0.09750007366666767,
+                  "mean_balanced_accuracy": 0.45999999999999996,
+                  "std_balanced_accuracy": 0.04898979485566355,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5501476301476301,
+                  "std_f1": 0.059930520735904186,
+                  "mean_balanced_accuracy": 0.52,
+                  "std_balanced_accuracy": 0.039999999999999994,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.6,
+                    0.5,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5293106893106894,
+                  "std_f1": 0.12409875904096299,
+                  "mean_balanced_accuracy": 0.54,
+                  "std_balanced_accuracy": 0.04898979485566354,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    0.6,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.5235964035964036,
+                  "std_f1": 0.12133934400661513,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.06324555320336757,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.5,
+                    0.5,
+                    0.6,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5321678321678321,
+                  "std_f1": 0.07772499988812591,
+                  "mean_balanced_accuracy": 0.48,
+                  "std_balanced_accuracy": 0.0748331477354788,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.5,
+                    0.4,
+                    0.6,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "metric": "balanced_accuracy",
+          "threshold": 0.55,
+          "passed": true,
+          "failures": [],
+          "cv_grouping": "pair_id"
+        }
+      }
+    ]
+  },
+  "additional_calibration_note": "The 100-pair-per-K check was added after observing small-sample failures. It is development calibration, not a preregistered confirmatory experiment or seed selection.",
+  "additional_calibration": {
+    "seeds_predeclared": [
+      7,
+      42,
+      2026
+    ],
+    "pairs": 100,
+    "total_rules": 20,
+    "mus_sizes": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "reports": [
+      {
+        "seed": 7,
+        "cases": 800,
+        "validation": {
+          "sat_valid": 400,
+          "unsat_valid": 400,
+          "mus_valid": 400,
+          "mus_minimal": 400
+        },
+        "leakage": {
+          "global_word": {
+            "mean_f1": 0.510396618875725,
+            "std_f1": 0.029094759953667858,
+            "mean_balanced_accuracy": 0.4987500000000001,
+            "std_balanced_accuracy": 0.020310096011589923,
+            "fold_balanced_accuracies": [
+              0.48125,
+              0.51875,
+              0.51875,
+              0.5062500000000001,
+              0.46875
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "global_char": {
+            "mean_f1": 0.40886261555591136,
+            "std_f1": 0.20836526303994002,
+            "mean_balanced_accuracy": 0.49749999999999994,
+            "std_balanced_accuracy": 0.01610512340840639,
+            "fold_balanced_accuracies": [
+              0.46875,
+              0.5125,
+              0.5125,
+              0.5,
+              0.49375
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "by_mus_size": {
+            "mus_size=2": {
+              "word_tfidf": {
+                "mean_f1": 0.4997261953900488,
+                "std_f1": 0.07905786431935495,
+                "mean_balanced_accuracy": 0.485,
+                "std_balanced_accuracy": 0.051478150704934986,
+                "fold_balanced_accuracies": [
+                  0.42500000000000004,
+                  0.44999999999999996,
+                  0.475,
+                  0.575,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.513249951143248,
+                "std_f1": 0.0660031792372739,
+                "mean_balanced_accuracy": 0.515,
+                "std_balanced_accuracy": 0.04358898943540677,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.47500000000000003,
+                  0.5,
+                  0.6000000000000001,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=3": {
+              "word_tfidf": {
+                "mean_f1": 0.5044332899995185,
+                "std_f1": 0.06888706230922749,
+                "mean_balanced_accuracy": 0.515,
+                "std_balanced_accuracy": 0.020000000000000018,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.525,
+                  0.55,
+                  0.5,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.4914283807680758,
+                "std_f1": 0.047394007179616435,
+                "mean_balanced_accuracy": 0.49000000000000005,
+                "std_balanced_accuracy": 0.020000000000000007,
+                "fold_balanced_accuracies": [
+                  0.475,
+                  0.525,
+                  0.475,
+                  0.5,
+                  0.47500000000000003
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=4": {
+              "word_tfidf": {
+                "mean_f1": 0.49774699068816713,
+                "std_f1": 0.046284274401346186,
+                "mean_balanced_accuracy": 0.54,
+                "std_balanced_accuracy": 0.03391164991562633,
+                "fold_balanced_accuracies": [
+                  0.55,
+                  0.55,
+                  0.47500000000000003,
+                  0.575,
+                  0.55
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.49658761528326745,
+                "std_f1": 0.06323880650186588,
+                "mean_balanced_accuracy": 0.525,
+                "std_balanced_accuracy": 0.03872983346207418,
+                "fold_balanced_accuracies": [
+                  0.55,
+                  0.45,
+                  0.55,
+                  0.5249999999999999,
+                  0.55
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=5": {
+              "word_tfidf": {
+                "mean_f1": 0.4618400218400218,
+                "std_f1": 0.06502414271702046,
+                "mean_balanced_accuracy": 0.45499999999999996,
+                "std_balanced_accuracy": 0.03316624790355399,
+                "fold_balanced_accuracies": [
+                  0.45,
+                  0.5,
+                  0.45,
+                  0.4,
+                  0.47500000000000003
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.4936811402748124,
+                "std_f1": 0.04846254965770792,
+                "mean_balanced_accuracy": 0.49000000000000005,
+                "std_balanced_accuracy": 0.020000000000000018,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.475,
+                  0.525,
+                  0.475,
+                  0.475
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            }
+          },
+          "by_input": {
+            "direct": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.510396618875725,
+                  "std_f1": 0.029094759953667858,
+                  "mean_balanced_accuracy": 0.4987500000000001,
+                  "std_balanced_accuracy": 0.020310096011589923,
+                  "fold_balanced_accuracies": [
+                    0.48125,
+                    0.51875,
+                    0.51875,
+                    0.5062500000000001,
+                    0.46875
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.40886261555591136,
+                  "std_f1": 0.20836526303994002,
+                  "mean_balanced_accuracy": 0.49749999999999994,
+                  "std_balanced_accuracy": 0.01610512340840639,
+                  "fold_balanced_accuracies": [
+                    0.46875,
+                    0.5125,
+                    0.5125,
+                    0.5,
+                    0.49375
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.4997261953900488,
+                  "std_f1": 0.07905786431935495,
+                  "mean_balanced_accuracy": 0.485,
+                  "std_balanced_accuracy": 0.051478150704934986,
+                  "fold_balanced_accuracies": [
+                    0.42500000000000004,
+                    0.44999999999999996,
+                    0.475,
+                    0.575,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.513249951143248,
+                  "std_f1": 0.0660031792372739,
+                  "mean_balanced_accuracy": 0.515,
+                  "std_balanced_accuracy": 0.04358898943540677,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.47500000000000003,
+                    0.5,
+                    0.6000000000000001,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5044332899995185,
+                  "std_f1": 0.06888706230922749,
+                  "mean_balanced_accuracy": 0.515,
+                  "std_balanced_accuracy": 0.020000000000000018,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.525,
+                    0.55,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4914283807680758,
+                  "std_f1": 0.047394007179616435,
+                  "mean_balanced_accuracy": 0.49000000000000005,
+                  "std_balanced_accuracy": 0.020000000000000007,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.525,
+                    0.475,
+                    0.5,
+                    0.47500000000000003
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.49774699068816713,
+                  "std_f1": 0.046284274401346186,
+                  "mean_balanced_accuracy": 0.54,
+                  "std_balanced_accuracy": 0.03391164991562633,
+                  "fold_balanced_accuracies": [
+                    0.55,
+                    0.55,
+                    0.47500000000000003,
+                    0.575,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.49658761528326745,
+                  "std_f1": 0.06323880650186588,
+                  "mean_balanced_accuracy": 0.525,
+                  "std_balanced_accuracy": 0.03872983346207418,
+                  "fold_balanced_accuracies": [
+                    0.55,
+                    0.45,
+                    0.55,
+                    0.5249999999999999,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.4618400218400218,
+                  "std_f1": 0.06502414271702046,
+                  "mean_balanced_accuracy": 0.45499999999999996,
+                  "std_balanced_accuracy": 0.03316624790355399,
+                  "fold_balanced_accuracies": [
+                    0.45,
+                    0.5,
+                    0.45,
+                    0.4,
+                    0.47500000000000003
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4936811402748124,
+                  "std_f1": 0.04846254965770792,
+                  "mean_balanced_accuracy": 0.49000000000000005,
+                  "std_balanced_accuracy": 0.020000000000000018,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.475,
+                    0.525,
+                    0.475,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            },
+            "z3": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.5052653096357979,
+                  "std_f1": 0.037059943734002114,
+                  "mean_balanced_accuracy": 0.5025000000000001,
+                  "std_balanced_accuracy": 0.031770662567847094,
+                  "fold_balanced_accuracies": [
+                    0.44999999999999996,
+                    0.53125,
+                    0.50625,
+                    0.5375,
+                    0.48750000000000004
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.30433836465738306,
+                  "std_f1": 0.2491242899045673,
+                  "mean_balanced_accuracy": 0.4925,
+                  "std_balanced_accuracy": 0.009185586535436926,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.49375,
+                    0.5,
+                    0.5,
+                    0.49374999999999997
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.5342583403152098,
+                  "std_f1": 0.07444612351678484,
+                  "mean_balanced_accuracy": 0.505,
+                  "std_balanced_accuracy": 0.05787918451395117,
+                  "fold_balanced_accuracies": [
+                    0.425,
+                    0.5,
+                    0.475,
+                    0.6000000000000001,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5343602134299809,
+                  "std_f1": 0.051757166909020345,
+                  "mean_balanced_accuracy": 0.525,
+                  "std_balanced_accuracy": 0.04472135954999579,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.47500000000000003,
+                    0.5,
+                    0.6,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.48897609777938555,
+                  "std_f1": 0.08639980025696727,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.02738612787525832,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.47500000000000003,
+                    0.55,
+                    0.475,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5130813953488372,
+                  "std_f1": 0.04460101956746666,
+                  "mean_balanced_accuracy": 0.515,
+                  "std_balanced_accuracy": 0.025495097567963927,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.525,
+                    0.5,
+                    0.55,
+                    0.47500000000000003
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.4828642884370439,
+                  "std_f1": 0.04332376020683512,
+                  "mean_balanced_accuracy": 0.53,
+                  "std_balanced_accuracy": 0.03674234614174766,
+                  "fold_balanced_accuracies": [
+                    0.575,
+                    0.55,
+                    0.47500000000000003,
+                    0.5,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.49379121826939665,
+                  "std_f1": 0.06806349711625341,
+                  "mean_balanced_accuracy": 0.54,
+                  "std_balanced_accuracy": 0.040620192023179805,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.475,
+                    0.55,
+                    0.525,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.4546907199081113,
+                  "std_f1": 0.06730929733498492,
+                  "mean_balanced_accuracy": 0.43499999999999994,
+                  "std_balanced_accuracy": 0.048989794855663564,
+                  "fold_balanced_accuracies": [
+                    0.45,
+                    0.5,
+                    0.45,
+                    0.35,
+                    0.42500000000000004
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.38624183006535945,
+                  "std_f1": 0.2070228396804185,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.0316227766016838,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.55,
+                    0.5,
+                    0.45,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "metric": "balanced_accuracy",
+          "threshold": 0.55,
+          "passed": true,
+          "failures": [],
+          "cv_grouping": "pair_id"
+        }
+      },
+      {
+        "seed": 42,
+        "cases": 800,
+        "validation": {
+          "sat_valid": 400,
+          "unsat_valid": 400,
+          "mus_valid": 400,
+          "mus_minimal": 400
+        },
+        "leakage": {
+          "global_word": {
+            "mean_f1": 0.49219754158307916,
+            "std_f1": 0.026212617100062757,
+            "mean_balanced_accuracy": 0.49874999999999997,
+            "std_balanced_accuracy": 0.01992172181313654,
+            "fold_balanced_accuracies": [
+              0.46875,
+              0.51875,
+              0.48124999999999996,
+              0.5125,
+              0.5125
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "global_char": {
+            "mean_f1": 0.5236007248126313,
+            "std_f1": 0.02543961472427441,
+            "mean_balanced_accuracy": 0.51,
+            "std_balanced_accuracy": 0.014577379737113264,
+            "fold_balanced_accuracies": [
+              0.5,
+              0.525,
+              0.5125,
+              0.525,
+              0.4875
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "by_mus_size": {
+            "mus_size=2": {
+              "word_tfidf": {
+                "mean_f1": 0.47580463134405865,
+                "std_f1": 0.10236383143597304,
+                "mean_balanced_accuracy": 0.51,
+                "std_balanced_accuracy": 0.03391164991562636,
+                "fold_balanced_accuracies": [
+                  0.47500000000000003,
+                  0.475,
+                  0.55,
+                  0.5,
+                  0.55
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5046500346500347,
+                "std_f1": 0.07456379435705306,
+                "mean_balanced_accuracy": 0.515,
+                "std_balanced_accuracy": 0.06041522986797286,
+                "fold_balanced_accuracies": [
+                  0.425,
+                  0.475,
+                  0.55,
+                  0.525,
+                  0.6
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=3": {
+              "word_tfidf": {
+                "mean_f1": 0.5066996337557881,
+                "std_f1": 0.06510218170443784,
+                "mean_balanced_accuracy": 0.5,
+                "std_balanced_accuracy": 0.03872983346207418,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.525,
+                  0.525,
+                  0.425,
+                  0.525
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5454455546344372,
+                "std_f1": 0.03100066523868827,
+                "mean_balanced_accuracy": 0.5349999999999999,
+                "std_balanced_accuracy": 0.019999999999999976,
+                "fold_balanced_accuracies": [
+                  0.525,
+                  0.525,
+                  0.575,
+                  0.525,
+                  0.525
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=4": {
+              "word_tfidf": {
+                "mean_f1": 0.5463747042836002,
+                "std_f1": 0.05668738558521556,
+                "mean_balanced_accuracy": 0.525,
+                "std_balanced_accuracy": 0.04183300132670378,
+                "fold_balanced_accuracies": [
+                  0.6,
+                  0.475,
+                  0.525,
+                  0.5,
+                  0.525
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5187440778706176,
+                "std_f1": 0.05986072650626097,
+                "mean_balanced_accuracy": 0.515,
+                "std_balanced_accuracy": 0.04062019202317978,
+                "fold_balanced_accuracies": [
+                  0.575,
+                  0.5,
+                  0.525,
+                  0.45,
+                  0.5249999999999999
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=5": {
+              "word_tfidf": {
+                "mean_f1": 0.4827564847077042,
+                "std_f1": 0.03185087547381409,
+                "mean_balanced_accuracy": 0.5,
+                "std_balanced_accuracy": 0.022360679774997918,
+                "fold_balanced_accuracies": [
+                  0.525,
+                  0.525,
+                  0.475,
+                  0.5,
+                  0.475
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.4731475148198814,
+                "std_f1": 0.09625773107017614,
+                "mean_balanced_accuracy": 0.5000000000000001,
+                "std_balanced_accuracy": 0.03535533905932739,
+                "fold_balanced_accuracies": [
+                  0.45,
+                  0.525,
+                  0.55,
+                  0.5,
+                  0.475
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            }
+          },
+          "by_input": {
+            "direct": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.49219754158307916,
+                  "std_f1": 0.026212617100062757,
+                  "mean_balanced_accuracy": 0.49874999999999997,
+                  "std_balanced_accuracy": 0.01992172181313654,
+                  "fold_balanced_accuracies": [
+                    0.46875,
+                    0.51875,
+                    0.48124999999999996,
+                    0.5125,
+                    0.5125
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5236007248126313,
+                  "std_f1": 0.02543961472427441,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.014577379737113264,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.525,
+                    0.5125,
+                    0.525,
+                    0.4875
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.47580463134405865,
+                  "std_f1": 0.10236383143597304,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.03391164991562636,
+                  "fold_balanced_accuracies": [
+                    0.47500000000000003,
+                    0.475,
+                    0.55,
+                    0.5,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5046500346500347,
+                  "std_f1": 0.07456379435705306,
+                  "mean_balanced_accuracy": 0.515,
+                  "std_balanced_accuracy": 0.06041522986797286,
+                  "fold_balanced_accuracies": [
+                    0.425,
+                    0.475,
+                    0.55,
+                    0.525,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5066996337557881,
+                  "std_f1": 0.06510218170443784,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.03872983346207418,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.525,
+                    0.525,
+                    0.425,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5454455546344372,
+                  "std_f1": 0.03100066523868827,
+                  "mean_balanced_accuracy": 0.5349999999999999,
+                  "std_balanced_accuracy": 0.019999999999999976,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.525,
+                    0.575,
+                    0.525,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5463747042836002,
+                  "std_f1": 0.05668738558521556,
+                  "mean_balanced_accuracy": 0.525,
+                  "std_balanced_accuracy": 0.04183300132670378,
+                  "fold_balanced_accuracies": [
+                    0.6,
+                    0.475,
+                    0.525,
+                    0.5,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5187440778706176,
+                  "std_f1": 0.05986072650626097,
+                  "mean_balanced_accuracy": 0.515,
+                  "std_balanced_accuracy": 0.04062019202317978,
+                  "fold_balanced_accuracies": [
+                    0.575,
+                    0.5,
+                    0.525,
+                    0.45,
+                    0.5249999999999999
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.4827564847077042,
+                  "std_f1": 0.03185087547381409,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.022360679774997918,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.525,
+                    0.475,
+                    0.5,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4731475148198814,
+                  "std_f1": 0.09625773107017614,
+                  "mean_balanced_accuracy": 0.5000000000000001,
+                  "std_balanced_accuracy": 0.03535533905932739,
+                  "fold_balanced_accuracies": [
+                    0.45,
+                    0.525,
+                    0.55,
+                    0.5,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            },
+            "z3": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.5221035387967141,
+                  "std_f1": 0.036309892143289405,
+                  "mean_balanced_accuracy": 0.50875,
+                  "std_balanced_accuracy": 0.026983791431153637,
+                  "fold_balanced_accuracies": [
+                    0.48125,
+                    0.49374999999999997,
+                    0.48750000000000004,
+                    0.55,
+                    0.53125
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.3282473057288713,
+                  "std_f1": 0.26830129294409993,
+                  "mean_balanced_accuracy": 0.5125,
+                  "std_balanced_accuracy": 0.015811388300841927,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.525,
+                    0.5,
+                    0.5375000000000001,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.5123926576609827,
+                  "std_f1": 0.06408773454143911,
+                  "mean_balanced_accuracy": 0.5199999999999999,
+                  "std_balanced_accuracy": 0.02915475947422653,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.525,
+                    0.55,
+                    0.475,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5394871794871795,
+                  "std_f1": 0.03696970658699373,
+                  "mean_balanced_accuracy": 0.55,
+                  "std_balanced_accuracy": 0.03535533905932736,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.55,
+                    0.575,
+                    0.525,
+                    0.6
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5221075428735816,
+                  "std_f1": 0.044815606303842195,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.025495097567963948,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.5,
+                    0.55,
+                    0.5,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5405711903272878,
+                  "std_f1": 0.03083541148227094,
+                  "mean_balanced_accuracy": 0.525,
+                  "std_balanced_accuracy": 0.031622776601683784,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.525,
+                    0.525,
+                    0.525,
+                    0.575
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5344175400978994,
+                  "std_f1": 0.058523050501884645,
+                  "mean_balanced_accuracy": 0.5199999999999999,
+                  "std_balanced_accuracy": 0.036742346141747706,
+                  "fold_balanced_accuracies": [
+                    0.55,
+                    0.475,
+                    0.55,
+                    0.475,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5151166551166552,
+                  "std_f1": 0.07155921502037169,
+                  "mean_balanced_accuracy": 0.53,
+                  "std_balanced_accuracy": 0.03999999999999999,
+                  "fold_balanced_accuracies": [
+                    0.575,
+                    0.5,
+                    0.525,
+                    0.475,
+                    0.575
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.5010214800912476,
+                  "std_f1": 0.027777731381678338,
+                  "mean_balanced_accuracy": 0.495,
+                  "std_balanced_accuracy": 0.018708286933869712,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.5,
+                    0.47500000000000003,
+                    0.525,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.27869634340222577,
+                  "std_f1": 0.2359632559901842,
+                  "mean_balanced_accuracy": 0.515,
+                  "std_balanced_accuracy": 0.04358898943540675,
+                  "fold_balanced_accuracies": [
+                    0.44999999999999996,
+                    0.5,
+                    0.575,
+                    0.55,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "metric": "balanced_accuracy",
+          "threshold": 0.55,
+          "passed": true,
+          "failures": [],
+          "cv_grouping": "pair_id"
+        }
+      },
+      {
+        "seed": 2026,
+        "cases": 800,
+        "validation": {
+          "sat_valid": 400,
+          "unsat_valid": 400,
+          "mus_valid": 400,
+          "mus_minimal": 400
+        },
+        "leakage": {
+          "global_word": {
+            "mean_f1": 0.5083077866711417,
+            "std_f1": 0.03163726843354745,
+            "mean_balanced_accuracy": 0.5037499999999999,
+            "std_balanced_accuracy": 0.02150581316760656,
+            "fold_balanced_accuracies": [
+              0.53125,
+              0.5,
+              0.4875,
+              0.475,
+              0.5249999999999999
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "global_char": {
+            "mean_f1": 0.41674190054462584,
+            "std_f1": 0.2140177834997708,
+            "mean_balanced_accuracy": 0.5075,
+            "std_balanced_accuracy": 0.01648863244784114,
+            "fold_balanced_accuracies": [
+              0.5,
+              0.49374999999999997,
+              0.49375,
+              0.5375,
+              0.5125
+            ],
+            "n_splits": 5,
+            "status": "ok",
+            "reason": null
+          },
+          "by_mus_size": {
+            "mus_size=2": {
+              "word_tfidf": {
+                "mean_f1": 0.49054870333940104,
+                "std_f1": 0.05710369440355558,
+                "mean_balanced_accuracy": 0.49499999999999994,
+                "std_balanced_accuracy": 0.057879184513951125,
+                "fold_balanced_accuracies": [
+                  0.575,
+                  0.45,
+                  0.55,
+                  0.47500000000000003,
+                  0.425
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.5216550116550117,
+                "std_f1": 0.026531379348384378,
+                "mean_balanced_accuracy": 0.5050000000000001,
+                "std_balanced_accuracy": 0.03316624790355401,
+                "fold_balanced_accuracies": [
+                  0.525,
+                  0.55,
+                  0.5,
+                  0.45,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=3": {
+              "word_tfidf": {
+                "mean_f1": 0.5336311808751509,
+                "std_f1": 0.07922469220306691,
+                "mean_balanced_accuracy": 0.5149999999999999,
+                "std_balanced_accuracy": 0.0463680924774785,
+                "fold_balanced_accuracies": [
+                  0.475,
+                  0.47500000000000003,
+                  0.5,
+                  0.6,
+                  0.5249999999999999
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.49812277556958406,
+                "std_f1": 0.06692257140568669,
+                "mean_balanced_accuracy": 0.505,
+                "std_balanced_accuracy": 0.05338539126015656,
+                "fold_balanced_accuracies": [
+                  0.425,
+                  0.475,
+                  0.575,
+                  0.5,
+                  0.55
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=4": {
+              "word_tfidf": {
+                "mean_f1": 0.5093517052053638,
+                "std_f1": 0.08070086962326518,
+                "mean_balanced_accuracy": 0.495,
+                "std_balanced_accuracy": 0.06782329983125267,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.4,
+                  0.525,
+                  0.6,
+                  0.45
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.48809716599190284,
+                "std_f1": 0.08170125056629678,
+                "mean_balanced_accuracy": 0.495,
+                "std_balanced_accuracy": 0.05787918451395115,
+                "fold_balanced_accuracies": [
+                  0.6000000000000001,
+                  0.475,
+                  0.42500000000000004,
+                  0.5,
+                  0.475
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            },
+            "mus_size=5": {
+              "word_tfidf": {
+                "mean_f1": 0.48010269576379977,
+                "std_f1": 0.0672008231806973,
+                "mean_balanced_accuracy": 0.475,
+                "std_balanced_accuracy": 0.02738612787525829,
+                "fold_balanced_accuracies": [
+                  0.5,
+                  0.5,
+                  0.475,
+                  0.475,
+                  0.42500000000000004
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              },
+              "char_tfidf": {
+                "mean_f1": 0.4111295455280957,
+                "std_f1": 0.21079061800846852,
+                "mean_balanced_accuracy": 0.505,
+                "std_balanced_accuracy": 0.018708286933869722,
+                "fold_balanced_accuracies": [
+                  0.475,
+                  0.525,
+                  0.5,
+                  0.525,
+                  0.5
+                ],
+                "n_splits": 5,
+                "status": "ok",
+                "reason": null
+              }
+            }
+          },
+          "by_input": {
+            "direct": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.5083077866711417,
+                  "std_f1": 0.03163726843354745,
+                  "mean_balanced_accuracy": 0.5037499999999999,
+                  "std_balanced_accuracy": 0.02150581316760656,
+                  "fold_balanced_accuracies": [
+                    0.53125,
+                    0.5,
+                    0.4875,
+                    0.475,
+                    0.5249999999999999
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.41674190054462584,
+                  "std_f1": 0.2140177834997708,
+                  "mean_balanced_accuracy": 0.5075,
+                  "std_balanced_accuracy": 0.01648863244784114,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.49374999999999997,
+                    0.49375,
+                    0.5375,
+                    0.5125
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.49054870333940104,
+                  "std_f1": 0.05710369440355558,
+                  "mean_balanced_accuracy": 0.49499999999999994,
+                  "std_balanced_accuracy": 0.057879184513951125,
+                  "fold_balanced_accuracies": [
+                    0.575,
+                    0.45,
+                    0.55,
+                    0.47500000000000003,
+                    0.425
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5216550116550117,
+                  "std_f1": 0.026531379348384378,
+                  "mean_balanced_accuracy": 0.5050000000000001,
+                  "std_balanced_accuracy": 0.03316624790355401,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.55,
+                    0.5,
+                    0.45,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5336311808751509,
+                  "std_f1": 0.07922469220306691,
+                  "mean_balanced_accuracy": 0.5149999999999999,
+                  "std_balanced_accuracy": 0.0463680924774785,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.47500000000000003,
+                    0.5,
+                    0.6,
+                    0.5249999999999999
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.49812277556958406,
+                  "std_f1": 0.06692257140568669,
+                  "mean_balanced_accuracy": 0.505,
+                  "std_balanced_accuracy": 0.05338539126015656,
+                  "fold_balanced_accuracies": [
+                    0.425,
+                    0.475,
+                    0.575,
+                    0.5,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5093517052053638,
+                  "std_f1": 0.08070086962326518,
+                  "mean_balanced_accuracy": 0.495,
+                  "std_balanced_accuracy": 0.06782329983125267,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.4,
+                    0.525,
+                    0.6,
+                    0.45
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.48809716599190284,
+                  "std_f1": 0.08170125056629678,
+                  "mean_balanced_accuracy": 0.495,
+                  "std_balanced_accuracy": 0.05787918451395115,
+                  "fold_balanced_accuracies": [
+                    0.6000000000000001,
+                    0.475,
+                    0.42500000000000004,
+                    0.5,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.48010269576379977,
+                  "std_f1": 0.0672008231806973,
+                  "mean_balanced_accuracy": 0.475,
+                  "std_balanced_accuracy": 0.02738612787525829,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.475,
+                    0.475,
+                    0.42500000000000004
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4111295455280957,
+                  "std_f1": 0.21079061800846852,
+                  "mean_balanced_accuracy": 0.505,
+                  "std_balanced_accuracy": 0.018708286933869722,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.525,
+                    0.5,
+                    0.525,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            },
+            "z3": {
+              "global": {
+                "word_tfidf": {
+                  "mean_f1": 0.5174395130817688,
+                  "std_f1": 0.03165151871409863,
+                  "mean_balanced_accuracy": 0.5037499999999999,
+                  "std_balanced_accuracy": 0.0286683623529493,
+                  "fold_balanced_accuracies": [
+                    0.55,
+                    0.5,
+                    0.48125,
+                    0.46875,
+                    0.51875
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.327271306294196,
+                  "std_f1": 0.2698400445229562,
+                  "mean_balanced_accuracy": 0.5075000000000001,
+                  "std_balanced_accuracy": 0.021794494717703373,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.475,
+                    0.5,
+                    0.5375,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=2": {
+                "word_tfidf": {
+                  "mean_f1": 0.5159959113447485,
+                  "std_f1": 0.0522194546663096,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.03391164991562635,
+                  "fold_balanced_accuracies": [
+                    0.525,
+                    0.525,
+                    0.55,
+                    0.5,
+                    0.45
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5164911288612426,
+                  "std_f1": 0.05707802307106203,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.05612486080160912,
+                  "fold_balanced_accuracies": [
+                    0.55,
+                    0.55,
+                    0.525,
+                    0.4,
+                    0.5249999999999999
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=3": {
+                "word_tfidf": {
+                  "mean_f1": 0.5348970401035482,
+                  "std_f1": 0.10875162898979096,
+                  "mean_balanced_accuracy": 0.535,
+                  "std_balanced_accuracy": 0.07176350047203664,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.5,
+                    0.5,
+                    0.675,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4940745197038103,
+                  "std_f1": 0.043045513821483083,
+                  "mean_balanced_accuracy": 0.49000000000000005,
+                  "std_balanced_accuracy": 0.056124860801609104,
+                  "fold_balanced_accuracies": [
+                    0.4,
+                    0.47500000000000003,
+                    0.575,
+                    0.5,
+                    0.5
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=4": {
+                "word_tfidf": {
+                  "mean_f1": 0.5276623376623377,
+                  "std_f1": 0.05564048903936185,
+                  "mean_balanced_accuracy": 0.51,
+                  "std_balanced_accuracy": 0.04898979485566359,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.5,
+                    0.5,
+                    0.6000000000000001,
+                    0.45
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.5585524110441054,
+                  "std_f1": 0.03217706765681795,
+                  "mean_balanced_accuracy": 0.53,
+                  "std_balanced_accuracy": 0.02449489742783176,
+                  "fold_balanced_accuracies": [
+                    0.575,
+                    0.525,
+                    0.5,
+                    0.525,
+                    0.525
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              },
+              "mus_size=5": {
+                "word_tfidf": {
+                  "mean_f1": 0.48760624667601415,
+                  "std_f1": 0.06320953239536703,
+                  "mean_balanced_accuracy": 0.4800000000000001,
+                  "std_balanced_accuracy": 0.009999999999999993,
+                  "fold_balanced_accuracies": [
+                    0.5,
+                    0.47500000000000003,
+                    0.47500000000000003,
+                    0.47500000000000003,
+                    0.475
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                },
+                "char_tfidf": {
+                  "mean_f1": 0.4029102167182662,
+                  "std_f1": 0.21040240389082096,
+                  "mean_balanced_accuracy": 0.5,
+                  "std_balanced_accuracy": 0.02738612787525833,
+                  "fold_balanced_accuracies": [
+                    0.475,
+                    0.475,
+                    0.5,
+                    0.5,
+                    0.55
+                  ],
+                  "n_splits": 5,
+                  "status": "ok",
+                  "reason": null
+                }
+              }
+            }
+          }
+        },
+        "acceptance": {
+          "metric": "balanced_accuracy",
+          "threshold": 0.55,
+          "passed": true,
+          "failures": [],
+          "cv_grouping": "pair_id"
+        }
+      }
+    ]
+  }
+}

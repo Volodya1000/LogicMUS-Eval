@@ -37,9 +37,17 @@ def _resolve_dataset_filename(dataset_dir: str) -> str | None:
     if (Path(dataset_dir) / preferred).exists():
         return preferred
 
+    legacy = "dataset_v1_frozen.jsonl"
+    if (Path(dataset_dir) / legacy).exists():
+        return legacy
+
     candidates = list(Path(dataset_dir).glob("*.jsonl"))
     if not candidates:
         return None
+    if len(candidates) > 1:
+        raise ValueError(
+            "Ambiguous external datasets: specify a directory with one JSONL file"
+        )
     logger.info("Dataset found by glob fallback: %s", candidates[0])
     return candidates[0].name
 

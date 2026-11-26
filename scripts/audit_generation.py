@@ -46,6 +46,12 @@ def main() -> None:
                     "seed": seed,
                     "word_balanced_accuracy": leakage.global_word.mean_balanced_accuracy,
                     "char_balanced_accuracy": leakage.global_char.mean_balanced_accuracy,
+                    "z3_word_balanced_accuracy": leakage.by_input["z3"]["global"][
+                        "word_tfidf"
+                    ].mean_balanced_accuracy,
+                    "z3_char_balanced_accuracy": leakage.by_input["z3"]["global"][
+                        "char_tfidf"
+                    ].mean_balanced_accuracy,
                     "passed": report["acceptance"]["passed"],
                 }
             ),

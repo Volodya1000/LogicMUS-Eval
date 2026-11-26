@@ -82,3 +82,53 @@ def test_pairs_are_kept_together_in_cv():
     assert len(splits) == 5
     for train, test in splits:
         assert not ({groups[i] for i in train} & {groups[i] for i in test})
+
+
+@pytest.mark.parametrize("score", [float("nan"), float("inf"), -0.1, 1.1])
+def test_invalid_measurements_cannot_pass(score):
+    from logicmus_eval.models.manifests import TfidfMetrics
+    from logicmus_eval.models.pipeline import LeakageReport
+
+    metric = TfidfMetrics(
+        mean_balanced_accuracy=score,
+        status="ok",
+        n_splits=2,
+        fold_balanced_accuracies=[score, score],
+    )
+    report = LeakageReport(
+        global_word=metric,
+        global_char=metric,
+        by_mus_size={"mus_size=2": {"word_tfidf": metric, "char_tfidf": metric}},
+    )
+    assert not report.acceptance().passed
+
+
+def test_status_ok_requires_measured_folds():
+    from logicmus_eval.models.manifests import TfidfMetrics
+    from logicmus_eval.models.pipeline import LeakageReport
+
+    metric = TfidfMetrics(mean_balanced_accuracy=0.5, status="ok")
+    report = LeakageReport(
+        global_word=metric,
+        global_char=metric,
+        by_mus_size={"mus_size=2": {"word_tfidf": metric, "char_tfidf": metric}},
+    )
+    assert not report.acceptance().passed
+
+
+def test_both_model_visible_input_views_are_probed():
+    dataset = generate_dataset(GenerationConfig([3], 20, 10, 42, "unused"))
+    for sat, unsat in zip(dataset[::2], dataset[1::2]):
+        unsat.rules = [r.model_copy(deep=True) for r in sat.rules]
+    for case in dataset:
+        case.predicate_mapping = {
+            var: ("satmarker" if case.is_satisfiable else "unsatmarker")
+            for var in case.predicate_mapping
+        }
+    report = calculate_leakage(dataset, [3])
+    assert report.global_word.mean_balanced_accuracy == 0.5
+    assert (
+        report.by_input["direct"]["global"]["word_tfidf"].mean_balanced_accuracy == 0.5
+    )
+    assert report.by_input["z3"]["global"]["word_tfidf"].mean_balanced_accuracy == 1.0
+    assert not report.acceptance().passed

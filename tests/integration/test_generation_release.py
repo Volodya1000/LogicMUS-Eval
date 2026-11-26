@@ -55,3 +55,37 @@ def test_rejected_dataset_cannot_reach_model_inference(tmp_path, monkeypatch):
     monkeypatch.setattr(evaluate_llm, "StructuredOutputExtractor", forbidden_extractor)
     with pytest.raises(ValueError, match="not approved"):
         evaluate_llm.run_evaluation(str(tmp_path), "unused", "direct", 2, "report.json")
+
+
+def test_renamed_rejected_v2_is_still_rejected(tmp_path):
+    from logicmus_eval.release import assert_dataset_approved
+
+    with pytest.raises(ValueError, match="Leakage audit failed"):
+        run_generation(GenerationConfig([2], 1, 5, 42, str(tmp_path)))
+    alias = tmp_path / "renamed.jsonl"
+    alias.write_bytes((tmp_path / ManifestFilename.DATASET_JSONL.value).read_bytes())
+    with pytest.raises(ValueError, match="not approved"):
+        assert_dataset_approved(alias)
+
+
+@pytest.mark.parametrize("missing", ["all", "analyzers"])
+def test_release_requires_all_expected_k_measurements(tmp_path, missing):
+    from logicmus_eval.release import assert_dataset_approved
+
+    run_generation(GenerationConfig([2], 4, 5, 42, str(tmp_path), 1.0))
+    path = tmp_path / ManifestFilename.MANIFEST_JSON.value
+    manifest = json.loads(path.read_text())
+    manifest["leakage_metrics_by_mus_size"] = (
+        {} if missing == "all" else {"mus_size=2": {}}
+    )
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(ValueError, match="not approved"):
+        assert_dataset_approved(tmp_path / ManifestFilename.DATASET_JSONL.value)
+
+
+def test_frozen_v1_is_preferred_to_unrelated_jsonl(tmp_path):
+    from logicmus_eval.evaluate_llm import _resolve_dataset_filename
+
+    (tmp_path / "archive.jsonl").write_text("{}\n")
+    (tmp_path / "dataset_v1_frozen.jsonl").write_text("{}\n")
+    assert _resolve_dataset_filename(str(tmp_path)) == "dataset_v1_frozen.jsonl"

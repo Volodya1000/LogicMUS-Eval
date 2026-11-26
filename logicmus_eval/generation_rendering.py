@@ -19,7 +19,7 @@ from logicmus_eval.templates import TEMPLATES, negate
 
 
 def _literal(predicate: str, polarity: bool) -> str:
-    return predicate if polarity else negate(predicate)
+    return predicate if polarity else f"({negate(predicate)})"
 
 
 def render_rule(rule: BaseRule, pack_id: TemplatePackId, rng: random.Random) -> str:

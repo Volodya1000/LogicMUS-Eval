@@ -87,3 +87,18 @@ def test_grid_excludes_patterns_that_do_not_fit_n():
 def test_invalid_generation_config_fails_before_generation(sizes, pairs, n):
     with pytest.raises(ValueError):
         generate_dataset(GenerationConfig(sizes, pairs, n, 42, "unused"))
+
+
+def test_grid_excludes_patterns_that_exceed_predicate_budget():
+    dataset = generate_dataset(GenerationConfig([2], 2, 65, 42, "unused"))
+    assert len(dataset) == 4
+    assert all(c.metadata["pattern_id"] == "direct" for c in dataset)
+
+
+def test_impossible_predicate_budget_fails_before_any_generation(monkeypatch):
+    def forbidden_pair(*_args, **_kwargs):
+        raise AssertionError("Generation started before checking all budgets")
+
+    monkeypatch.setattr(BenchmarkGenerator, "generate_pair", forbidden_pair)
+    with pytest.raises(ValueError, match="No strategy supports"):
+        generate_dataset(GenerationConfig([2], 1, 66, 42, "unused"))

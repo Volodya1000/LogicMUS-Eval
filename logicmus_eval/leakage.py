@@ -69,7 +69,7 @@ def calculate_leakage(
 ) -> LeakageReport:
     # Use the actual model-visible rule structure and variable declarations,
     # excluding service metadata.
-    texts = [format_rules_block(case) + format_variable_block(case) for case in dataset]
+    direct_texts = [format_rules_block(case) for case in dataset]
     labels = [int(not case.is_satisfiable) for case in dataset]
     groups = []
     for case in dataset:
@@ -77,7 +77,7 @@ def calculate_leakage(
         legacy_pair = f"{case.mus_size}:{case.metadata.get('case_seed', legacy_id)}"
         groups.append(str(case.metadata.get("pair_id") or legacy_pair))
 
-    def subset(indices: list[int]) -> dict[str, TfidfMetrics]:
+    def subset(texts: list[str], indices: list[int]) -> dict[str, TfidfMetrics]:
         return {
             metric.value: evaluate_vectorizer_subset(
                 analyzer,
@@ -91,14 +91,32 @@ def calculate_leakage(
             )
         }
 
-    overall = subset(list(range(len(dataset))))
+    views = {}
+    for name, texts in (
+        ("direct", direct_texts),
+        (
+            "z3",
+            [
+                text + format_variable_block(case)
+                for text, case in zip(direct_texts, dataset)
+            ],
+        ),
+    ):
+        views[name] = {
+            "global": subset(texts, list(range(len(dataset)))),
+            **{
+                f"mus_size={k}": subset(
+                    texts, [i for i, c in enumerate(dataset) if c.mus_size == k]
+                )
+                for k in mus_sizes
+            },
+        }
+    overall = views["direct"]["global"]
     return LeakageReport(
         global_word=overall[MetricType.WORD_TFIDF.value],
         global_char=overall[MetricType.CHAR_TFIDF.value],
         by_mus_size={
-            f"mus_size={k}": subset(
-                [i for i, c in enumerate(dataset) if c.mus_size == k]
-            )
-            for k in mus_sizes
+            f"mus_size={k}": views["direct"][f"mus_size={k}"] for k in mus_sizes
         },
+        by_input=views,
     )

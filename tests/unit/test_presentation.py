@@ -106,5 +106,65 @@ def test_signed_rendering_matches_the_symbolic_literals():
         consequent_polarity=False,
     )
     assert render_rule(rule, TemplatePackId.PACK_00, random.Random(1)) == (
-        "Если неверно, что альфа и при этом бета, то неверно, что гамма."
+        "Если (неверно, что альфа) и при этом бета, то (неверно, что гамма)."
+    )
+
+
+@pytest.mark.parametrize("pack", list(TemplatePackId))
+@pytest.mark.parametrize("kind", ["or", "and"])
+def test_negative_operand_scope_is_delimited_in_every_pack(pack, kind):
+    import random
+
+    from logicmus_eval.generation_rendering import render_rule
+
+    if kind == "or":
+        rule = OrFactRule(
+            id="R1",
+            text="",
+            variable1="a",
+            variable2="b",
+            predicate1="альфа",
+            predicate2="бета",
+            polarity1=False,
+        )
+    else:
+        rule = AndImpliesRule(
+            id="R1",
+            text="",
+            antecedent1="a",
+            antecedent2="b",
+            consequent="c",
+            antecedent1_predicate="альфа",
+            antecedent2_predicate="бета",
+            consequent_predicate="гамма",
+            antecedent1_polarity=False,
+        )
+    assert "(неверно, что альфа)" in render_rule(rule, pack, random.Random(1))
+
+
+def test_role_aliases_do_not_contradict_signed_rule_text():
+    from logicmus_eval.models.test_case import LogicTestCase
+    from logicmus_eval.prompt_formatting import format_rules_block
+
+    rule = OrFactRule(
+        id="R1",
+        text="(неверно, что альфа) или бета",
+        variable1="a",
+        variable2="b",
+        predicate1="альфа",
+        predicate2="бета",
+        polarity1=False,
+    )
+    case = LogicTestCase(
+        case_id="x",
+        mus_size=3,
+        is_satisfiable=False,
+        template_pack_id=TemplatePackId.PACK_00,
+        predicate_mapping={},
+        rules=[rule],
+        mus_expected=[],
+    )
+    assert "Var: variable1=a; variable2=b" in format_rules_block(case)
+    assert format_rules_block(case) == format_rules_block(
+        LogicTestCase.model_validate_json(case.model_dump_json())
     )

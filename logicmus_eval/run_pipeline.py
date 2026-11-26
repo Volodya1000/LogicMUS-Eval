@@ -29,6 +29,7 @@ from logicmus_eval.patterns.idem import IdemPatternStrategy
 from logicmus_eval.patterns.math import MathPatternStrategy
 from logicmus_eval.patterns.merge import MergePatternStrategy
 from logicmus_eval.storage import FileStorageManager, StorageProtocol
+from logicmus_eval.templates import PREDICATE_POOL
 from logicmus_eval.verifier import build_z3_solver, verify_case
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,13 @@ def _eligible_strategies(
         for cls in STRATEGY_REGISTRY
         if cls.supports(mus_size)
         and (total_rules is None or cls.core_rule_count(mus_size) <= total_rules)
+        and (
+            total_rules is None
+            or cls.core_variable_count(mus_size)
+            + total_rules
+            - cls.core_rule_count(mus_size)
+            <= len(PREDICATE_POOL)
+        )
     ]
     if not eligible:
         raise ValueError(
@@ -169,7 +177,10 @@ def save_artifacts(
             char_tfidf=leakage.global_char,
         ),
         leakage_metrics_by_mus_size=leakage.by_mus_size,
-        leakage_acceptance=leakage.acceptance(config.leakage_threshold),
+        leakage_acceptance=leakage.acceptance(
+            config.leakage_threshold, config.mus_sizes, ("direct", "z3")
+        ),
+        leakage_metrics_by_input=leakage.by_input,
     )
 
     manifest_path = storage.save_manifest(
@@ -235,6 +246,8 @@ def run_generation(config: GenerationConfig) -> None:
         config=config,
         storage=storage,
     )
-    acceptance = leakage.acceptance(config.leakage_threshold)
+    acceptance = leakage.acceptance(
+        config.leakage_threshold, config.mus_sizes, ("direct", "z3")
+    )
     if not acceptance.passed:
         raise ValueError("Leakage audit failed: " + "; ".join(acceptance.failures))
