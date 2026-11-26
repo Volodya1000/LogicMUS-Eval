@@ -85,4 +85,4 @@
   balanced accuracy 0.4925..0.5125. Both complete audits are committed under
   docs/validation/generation-audit-2026-11-26.json. No LLM inference.
 
-- [ ] Open pull request against master (publication step).
+- [x] Open pull request against master: https://github.com/Volodya1000/LogicMUS-Eval/pull/2 (unmerged).
