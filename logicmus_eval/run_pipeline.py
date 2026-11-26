@@ -60,8 +60,15 @@ STRATEGY_REGISTRY: list[type[BasePatternStrategy]] = [
 ]
 
 
-def _eligible_strategies(mus_size: int) -> list[type[BasePatternStrategy]]:
-    eligible = [cls for cls in STRATEGY_REGISTRY if cls.supports(mus_size)]
+def _eligible_strategies(
+    mus_size: int, total_rules: int | None = None
+) -> list[type[BasePatternStrategy]]:
+    eligible = [
+        cls
+        for cls in STRATEGY_REGISTRY
+        if cls.supports(mus_size)
+        and (total_rules is None or cls.core_rule_count(mus_size) <= total_rules)
+    ]
     if not eligible:
         raise ValueError(
             f"No strategy supports mus_size={mus_size}. "
@@ -120,9 +127,16 @@ def evaluate_vectorizer_subset(
 
 def generate_dataset(config: GenerationConfig) -> list[LogicTestCase]:
     """Generate SAT/UNSAT pairs cycling through all compatible strategies."""
+    if not config.mus_sizes or len(set(config.mus_sizes)) != len(config.mus_sizes):
+        raise ValueError("mus_sizes must be non-empty and contain no duplicates")
+    if config.pairs_per_group < 1 or config.total_rules < 2:
+        raise ValueError("pairs_per_group must be >= 1 and total_rules >= 2")
+    # Validate the entire grid before constructing any case.
+    for size in config.mus_sizes:
+        _eligible_strategies(size, config.total_rules)
     dataset: list[LogicTestCase] = []
     for target_mus_size in config.mus_sizes:
-        eligible = _eligible_strategies(target_mus_size)
+        eligible = _eligible_strategies(target_mus_size, config.total_rules)
         for i in range(config.pairs_per_group):
             strategy_cls = eligible[i % len(eligible)]
             generator = BenchmarkGenerator(

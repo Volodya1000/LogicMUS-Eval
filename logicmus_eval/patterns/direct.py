@@ -10,6 +10,15 @@ from logicmus_eval.templates import TEMPLATES, negate
 class DirectPatternStrategy(BasePatternStrategy):
     name = "direct"
 
+    @classmethod
+    def supports(cls, mus_size: int) -> bool:
+        return mus_size == 2
+
+    @classmethod
+    def core_variable_count(cls, mus_size: int) -> int:
+        super().core_variable_count(mus_size)
+        return 1
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,

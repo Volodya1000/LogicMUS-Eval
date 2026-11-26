@@ -10,6 +10,20 @@ from logicmus_eval.templates import TEMPLATES, negate
 class ForkPatternStrategy(BasePatternStrategy):
     name = "fork"
 
+    @classmethod
+    def supports(cls, mus_size: int) -> bool:
+        return mus_size == 3
+
+    @classmethod
+    def core_variable_count(cls, mus_size: int) -> int:
+        super().core_variable_count(mus_size)
+        return 3
+
+    @classmethod
+    def core_rule_count(cls, mus_size: int) -> int:
+        cls.core_variable_count(mus_size)
+        return 4
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,

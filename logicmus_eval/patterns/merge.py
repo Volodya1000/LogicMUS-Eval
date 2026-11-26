@@ -13,7 +13,12 @@ class MergePatternStrategy(BasePatternStrategy):
     @classmethod
     def supports(cls, mus_size: int) -> bool:
         # AND-implies with two antecedents + one consequent → exactly 3 vars.
-        return mus_size == 3
+        return mus_size == 4
+
+    @classmethod
+    def core_variable_count(cls, mus_size: int) -> int:
+        super().core_variable_count(mus_size)
+        return 3
 
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(

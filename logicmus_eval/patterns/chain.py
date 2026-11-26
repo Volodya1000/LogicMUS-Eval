@@ -10,6 +10,15 @@ from logicmus_eval.templates import TEMPLATES
 class ChainPatternStrategy(BasePatternStrategy):
     name = "chain"
 
+    @classmethod
+    def supports(cls, mus_size: int) -> bool:
+        return mus_size >= 3
+
+    @classmethod
+    def core_variable_count(cls, mus_size: int) -> int:
+        super().core_variable_count(mus_size)
+        return mus_size - 1
+
     # pylint: disable=too-many-arguments, too-many-positional-arguments, too-many-locals
     def generate_pattern(
         self,
@@ -62,7 +71,7 @@ class ChainPatternStrategy(BasePatternStrategy):
         term_template = rng.choice(pack_templates[OperatorType.TERMINAL])
         term_pred = predicate_mapping[last_var]
 
-        prefix_not = "" if term_polarity else "not "
+        prefix_not = "" if term_polarity else "неверно, что "
 
         core_rules.append(
             TerminalRule(
