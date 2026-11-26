@@ -3,6 +3,7 @@ import random
 import re
 
 from logicmus_eval.enums import CaseStatus, OperatorType, RulePrefix, TemplatePackId
+from logicmus_eval.generation_rendering import present_rules
 from logicmus_eval.models.rules import NoiseRule
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.patterns.base import BasePatternStrategy
@@ -71,6 +72,9 @@ class BenchmarkGenerator:
         ]
 
         all_variables = core_variables + distractor_variables
+        random.Random(f"aliases:{case_seed}").shuffle(all_variables)
+        core_variables = all_variables[:num_core_variables]
+        distractor_variables = all_variables[num_core_variables:]
         full_mapping = self._get_predicate_mapping(case_seed, all_variables)
 
         sat_case = self._generate_single(
@@ -155,28 +159,9 @@ class BenchmarkGenerator:
                 )
             )
 
-        # SAT-balance guard: on short cases the terminal-only negation in UNSAT
-        # was statistically visible. This is a defensive guard (fires rarely);
-        # a stronger policy is scheduled for a follow-up iteration if leakage
-        # stays above target.
-        #
-        # We re-render from a fresh template instead of substring-replacing the
-        # predicate inside the already-rendered text: the predicate string may
-        # legitimately occur more than once (e.g. as part of another phrase), in
-        # which case `.replace(..., 1)` would corrupt the wrong occurrence.
-        if is_satisfiable and noise_rules and all(r.polarity for r in noise_rules):
-            first = noise_rules[0]
-            flipped_template = rng.choice(noise_templates_flat)
-            flipped_text = flipped_template.replace("{var}", negate(first.predicate))
-            noise_rules[0] = NoiseRule(
-                id=first.id,
-                text=flipped_text,
-                variable=first.variable,
-                predicate=first.predicate,
-                polarity=False,
-            )
-
-        all_rules = pattern_result.core_rules + noise_rules
+        all_rules = present_rules(
+            pattern_result.core_rules + noise_rules, full_mapping, pack_id, case_seed
+        )
         rng.shuffle(all_rules)
 
         # Renumber rules sequentially R1..R_total. The core/noise distinction
