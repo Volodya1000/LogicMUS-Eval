@@ -1,12 +1,13 @@
 """Independent numerical and clustering regressions (no LLM)."""
-# pylint: disable=import-outside-toplevel
 
 import pytest
 
+from logicmus_eval.analysis.statistics import cluster_interval, wilson
+from logicmus_eval.analysis.tables import metrics_for
+from logicmus_eval.models.evaluation import EvaluationCaseReport
+
 
 def test_wilson_known_reference_and_insufficient():
-    from logicmus_eval.analysis.statistics import wilson
-
     result = wilson(7, 10)
     assert result["low"] == pytest.approx(0.396778, abs=1e-5)
     assert result["high"] == pytest.approx(0.892209, abs=1e-5)
@@ -15,8 +16,6 @@ def test_wilson_known_reference_and_insufficient():
 
 
 def test_cluster_bootstrap_carries_families_and_sorts_input():
-    from logicmus_eval.analysis.statistics import cluster_interval
-
     # Each family has unequal size. The target is the row-weighted macro mean;
     # resampling rows would invent values not in {0, 1/4, 1} here.
     rows = [("a", 0.0), ("a", 0.0), ("a", 0.0), ("b", 1.0)]
@@ -32,9 +31,6 @@ def test_cluster_bootstrap_carries_families_and_sorts_input():
 
 
 def test_macro_f1_is_mean_of_normalized_outcomes():
-    from logicmus_eval.analysis.tables import metrics_for
-    from logicmus_eval.models.evaluation import EvaluationCaseReport
-
     outcomes = []
     for precision, recall, f1 in [(1, 0.5, 2 / 3), (0.5, 1, 2 / 3), (0, 0, 0)]:
         outcomes.append(

@@ -1,111 +1,115 @@
-"""Strict planned pairs, with shared family bootstrap draws on both sides."""
+"""Strict planned pairs; both sides share whole-family bootstrap multiplicities."""
 
-from typing import Any
-
-from logicmus_eval.analysis.plan import AnalysisPlan, Contrast, Selection
+from logicmus_eval.analysis.models import (
+    AnalysisRow,
+    ContrastDiagnostic,
+    ContrastResult,
+    ScoredObservation,
+)
+from logicmus_eval.analysis.plan import AnalysisPlan, Contrast
+from logicmus_eval.analysis.selection import select
 from logicmus_eval.analysis.sources import check_compatibility
 from logicmus_eval.analysis.statistics import cluster_interval
-from logicmus_eval.analysis.tables import DIMENSIONS, eligible, metric_value
+from logicmus_eval.analysis.tables import observations
 
 
-def select(rows: list[dict[str, Any]], selection: Selection) -> list[dict[str, Any]]:
-    fields = selection.model_dump(exclude_none=True)
-    return [
-        row for row in rows if all(row[key] == value for key, value in fields.items())
-    ]
-
-
-def _pairs(rows: list[dict[str, Any]], contrast: Contrast) -> dict[str, dict[str, Any]]:
+def _pairs(rows: list[AnalysisRow], contrast: Contrast) -> dict[str, ScoredObservation]:
     result = {}
-    for row in eligible(rows, contrast.metric):
+    for item in observations(rows, contrast.metric):
+        row = item.row
         key = (
-            row["case_uid"]
+            row.job.case_uid
             if contrast.kind == "strategy"
-            else str((row["family_id"], row["outcome"].expected_sat))
+            else str((row.provenance.family_id, row.outcome.expected_sat))
         )
         if key in result:
             raise ValueError(
                 "Ambiguous contrast: select one series/pattern/K/N/model/strategy per side"
             )
-        result[key] = row
+        result[key] = item
     return result
 
 
-def contrast_table(  # pylint: disable=too-many-locals
-    rows: list[dict[str, Any]], plan: AnalysisPlan, diagnostics: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
-    result = []
-    for contrast in plan.contrasts:
-        left_rows, right_rows = (
-            select(rows, contrast.left),
-            select(rows, contrast.right),
+def _validate_pair(a: AnalysisRow, b: AnalysisRow, contrast: Contrast) -> None:
+    left, right = a.dimensions, b.dimensions
+    if (
+        left.family_key() != right.family_key()
+        or a.provenance.family_id != b.provenance.family_id
+    ):
+        raise ValueError(
+            "Paired contrast has incompatible identities; K sweeps are not paired"
         )
-        left, right = _pairs(left_rows, contrast), _pairs(right_rows, contrast)
-        diagnostic = {
-            "name": contrast.name,
-            "missing_left": sorted(right.keys() - left.keys()),
-            "missing_right": sorted(left.keys() - right.keys()),
-        }
-        diagnostics.append(diagnostic)
-        if not left or not right or left.keys() != right.keys():
+    if contrast.kind == "strategy":
+        if {left.strategy, right.strategy} != {"direct", "z3"}:
+            raise ValueError("Strategy contrast requires direct versus z3")
+        if left.n != right.n or a.provenance.pair_id != b.provenance.pair_id:
+            raise ValueError("Paired contrast has incompatible identities")
+    elif (
+        left.series_kind != "noise_sweep"
+        or left.strategy != right.strategy
+        or left.n == right.n
+    ):
+        raise ValueError(
+            "Noise contrast requires different N in the same noise_sweep and strategy"
+        )
+    if a.outcome.expected_sat != b.outcome.expected_sat or (
+        contrast.kind == "strategy" and a.outcome.expected_mus != b.outcome.expected_mus
+    ):
+        raise ValueError("Paired reference outcomes differ")
+
+
+def _contrast(
+    rows: list[AnalysisRow],
+    contrast: Contrast,
+    diagnostics: list[ContrastDiagnostic],
+    plan: AnalysisPlan,
+) -> ContrastResult:
+    left_rows, right_rows = select(rows, contrast.left), select(rows, contrast.right)
+    left, right = _pairs(left_rows, contrast), _pairs(right_rows, contrast)
+    diagnostics.append(
+        ContrastDiagnostic(
+            name=contrast.name,
+            missing_left=sorted(right.keys() - left.keys()),
+            missing_right=sorted(left.keys() - right.keys()),
+        )
+    )
+    if not left or not right or left.keys() != right.keys():
+        raise ValueError(
+            f"Contrast {contrast.name}: missing paired observations; see diagnostics.json"
+        )
+    for side in (left_rows, right_rows):
+        if len({row.dimensions for row in side}) != 1:
             raise ValueError(
-                f"Contrast {contrast.name}: missing paired observations; see diagnostics.json"
+                "Contrast must select exactly one cell per side; "
+                "no implicit budget/model/topology averaging"
             )
-        for side in (left_rows, right_rows):
-            if len({tuple(row[field] for field in DIMENSIONS) for row in side}) != 1:
-                raise ValueError(
-                    "Contrast must select exactly one cell per side; "
-                    "no implicit budget/model/topology averaging"
-                )
-        check_compatibility(left_rows + right_rows)
-        differences = []
-        for key in sorted(left):
-            a, b = left[key], right[key]
-            fixed = [
-                field for field in DIMENSIONS if field not in {"group", "N", "strategy"}
-            ]
-            fixed.append("family_id")
-            if contrast.kind == "strategy":
-                fixed += ["N", "pair_id"]
-                if {a["strategy"], b["strategy"]} != {"direct", "z3"}:
-                    raise ValueError("Strategy contrast requires direct versus z3")
-            elif (
-                a["series_kind"] != "noise_sweep"
-                or a["strategy"] != b["strategy"]
-                or a["N"] == b["N"]
-            ):
-                raise ValueError(
-                    "Noise contrast requires different N in the same noise_sweep and strategy"
-                )
-            if any(a[field] != b[field] for field in fixed):
-                raise ValueError(
-                    "Paired contrast has incompatible identities; K sweeps are not paired"
-                )
-            if a["outcome"].expected_sat != b["outcome"].expected_sat or (
-                contrast.kind == "strategy"
-                and a["outcome"].expected_mus != b["outcome"].expected_mus
-            ):
-                raise ValueError("Paired reference outcomes differ")
-            differences.append(
-                (
-                    a["family_id"],
-                    metric_value(b, contrast.metric) - metric_value(a, contrast.metric),
-                )
-            )
-        interval = cluster_interval(
-            differences, **plan.intervals.model_dump(exclude={"method"})
-        )
-        result.append(
-            {
-                "name": contrast.name,
-                "kind": contrast.kind,
-                "metric": contrast.metric,
-                "direction": "right-minus-left",
-                "left": contrast.left.model_dump(exclude_none=True),
-                "right": contrast.right.model_dump(exclude_none=True),
-                "pairs": len(differences),
-                "estimate": sum(value for _, value in differences) / len(differences),
-                **interval,
-            }
-        )
-    return result
+    check_compatibility(left_rows + right_rows)
+    differences = []
+    for key in sorted(left):
+        a, b = left[key], right[key]
+        _validate_pair(a.row, b.row, contrast)
+        differences.append((a.row.provenance.family_id, b.value - a.value))
+    settings = plan.intervals
+    interval = cluster_interval(
+        differences,
+        seed=settings.seed,
+        repeats=settings.repeats,
+        level=settings.level,
+        min_families=settings.min_families,
+    )
+    return ContrastResult(
+        contrast.name,
+        contrast.kind,
+        contrast.metric,
+        contrast.left,
+        contrast.right,
+        len(differences),
+        sum(value for _, value in differences) / len(differences),
+        interval,
+    )
+
+
+def contrast_table(
+    rows: list[AnalysisRow], plan: AnalysisPlan, diagnostics: list[ContrastDiagnostic]
+) -> list[ContrastResult]:
+    return [_contrast(rows, item, diagnostics, plan) for item in plan.contrasts]

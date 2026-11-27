@@ -14,6 +14,8 @@ from logicmus_eval.enums import (
 REPORT_SCHEMA_VERSION: int = 3
 METRIC_DEFINITIONS_VERSION: str = "3"
 Z3_EXECUTION_PROTOCOL_VERSION: str = "1"
+Purpose = Literal["development", "confirmation"]
+SeriesKind = Literal["noise_sweep", "k_sweep", "topology_panel"]
 
 
 class ExtractionMetadata(BaseModel):
@@ -62,9 +64,9 @@ class ExperimentProvenance(BaseModel):
     family_id: str
     pair_id: str
     pattern_id: str
-    purpose: str
+    purpose: Purpose
     series_id: str
-    series_kind: str
+    series_kind: SeriesKind
     seed: int
     pair_index: int
     total_rules: int

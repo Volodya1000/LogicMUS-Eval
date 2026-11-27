@@ -177,3 +177,64 @@ and degeneracy marks. The independent known noise F1 contrast was -0.4 with
 interval [-0.8, 0]. A second read-only review confirmed the version/selection fixes
 and found no remaining substantive issues. Demonstration outcomes are artificial;
 they are not measurements of any real model.
+
+## Reliability and typing follow-up (2026-11-28)
+
+The public `analyze(inputs, plan, output, *, plots=False)` API, CLI, CSV columns,
+scientific estimands and statistical formulas are unchanged. The implementation now
+uses validated saved-run/request/event contracts and typed internal rows, dimensions,
+conditions, summaries and contrasts. `ConfidenceInterval` is a fixed TypedDict to
+preserve its dictionary API. Dynamic JSON dictionaries remain at serialization,
+provider-envelope and dynamic-metric boundaries. The existing live runner's mutable
+trace serialization interface is preserved; analysis never uses its untyped fields.
+Pydantic's mypy plugin checks constructor arguments as well as attributes, and explicit
+Any is forbidden in analysis and saved snapshot contracts. A positive/negative mypy
+regression checks actual field, interval, indexing and constructor errors.
+
+The package initializer exposes the API; `service.py` orchestrates stages,
+`selection.py` forms groups, `models.py` defines contracts, `artifacts.py` serializes
+and publishes, and `legacy.py` describes historical formats. There are no new
+factories or inference interfaces. Metric applicability and per-observation
+contributions now live in `evaluation/metrics/semantics.py`, used by metric classes,
+accounting, confidence intervals and contrasts. An excluded observation returns
+None; an included failed/null-scored UNSAT observation contributes zero. These are
+the existing PR #3 rules, shared instead of reimplemented.
+
+Every saved run is read under one existing runner lock. The initial manifest read
+only bootstraps the journal identity; it is reread and compared after acquiring the
+lock. Manifest/report parsing, journal validation, root/subgroup verification and
+hashing happen in that critical section. Report hashes use the exact bytes parsed,
+and files are never reopened for hashing after unlock. Missing historical source
+paths and a different current checkout remain supported. Tests check lock ownership
+at report reads, a single report-byte read and unchanged saved files.
+
+Publication starts with an atomic `running` manifest. Verified cases and summaries
+are written before attempting contrasts, so contrast rejection preserves useful
+partial evidence. `complete` is atomically published only after every requested
+table and figure exists. The additive `plots_requested` field records that request;
+`artifacts` now hashes diagnostics and figures as well as CSVs. Plotting errors,
+interruptions and publication errors retain partial files and error details and
+never intentionally publish completion. A failed final write attempts a rejected
+publication; if the filesystem also prevents that write, the original I/O error is
+raised with a note and the last atomically published state remains authoritative.
+A hard process death can leave `running`; it is not a completed experiment.
+
+Standalone `plot_tables` accepts only completed analyses and requires all three CSV
+hashes before parsing. The service can render its already hashed tables inside its
+active publication, without independently promoting state. All retained hashes are
+checked before redraw, including previously exported figures. Redraw cannot promote
+an interrupted analysis with uncommitted tables. Storage/OS durability and manual
+modifications that ignore the lock remain outside the integrity guarantee.
+
+The hardened implementation passed **418 tests**, Ruff check/format, strict mypy
+with the Pydantic plugin, and Pylint for the package and PR consumers/tests. New
+regressions cover plot failure, interruption, atomic replacement failure, missing
+table hashes, rejected contrasts retaining tables, coherent byte snapshots and
+shared metric semantics. Against the original PR commit `8a08c66`, the same saved
+mock run produced identical CSV columns and values: 72 cases, 18 summaries and two
+contrasts. The bootstrap/Wilson implementation changed only its return annotations.
+
+Pre-commit was run over every file changed by PR #7 with UV_NO_SYNC=1 and the
+already installed locked dependencies; all hooks execute. Without that environment
+flag, uv attempted an editable-package rebuild through an unavailable proxy before
+reaching the checks. This does not change repository hooks or skip validation.

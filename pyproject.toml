@@ -31,9 +31,18 @@ dev = [
 module = ["matplotlib", "matplotlib.*"]
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = ["logicmus_eval.analysis.*", "logicmus_eval.runner.snapshot", "logicmus_eval.runner.snapshot_models", "logicmus_eval.evaluation.metrics.semantics"]
+disallow_any_explicit = true
+
 [tool.mypy]
 strict = true
 files = ["logicmus_eval", "scripts"]
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_typed = true
+init_forbid_extra = true
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

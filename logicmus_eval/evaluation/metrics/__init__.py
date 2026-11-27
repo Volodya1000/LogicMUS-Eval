@@ -1,5 +1,9 @@
 """Public metric API; implementations each have one responsibility."""
 
+from collections.abc import Sequence
+
+from pydantic import JsonValue
+
 from logicmus_eval.evaluation.metrics.accounting import accounting_counts
 from logicmus_eval.evaluation.metrics.base import BaseMetric
 from logicmus_eval.evaluation.metrics.code_execution_error_rate import (
@@ -17,6 +21,7 @@ from logicmus_eval.evaluation.metrics.token_usage import TokenUsageMetric
 from logicmus_eval.evaluation.metrics.valid_response_accuracy import (
     ValidResponseAccuracyMetric,
 )
+from logicmus_eval.models.evaluation import EvaluationCaseReport
 
 __all__: list[str] = [
     "BaseMetric",
@@ -45,3 +50,16 @@ def build_metrics() -> list[BaseMetric]:
         CodeExecutionErrorRateMetric(),
         ValidResponseAccuracyMetric(),
     ]
+
+
+def aggregate_outcomes(
+    outcomes: Sequence[EvaluationCaseReport], planned: int
+) -> dict[str, JsonValue]:
+    """One aggregation entry point for saved outcomes and offline consumers."""
+    result: dict[str, JsonValue] = {}
+    for metric in build_metrics():
+        for outcome in outcomes:
+            metric.update_report(outcome)
+        result.update(metric.compute())
+    result.update(accounting_counts(outcomes, planned))
+    return result

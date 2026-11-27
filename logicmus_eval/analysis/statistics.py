@@ -3,10 +3,11 @@
 from collections import defaultdict
 from random import Random
 from statistics import NormalDist
-from typing import Any
+
+from logicmus_eval.analysis.models import ConfidenceInterval
 
 
-def unavailable(reason: str, families: int) -> dict[str, Any]:
+def unavailable(reason: str, families: int) -> ConfidenceInterval:
     return {
         "status": "unavailable",
         "reason": reason,
@@ -20,7 +21,7 @@ def unavailable(reason: str, families: int) -> dict[str, Any]:
 
 def wilson(
     successes: int, count: int, level: float = 0.95, min_families: int = 2
-) -> dict[str, Any]:
+) -> ConfidenceInterval:
     if not 0 <= successes <= count:
         raise ValueError("Invalid binomial counts")
     if count < min_families:
@@ -59,7 +60,7 @@ def cluster_interval(
     repeats: int = 10_000,
     level: float = 0.95,
     min_families: int = 2,
-) -> dict[str, Any]:
+) -> ConfidenceInterval:
     """Row-weighted mean; a sampled family contributes every related row together.
 
     For paired contrasts rows contain within-pair differences. The same family

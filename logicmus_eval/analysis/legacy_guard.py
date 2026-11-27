@@ -1,9 +1,13 @@
 """Stop legacy consumers before their historical joins or metric reconstruction."""
 
 import csv
-import json
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+
+from pydantic import JsonValue, TypeAdapter
+
+JSON_OBJECT = TypeAdapter(dict[str, JsonValue])
+JSON_VALUE: TypeAdapter[JsonValue] = TypeAdapter(JsonValue)
 
 MESSAGE = (
     "Controlled results require: logicmus-eval analyze-controlled "
@@ -11,9 +15,11 @@ MESSAGE = (
 )
 
 
-def reject_report(data: dict[str, Any]) -> None:
-    if data.get("runner_provenance") or any(
-        item.get("experiment") for item in data.get("details", [])
+def reject_report(data: Mapping[str, JsonValue]) -> None:
+    details = data.get("details")
+    if data.get("runner_provenance") or (
+        isinstance(details, list)
+        and any(isinstance(item, dict) and item.get("experiment") for item in details)
     ):
         raise ValueError(MESSAGE)
 
@@ -39,12 +45,14 @@ def reject_controlled(root: Path) -> None:
                 raise ValueError(MESSAGE)
     manifest = root / "manifest.json"
     if manifest.is_file():
-        items = json.loads(manifest.read_text(encoding="utf-8"))
+        items = JSON_VALUE.validate_json(manifest.read_bytes())
         if isinstance(items, list):
             for item in items:
-                if isinstance(item, dict) and item.get("report"):
-                    report = Path(item["report"])
+                if isinstance(item, dict) and isinstance(
+                    report_name := item.get("report"), str
+                ):
+                    report = Path(report_name)
                     if not report.is_file():
                         report = root / report
                     if report.is_file():
-                        reject_report(json.loads(report.read_text(encoding="utf-8")))
+                        reject_report(JSON_OBJECT.validate_json(report.read_bytes()))
