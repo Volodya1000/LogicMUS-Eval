@@ -9,13 +9,13 @@ from logicmus_eval.evaluation.strategies.base import (
 from logicmus_eval.evaluation.strategies.z3_prompt import (
     Z3_PROMPT_TEMPLATE,
 )
-from logicmus_eval.extractor import ExtractionResult, StructuredOutputExtractor
 from logicmus_eval.models.evaluation import (
     Z3_EXECUTION_PROTOCOL_VERSION,
     CasePrediction,
     ExtractionMetadata,
     Z3ExecutionResult,
 )
+from logicmus_eval.models.extraction import ExtractionClient, ExtractionResult
 from logicmus_eval.models.llm import LLMToZ3Response
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.sandbox.executor import Z3CodeExecutor
@@ -39,7 +39,7 @@ class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
         )
 
     def evaluate_case(
-        self, case: LogicTestCase, extractor: StructuredOutputExtractor
+        self, case: LogicTestCase, extractor: ExtractionClient
     ) -> tuple[CasePrediction, ExtractionMetadata]:
         prompt: str = self.build_prompt(case)
         result: ExtractionResult[LLMToZ3Response] = extractor.extract_with_metadata(

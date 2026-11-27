@@ -6,18 +6,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from logicmus_eval.enums import ManifestFilename
-from logicmus_eval.evaluation.metrics import (
-    BaseMetric,
-    CodeExecutionErrorRateMetric,
-    ExecutionTimeMetric,
-    InfrastructureErrorRateMetric,
-    MusValidMetric,
-    RefusalRateMetric,
-    ResponseErrorRateMetric,
-    SatAccuracyMetric,
-    TokenUsageMetric,
-    ValidResponseAccuracyMetric,
-)
+from logicmus_eval.evaluation.metrics import BaseMetric, build_metrics
 from logicmus_eval.evaluation.pipeline import EvaluationPipeline
 from logicmus_eval.evaluation.strategies import (
     DIRECT_PROMPT_TEMPLATE,
@@ -55,17 +44,7 @@ def _resolve_dataset_filename(dataset_dir: str) -> str | None:
 
 
 def _build_metrics() -> list[BaseMetric]:
-    return [
-        SatAccuracyMetric(),
-        MusValidMetric(),
-        TokenUsageMetric(),
-        ExecutionTimeMetric(),
-        RefusalRateMetric(),
-        InfrastructureErrorRateMetric(),
-        ResponseErrorRateMetric(),
-        CodeExecutionErrorRateMetric(),
-        ValidResponseAccuracyMetric(),
-    ]
+    return build_metrics()
 
 
 def _log_summary(report: EvaluationSummary) -> None:

@@ -31,3 +31,17 @@ __all__: list[str] = [
     "ValidResponseAccuracyMetric",
     "accounting_counts",
 ]
+
+
+def build_metrics() -> list[BaseMetric]:
+    return [
+        SatAccuracyMetric(),
+        MusValidMetric(),
+        TokenUsageMetric(),
+        ExecutionTimeMetric(),
+        RefusalRateMetric(),
+        InfrastructureErrorRateMetric(),
+        ResponseErrorRateMetric(),
+        CodeExecutionErrorRateMetric(),
+        ValidResponseAccuracyMetric(),
+    ]

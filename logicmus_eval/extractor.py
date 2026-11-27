@@ -1,10 +1,9 @@
-import json
 import logging
 import time
 from typing import TypeVar
 
 import litellm
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 from tenacity import (
     AttemptManager,
     Retrying,
@@ -15,10 +14,10 @@ from tenacity import (
 
 from logicmus_eval.enums import EvaluationErrorStage, EvaluationErrorType
 from logicmus_eval.errors import ExtractorError
-from logicmus_eval.evaluation.diagnostics import is_refusal
-from logicmus_eval.extractor_metadata import extract_usage_metadata, response_field
+from logicmus_eval.extractor_metadata import extract_usage_metadata
 from logicmus_eval.models.evaluation import ExtractionMetadata
 from logicmus_eval.models.extraction import ExtractionResult
+from logicmus_eval.response_processing import parse_response
 
 T = TypeVar("T", bound=BaseModel)
 TRANSIENT_API_ERRORS: tuple[type[Exception], ...] = (
@@ -88,71 +87,7 @@ class StructuredOutputExtractor:
         # waits) before any response access, JSON parsing or schema validation.
         metadata = extract_usage_metadata(response, time.perf_counter() - start_time)
         metadata.request_attempts = attempts
-        choices: object = response_field(response, "choices")
-        message: object = (
-            response_field(choices[0], "message")
-            if isinstance(choices, (list, tuple)) and choices
-            else None
-        )
-        content: object = response_field(message, "content")
-        self.logger.info("RAW LLM OUTPUT:\n%s", content)
-        refusal: object = response_field(message, "refusal")
-        if isinstance(refusal, str) and refusal:
-            raise ExtractorError(
-                refusal,
-                error_type=EvaluationErrorType.REFUSAL,
-                stage=EvaluationErrorStage.RESPONSE,
-                metadata=metadata,
-                raw_response=content
-                if isinstance(content, str) and content
-                else refusal,
-            )
-        if (
-            content is None
-            or content == ""
-            or (isinstance(content, str) and not content.strip())
-        ):
-            raise ExtractorError(
-                "Empty response from LLM",
-                error_type=EvaluationErrorType.EMPTY_RESPONSE,
-                stage=EvaluationErrorStage.RESPONSE,
-                metadata=metadata,
-                raw_response=content if isinstance(content, str) else None,
-            )
-        if not isinstance(content, str):
-            raise ExtractorError(
-                "Response content must be text",
-                error_type=EvaluationErrorType.SCHEMA_ERROR,
-                stage=EvaluationErrorStage.SCHEMA,
-                metadata=metadata,
-                raw_response=repr(content),
-            )
-        try:
-            data: object = json.loads(content)
-        except json.JSONDecodeError as exc:
-            raise ExtractorError(
-                f"Failed to parse JSON: {exc}",
-                error_type=EvaluationErrorType.JSON_ERROR,
-                stage=EvaluationErrorStage.PARSE,
-                metadata=metadata,
-                raw_response=content,
-                # Inspect only unstructured prose, never JSON/code payloads.
-                refusal=not content.lstrip().startswith(("{", "[", "```"))
-                and is_refusal(content),
-            ) from exc
-        try:
-            parsed_response: T = response_model.model_validate(data, strict=True)
-        except ValidationError as exc:
-            raise ExtractorError(
-                f"Response schema validation failed: {exc}",
-                error_type=EvaluationErrorType.SCHEMA_ERROR,
-                stage=EvaluationErrorStage.SCHEMA,
-                metadata=metadata,
-                raw_response=content,
-            ) from exc
-        return ExtractionResult(
-            data=parsed_response, metadata=metadata, raw_response=content
-        )
+        return parse_response(response, response_model, metadata)
 
     def extract(self, prompt: str, response_model: type[T]) -> T:
         return self.extract_with_metadata(prompt, response_model).data

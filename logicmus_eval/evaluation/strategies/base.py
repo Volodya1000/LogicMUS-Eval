@@ -2,8 +2,8 @@
 
 from abc import ABC, abstractmethod
 
-from logicmus_eval.extractor import StructuredOutputExtractor
 from logicmus_eval.models.evaluation import CasePrediction, ExtractionMetadata
+from logicmus_eval.models.extraction import ExtractionClient
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.prompt_formatting import format_rules_block, format_variable_block
 
@@ -26,6 +26,6 @@ class BaseEvaluationStrategy(ABC):
 
     @abstractmethod
     def evaluate_case(
-        self, case: LogicTestCase, extractor: StructuredOutputExtractor
+        self, case: LogicTestCase, extractor: ExtractionClient
     ) -> tuple[CasePrediction, ExtractionMetadata]:
         pass

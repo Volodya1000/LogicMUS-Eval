@@ -21,6 +21,12 @@ def _token_count(value: object) -> int | None:
 def extract_usage_metadata(response: object, elapsed_time: float) -> ExtractionMetadata:
     usage: object = response_field(response, "usage")
     details: object = response_field(usage, "completion_tokens_details")
+    choices = response_field(response, "choices")
+    finish = (
+        response_field(choices[0], "finish_reason")
+        if isinstance(choices, (list, tuple)) and choices
+        else None
+    )
     return ExtractionMetadata(
         latency_seconds=elapsed_time,
         llm_latency_seconds=elapsed_time,
@@ -28,4 +34,5 @@ def extract_usage_metadata(response: object, elapsed_time: float) -> ExtractionM
         completion_tokens=_token_count(response_field(usage, "completion_tokens")),
         thinking_tokens=_token_count(response_field(details, "reasoning_tokens")),
         total_tokens=_token_count(response_field(usage, "total_tokens")),
+        finish_reason=finish if isinstance(finish, str) else None,
     )
