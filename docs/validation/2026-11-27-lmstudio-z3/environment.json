@@ -1,0 +1,41 @@
+{
+  "python": "3.13.9 (main, Oct 28 2025, 12:03:59) [MSC v.1944 64 bit (AMD64)]",
+  "dependencies": {
+    "z3-solver": "5.1.0.0",
+    "litellm": "1.102.1",
+    "pydantic": "2.13.5"
+  },
+  "lmstudio_model": {
+    "type": "llm",
+    "publisher": "lmstudio-community",
+    "key": "qwen2.5-coder-14b-instruct",
+    "display_name": "Qwen2.5 Coder 14B Instruct",
+    "architecture": "qwen2",
+    "quantization": {
+      "name": "Q4_K_M",
+      "bits_per_weight": 4
+    },
+    "size_bytes": 8988110784,
+    "params_string": "14B",
+    "loaded_instances": [
+      {
+        "id": "qwen2.5-coder-14b-instruct",
+        "config": {
+          "context_length": 12288,
+          "eval_batch_size": 512,
+          "parallel": 1,
+          "flash_attention": true,
+          "offload_kv_cache_to_gpu": true
+        }
+      }
+    ],
+    "max_context_length": 32768,
+    "format": "gguf",
+    "capabilities": {
+      "vision": false,
+      "trained_for_tool_use": false
+    },
+    "description": null
+  },
+  "note": "Model inventory queried after the completed two-request smoke; no generation requests in this check."
+}

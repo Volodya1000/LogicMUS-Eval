@@ -9,8 +9,9 @@ from logicmus_eval.enums import (
     EvaluationStatus,
 )
 
-REPORT_SCHEMA_VERSION = 3
-METRIC_DEFINITIONS_VERSION = "3"
+REPORT_SCHEMA_VERSION: int = 3
+METRIC_DEFINITIONS_VERSION: str = "3"
+Z3_EXECUTION_PROTOCOL_VERSION: str = "1"
 
 
 class ExtractionMetadata(BaseModel):
@@ -43,6 +44,8 @@ class Z3ExecutionResult(BaseModel):
     is_sat: bool | None = None
     conflict_core: list[str] = Field(default_factory=list)
     error: str | None = None
+    error_type: EvaluationErrorType | None = None
+    diagnostics: str = ""
     execution_time: float = 0.0
 
 
@@ -92,4 +95,5 @@ class EvaluationSummary(BaseModel):
     # Assigned by the new pipeline only; loading legacy JSON never upgrades it.
     report_schema_version: int | None = None
     metric_definitions_version: str | None = None
+    z3_execution_protocol_version: str | None = None
     status: EvaluationStatus | None = None

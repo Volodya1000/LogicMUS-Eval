@@ -2,42 +2,33 @@
 
 import logging
 from pathlib import Path
+from typing import TextIO
 
-from pydantic import BaseModel, ValidationError
+from pydantic import JsonValue, ValidationError
 
 from logicmus_eval.enums import EvaluationStatus, ManifestFilename
-from logicmus_eval.models.evaluation import EvaluationSummary
+from logicmus_eval.errors import IncompleteReportError
+from logicmus_eval.models.evaluation import EvaluationSummary, RunInfo
+from logicmus_eval.models.report_manifest import ReportConfig, ReportManifestEntry
 
-logger = logging.getLogger(__name__)
+__all__: list[str] = [
+    "IncompleteReportError",
+    "ReportConfig",
+    "ReportManifestEntry",
+    "is_completed",
+    "report_is_complete",
+    "require_completed_report",
+]
 
-
-class ReportConfig(BaseModel):
-    name: str
-    exp: str
-    mus_size: int
-    total_rules: int
-    pairs: int | None = None
-
-
-class ReportManifestEntry(BaseModel):
-    report: Path
-    config: ReportConfig
-    model: str
-    model_label: str | None = None
-    strategy: str
-    planned: int | None = None
-
-
-class IncompleteReportError(ValueError):
-    """A returned report is not evidence of a completed evaluation."""
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 def is_completed(report: EvaluationSummary, expected_cases: int | None = None) -> bool:
     """Require completion evidence, including context for old partial snapshots."""
-    count = len(report.details)
+    count: int = len(report.details)
     if expected_cases is not None and count != expected_cases:
         return False
-    info = report.run_info
+    info: RunInfo | None = report.run_info
     if info is not None and (
         info.finished_at is None or info.total_cases_processed != count
     ):
@@ -55,6 +46,8 @@ def is_completed(report: EvaluationSummary, expected_cases: int | None = None) -
         3,
     } or report.metric_definitions_version not in {"2", "3"}:
         return False
+    planned: JsonValue
+    processed: JsonValue
     planned, processed = report.metrics.get("planned"), report.metrics.get("processed")
     return (
         isinstance(planned, int)
@@ -69,18 +62,19 @@ def _dataset_count(directory: Path, limit: int | None) -> int | None:
     """Match evaluation's versioned/legacy filename priority without inference."""
     if limit is not None and limit < 0:
         raise ValueError("limit must be nonnegative")
-    candidates = list(directory.glob("*.jsonl"))
-    preferred = [
+    candidates: list[Path] = list(directory.glob("*.jsonl"))
+    preferred: list[Path] = [
         directory / ManifestFilename.DATASET_JSONL.value,
         directory / "dataset_v1_frozen.jsonl",
     ]
-    dataset = next((p for p in preferred if p.is_file()), None)
+    dataset: Path | None = next((p for p in preferred if p.is_file()), None)
     if dataset is None and len(candidates) == 1:
         dataset = candidates[0]
     if dataset is None:
         return None
+    source: TextIO
     with dataset.open(encoding="utf-8") as source:
-        count = sum(bool(line.strip()) for line in source)
+        count: int = sum(bool(line.strip()) for line in source)
     return min(count, limit) if limit is not None else count
 
 
@@ -90,9 +84,11 @@ def require_completed_report(
     expected_cases: int | None = None,
     limit: int | None = None,
 ) -> EvaluationSummary:
-    report = EvaluationSummary.model_validate_json(path.read_text(encoding="utf-8"))
+    report: EvaluationSummary = EvaluationSummary.model_validate_json(
+        path.read_text(encoding="utf-8")
+    )
     if expected_cases is None and (report.status is None or limit is not None):
-        selected_limit = (
+        selected_limit: int | None = (
             limit
             if limit is not None
             else report.run_info.limit

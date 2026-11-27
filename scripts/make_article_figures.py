@@ -16,14 +16,21 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import ast
+import json
 from pathlib import Path
+from typing import Any
 
 import matplotlib
-
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.figure import Figure
+
+matplotlib.use("Agg")
+
+HEATMAP_X_VALUES = [7, 8, 10, 12, 15, 20, 25, 30]
+HEATMAP_Y_VALUES = [2, 3, 4, 5, 7, 10, 15]
 
 STRATEGIES_BY_MUS_SIZE = {
     2: ["chain", "coverage", "direct", "fork", "idem", "merge", "math"],
@@ -97,9 +104,7 @@ def load_data(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     # JSONs contain the full expected/predicted MUS lists required for the
     # pattern-level F1 plot, so prefer them whenever those columns are absent.
     if "expected_mus" not in details.columns:
-        import json
-
-        rows: list[dict] = []
+        rows: list[dict[str, Any]] = []
         manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
         for item in manifest:
             if item.get("type") != "report" or item.get("status") != "ok":
@@ -144,22 +149,20 @@ def load_data(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
     return summary, details
 
 
-def _save(fig: plt.Figure, path: Path) -> None:
+def _save(fig: Figure, path: Path) -> None:
     fig.tight_layout()
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
 
 
 def plot_pattern_f1(details: pd.DataFrame, out: Path) -> None:
-    unsat = details[details["expected_sat"] == False].copy()
+    unsat = details[details["expected_sat"].eq(False)].copy()
     unsat["mus_f1"] = [
         f1([], []) if pd.isna(x) else 0.0 for x in unsat["predicted_mus"]
     ]
     # CSV details intentionally stores lists as strings; use report-level F1
     # only for aggregate plots when parsing is unavailable.  Recompute from
     # the serialized list values for exact per-case values.
-    import ast
-
     unsat["mus_f1"] = [
         f1(ast.literal_eval(expected), ast.literal_eval(predicted))
         for expected, predicted in zip(unsat["expected_mus"], unsat["predicted_mus"])
@@ -229,18 +232,16 @@ def plot_errors(details: pd.DataFrame, out: Path) -> None:
 
 
 def plot_heatmap(details: pd.DataFrame, out: Path) -> None:
-    import ast
-
-    frame = details[details["expected_sat"] == False].copy()
-    frame["mus_f1"] = [
+    details = details[details["expected_sat"].eq(False)].copy()
+    details["mus_f1"] = [
         f1(ast.literal_eval(expected), ast.literal_eval(predicted))
-        for expected, predicted in zip(frame["expected_mus"], frame["predicted_mus"])
+        for expected, predicted in zip(
+            details["expected_mus"], details["predicted_mus"]
+        )
     ]
-    grouped = frame.groupby(
+    grouped = details.groupby(
         ["model", "strategy", "mus_size", "total_rules"], as_index=False
     )["mus_f1"].mean()
-    x_values = [7, 8, 10, 12, 15, 20, 25, 30]
-    y_values = [2, 3, 4, 5, 7, 10, 15]
     fig, axes = plt.subplots(
         2, 3, figsize=(15, 9), sharex=True, sharey=True, constrained_layout=True
     )
@@ -248,26 +249,30 @@ def plot_heatmap(details: pd.DataFrame, out: Path) -> None:
     for row, strategy in enumerate(["direct", "z3"]):
         for col, model in enumerate(MODEL_ORDER):
             ax = axes[row, col]
-            sub = grouped[(grouped.model == model) & (grouped.strategy == strategy)]
             ax.set_title(f"{model}\n{STRATEGY_LABELS[strategy]}")
-            pivot = sub.pivot_table(
+            pivot = grouped[
+                (grouped.model == model) & (grouped.strategy == strategy)
+            ].pivot_table(
                 index="mus_size", columns="total_rules", values="mus_f1", aggfunc="mean"
             )
             if pivot.empty:
                 ax.set_visible(False)
                 continue
-            pivot = pivot.reindex(index=y_values, columns=x_values)
+            pivot = pivot.reindex(index=HEATMAP_Y_VALUES, columns=HEATMAP_X_VALUES)
             image = ax.imshow(pivot, vmin=0, vmax=1, cmap="RdYlGn", aspect="auto")
-            ax.set_xticks(range(len(x_values)), [str(x) for x in x_values])
-            ax.set_yticks(range(len(y_values)), [str(x) for x in y_values])
-            for row_index in range(len(y_values)):
-                for col_index in range(len(x_values)):
-                    value = pivot.iloc[row_index, col_index]
-                    if pd.notna(value):
+            ax.set_xticks(
+                range(len(HEATMAP_X_VALUES)), [str(x) for x in HEATMAP_X_VALUES]
+            )
+            ax.set_yticks(
+                range(len(HEATMAP_Y_VALUES)), [str(x) for x in HEATMAP_Y_VALUES]
+            )
+            for row_index in range(len(HEATMAP_Y_VALUES)):
+                for col_index in range(len(HEATMAP_X_VALUES)):
+                    if pd.notna(pivot.iloc[row_index, col_index]):
                         ax.text(
                             col_index,
                             row_index,
-                            f"{value:.2f}",
+                            f"{pivot.iloc[row_index, col_index]:.2f}",
                             ha="center",
                             va="center",
                             fontsize=8,

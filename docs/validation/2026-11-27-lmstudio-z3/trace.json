@@ -1,0 +1,335 @@
+{
+  "started_at_utc": "2026-11-27T16:36:16.965591+00:00",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "model": "openai/qwen2.5-coder-14b-instruct",
+  "budget_seconds": 40.0,
+  "instrumentation": "Real LiteLLM calls; timeout capped by remaining budget; max_tokens=768; no fabricated responses or code repair",
+  "git_base_commit": "b777758309061ab7f19b73a8ba35e661db23822c",
+  "production_source_sha256": "34f1b5106cb2946589db9a43f9ef09b2671b0315b7b82e5986e1e651c03b02f2",
+  "cases": [
+    {
+      "case_id": "live-sat",
+      "mus_size": 2,
+      "is_satisfiable": true,
+      "template_pack_id": "pack_00",
+      "predicate_mapping": {
+        "x": "Датчик включен",
+        "y": "Лампа горит"
+      },
+      "rules": [
+        {
+          "id": "R1",
+          "text": "Датчик включен.",
+          "variable": "x",
+          "operator_type": "FACT"
+        },
+        {
+          "id": "R2",
+          "text": "Если датчик включен, лампа горит.",
+          "antecedent": "x",
+          "consequent": "y",
+          "operator_type": "IMPLIES"
+        },
+        {
+          "id": "R3",
+          "text": "Лампа горит.",
+          "variable": "y",
+          "operator_type": "FACT"
+        }
+      ],
+      "mus_expected": [],
+      "metadata": {}
+    },
+    {
+      "case_id": "live-unsat",
+      "mus_size": 3,
+      "is_satisfiable": false,
+      "template_pack_id": "pack_00",
+      "predicate_mapping": {
+        "x": "Датчик включен",
+        "y": "Лампа горит"
+      },
+      "rules": [
+        {
+          "id": "R1",
+          "text": "Датчик включен.",
+          "variable": "x",
+          "operator_type": "FACT"
+        },
+        {
+          "id": "R2",
+          "text": "Если датчик включен, лампа горит.",
+          "antecedent": "x",
+          "consequent": "y",
+          "operator_type": "IMPLIES"
+        },
+        {
+          "id": "R3",
+          "text": "Лампа не горит.",
+          "variable": "Not(y)",
+          "operator_type": "TERMINAL"
+        }
+      ],
+      "mus_expected": [
+        "R1",
+        "R2",
+        "R3"
+      ],
+      "metadata": {}
+    }
+  ],
+  "prompts": [
+    "Ты — эксперт по формальной верификации. Переведи логические правила в исполняемый Python-код с библиотекой z3-solver.\n\nВАЖНО: Не все правила обязательно участвуют в выводе. Обрабатывай все правила через assert_and_track, но помни, что некоторые могут быть избыточными — они не должны попасть в unsat_core.\n\nТРЕБОВАНИЯ К КОДУ:\n1. Создай solver = Solver().\n2. Объяви перечисленные ниже переменные с указанными типами Bool или Real.\n3. Для каждого входного ID ровно один раз добавь булево ограничение через solver.assert_and_track(expr, '{ID правила}').\n4. Импликации задавай через Implies(ant, cons), не утверждай консеквент напрямую.\n5. Используй только один Solver() без аргументов. Не используй add, +=, push/pop, reset, set, assumptions, тактики или другие конструкторы решателя. Все ограничения регистрируй через assert_and_track с ID-строкой.\n6. SAT/UNSAT и минимальное ядро вычислит доверенный исполнитель. Переменные is_sat и conflict_core не требуются и не определяют итог. Допустимы check(), unsat_core(), model(), assertions(), reason_unknown().\n7. Сначала заполни 'reasoning' на русском, затем 'python_z3_code' с валидным Python-кодом.\n\nОБЪЯВИ РОВНО ЭТИ ПЕРЕМЕННЫЕ (не больше, не меньше):\nx = Bool('x')  # Датчик включен\ny = Bool('y')  # Лампа горит\n\nЗАПРЕЩЕНО:\n- Использовать ID правила как имя Bool-переменной.\n- Создавать переменные, которых нет в списке выше.\n- Использовать переменную до её объявления.\n- Объединять разные предикаты в одну переменную (например, 'X' и 'неверно, что X' — это две разные переменные X и Not(X)).\n\nФОРМАТ ОТВЕТА (JSON):\n{\n  \"reasoning\": \"<пошаговое рассуждение здесь>\",\n  \"python_z3_code\": \"<валидный Python-код>\"\n}\n\n<RULES>\nID: R1 | Var: x | Rule: Датчик включен.\nID: R2 | Var: antecedent=x; consequent=y | Rule: Если датчик включен, лампа горит.\nID: R3 | Var: y | Rule: Лампа горит.\n\n</RULES>\n\nВерни только JSON.\n",
+    "Ты — эксперт по формальной верификации. Переведи логические правила в исполняемый Python-код с библиотекой z3-solver.\n\nВАЖНО: Не все правила обязательно участвуют в выводе. Обрабатывай все правила через assert_and_track, но помни, что некоторые могут быть избыточными — они не должны попасть в unsat_core.\n\nТРЕБОВАНИЯ К КОДУ:\n1. Создай solver = Solver().\n2. Объяви перечисленные ниже переменные с указанными типами Bool или Real.\n3. Для каждого входного ID ровно один раз добавь булево ограничение через solver.assert_and_track(expr, '{ID правила}').\n4. Импликации задавай через Implies(ant, cons), не утверждай консеквент напрямую.\n5. Используй только один Solver() без аргументов. Не используй add, +=, push/pop, reset, set, assumptions, тактики или другие конструкторы решателя. Все ограничения регистрируй через assert_and_track с ID-строкой.\n6. SAT/UNSAT и минимальное ядро вычислит доверенный исполнитель. Переменные is_sat и conflict_core не требуются и не определяют итог. Допустимы check(), unsat_core(), model(), assertions(), reason_unknown().\n7. Сначала заполни 'reasoning' на русском, затем 'python_z3_code' с валидным Python-кодом.\n\nОБЪЯВИ РОВНО ЭТИ ПЕРЕМЕННЫЕ (не больше, не меньше):\nx = Bool('x')  # Датчик включен\ny = Bool('y')  # Лампа горит\n\nЗАПРЕЩЕНО:\n- Использовать ID правила как имя Bool-переменной.\n- Создавать переменные, которых нет в списке выше.\n- Использовать переменную до её объявления.\n- Объединять разные предикаты в одну переменную (например, 'X' и 'неверно, что X' — это две разные переменные X и Not(X)).\n\nФОРМАТ ОТВЕТА (JSON):\n{\n  \"reasoning\": \"<пошаговое рассуждение здесь>\",\n  \"python_z3_code\": \"<валидный Python-код>\"\n}\n\n<RULES>\nID: R1 | Var: x | Rule: Датчик включен.\nID: R2 | Var: antecedent=x; consequent=y | Rule: Если датчик включен, лампа горит.\nID: R3 | Var: Not(y) | Rule: Лампа не горит.\n\n</RULES>\n\nВерни только JSON.\n"
+  ],
+  "requests": [
+    {
+      "started_after_seconds": 0.0011202999994566198,
+      "model": "openai/qwen2.5-coder-14b-instruct",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Ты — эксперт по формальной верификации. Переведи логические правила в исполняемый Python-код с библиотекой z3-solver.\n\nВАЖНО: Не все правила обязательно участвуют в выводе. Обрабатывай все правила через assert_and_track, но помни, что некоторые могут быть избыточными — они не должны попасть в unsat_core.\n\nТРЕБОВАНИЯ К КОДУ:\n1. Создай solver = Solver().\n2. Объяви перечисленные ниже переменные с указанными типами Bool или Real.\n3. Для каждого входного ID ровно один раз добавь булево ограничение через solver.assert_and_track(expr, '{ID правила}').\n4. Импликации задавай через Implies(ant, cons), не утверждай консеквент напрямую.\n5. Используй только один Solver() без аргументов. Не используй add, +=, push/pop, reset, set, assumptions, тактики или другие конструкторы решателя. Все ограничения регистрируй через assert_and_track с ID-строкой.\n6. SAT/UNSAT и минимальное ядро вычислит доверенный исполнитель. Переменные is_sat и conflict_core не требуются и не определяют итог. Допустимы check(), unsat_core(), model(), assertions(), reason_unknown().\n7. Сначала заполни 'reasoning' на русском, затем 'python_z3_code' с валидным Python-кодом.\n\nОБЪЯВИ РОВНО ЭТИ ПЕРЕМЕННЫЕ (не больше, не меньше):\nx = Bool('x')  # Датчик включен\ny = Bool('y')  # Лампа горит\n\nЗАПРЕЩЕНО:\n- Использовать ID правила как имя Bool-переменной.\n- Создавать переменные, которых нет в списке выше.\n- Использовать переменную до её объявления.\n- Объединять разные предикаты в одну переменную (например, 'X' и 'неверно, что X' — это две разные переменные X и Not(X)).\n\nФОРМАТ ОТВЕТА (JSON):\n{\n  \"reasoning\": \"<пошаговое рассуждение здесь>\",\n  \"python_z3_code\": \"<валидный Python-код>\"\n}\n\n<RULES>\nID: R1 | Var: x | Rule: Датчик включен.\nID: R2 | Var: antecedent=x; consequent=y | Rule: Если датчик включен, лампа горит.\nID: R3 | Var: y | Rule: Лампа горит.\n\n</RULES>\n\nВерни только JSON.\n"
+        }
+      ],
+      "timeout": 39.99888160000046,
+      "max_tokens": 768,
+      "temperature": 0.0,
+      "max_retries": 0,
+      "finished_after_seconds": 10.68170960000134,
+      "response": {
+        "id": "chatcmpl-ccmgeubirklxy92wi5h2wn",
+        "created": 1795797378,
+        "model": "qwen2.5-coder-14b-instruct",
+        "object": "chat.completion",
+        "system_fingerprint": "qwen2.5-coder-14b-instruct",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "{\n  \"reasoning\": \"Для формализации логических правил с использованием библиотеки z3-solver, мы объявим две булевых переменные x и y. Затем для каждого правила добавим соответствующее ограничение в solver с помощью assert_and_track, указывая ID правила. Важно использовать Implies для импликаций и не утверждать консеквент напрямую. Мы не будем использовать дополнительные методы или аргументы Solver().\",\n  \"python_z3_code\": \"from z3 import *\\n\\nsolver = Solver()\\nx = Bool('x')  # Датчик включен\\ny = Bool('y')  # Лампа горит\\n\\n# R1: Датчик включен.\\nsolver.assert_and_track(x, 'R1')\\n\\n# R2: Если датчик включен, лампа горит.\\nsolver.assert_and_track(Implies(x, y), 'R2')\\n\\n# R3: Лампа горит.\\nsolver.assert_and_track(y, 'R3')\"\n}",
+              "role": "assistant",
+              "tool_calls": null,
+              "function_call": null,
+              "reasoning_content": "",
+              "provider_specific_fields": {
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {}
+          }
+        ],
+        "usage": {
+          "completion_tokens": 250,
+          "prompt_tokens": 666,
+          "total_tokens": 916,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 0,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": null
+        },
+        "moderation": null,
+        "service_tier": null,
+        "stats": {}
+      }
+    },
+    {
+      "started_after_seconds": 11.290960999998788,
+      "model": "openai/qwen2.5-coder-14b-instruct",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Ты — эксперт по формальной верификации. Переведи логические правила в исполняемый Python-код с библиотекой z3-solver.\n\nВАЖНО: Не все правила обязательно участвуют в выводе. Обрабатывай все правила через assert_and_track, но помни, что некоторые могут быть избыточными — они не должны попасть в unsat_core.\n\nТРЕБОВАНИЯ К КОДУ:\n1. Создай solver = Solver().\n2. Объяви перечисленные ниже переменные с указанными типами Bool или Real.\n3. Для каждого входного ID ровно один раз добавь булево ограничение через solver.assert_and_track(expr, '{ID правила}').\n4. Импликации задавай через Implies(ant, cons), не утверждай консеквент напрямую.\n5. Используй только один Solver() без аргументов. Не используй add, +=, push/pop, reset, set, assumptions, тактики или другие конструкторы решателя. Все ограничения регистрируй через assert_and_track с ID-строкой.\n6. SAT/UNSAT и минимальное ядро вычислит доверенный исполнитель. Переменные is_sat и conflict_core не требуются и не определяют итог. Допустимы check(), unsat_core(), model(), assertions(), reason_unknown().\n7. Сначала заполни 'reasoning' на русском, затем 'python_z3_code' с валидным Python-кодом.\n\nОБЪЯВИ РОВНО ЭТИ ПЕРЕМЕННЫЕ (не больше, не меньше):\nx = Bool('x')  # Датчик включен\ny = Bool('y')  # Лампа горит\n\nЗАПРЕЩЕНО:\n- Использовать ID правила как имя Bool-переменной.\n- Создавать переменные, которых нет в списке выше.\n- Использовать переменную до её объявления.\n- Объединять разные предикаты в одну переменную (например, 'X' и 'неверно, что X' — это две разные переменные X и Not(X)).\n\nФОРМАТ ОТВЕТА (JSON):\n{\n  \"reasoning\": \"<пошаговое рассуждение здесь>\",\n  \"python_z3_code\": \"<валидный Python-код>\"\n}\n\n<RULES>\nID: R1 | Var: x | Rule: Датчик включен.\nID: R2 | Var: antecedent=x; consequent=y | Rule: Если датчик включен, лампа горит.\nID: R3 | Var: Not(y) | Rule: Лампа не горит.\n\n</RULES>\n\nВерни только JSON.\n"
+        }
+      ],
+      "timeout": 28.70904199999859,
+      "max_tokens": 768,
+      "temperature": 0.0,
+      "max_retries": 0,
+      "finished_after_seconds": 21.649296100000356,
+      "response": {
+        "id": "chatcmpl-9ghf2oob2v6ywi7j0g2pp",
+        "created": 1795797388,
+        "model": "qwen2.5-coder-14b-instruct",
+        "object": "chat.completion",
+        "system_fingerprint": "qwen2.5-coder-14b-instruct",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "{\n  \"reasoning\": \"Для решения задачи формальной верификации необходимо перевести логические правила в исполняемый Python-код с использованием библиотеки z3-solver. В данном случае, у нас есть три правила: R1, R2 и R3. Переменные x и y объявлены как Bool-переменные. Правило R1 утверждает, что датчик включен (x = True). Правило R2 является импликацией: если датчик включен (x), то лампа горит (y). Правило R3 утверждает, что лампа не горит (Not(y)). Все правила обрабатываются через assert_and_track с соответствующими ID-строками. Важно отметить, что некоторые правила могут быть избыточными и не должны попасть в unsat_core.\",\n  \"python_z3_code\": \"from z3 import Solver, Bool, Implies\\n\\nsolver = Solver()\\nx = Bool('x')\\ny = Bool('y')\\n\\n# Rule R1: Датчик включен.\\nsolver.assert_and_track(x, 'R1')\\n\\n# Rule R2: Если датчик включен, лампа горит.\\nsolver.assert_and_track(Implies(x, y), 'R2')\\n\\n# Rule R3: Лампа не горит.\\nsolver.assert_and_track(Not(y), 'R3')\"\n}",
+              "role": "assistant",
+              "tool_calls": null,
+              "function_call": null,
+              "reasoning_content": "",
+              "provider_specific_fields": {
+                "refusal": null
+              }
+            },
+            "provider_specific_fields": {}
+          }
+        ],
+        "usage": {
+          "completion_tokens": 329,
+          "prompt_tokens": 669,
+          "total_tokens": 998,
+          "completion_tokens_details": {
+            "accepted_prediction_tokens": null,
+            "audio_tokens": null,
+            "reasoning_tokens": 0,
+            "rejected_prediction_tokens": null
+          },
+          "prompt_tokens_details": null
+        },
+        "moderation": null,
+        "service_tier": null,
+        "stats": {}
+      }
+    }
+  ],
+  "elapsed_seconds": 22.227987700000085,
+  "finished_at_utc": "2026-11-27T16:36:39.250201+00:00",
+  "report": {
+    "metrics": {
+      "sat_accuracy": 1.0,
+      "total_evaluated": 2,
+      "correct_sat": 2,
+      "mus_exact_match": 1.0,
+      "mus_precision": 1.0,
+      "mus_recall": 1.0,
+      "mus_f1": 1.0,
+      "unsat_evaluated": 1,
+      "total_tokens_consumed": 1914,
+      "total_thinking_tokens": 0,
+      "avg_prompt_tokens": 667.5,
+      "avg_completion_tokens": 289.5,
+      "avg_thinking_tokens": 0.0,
+      "usage_known_cases": {
+        "prompt_tokens": 2,
+        "completion_tokens": 2,
+        "thinking_tokens": 2,
+        "total_tokens": 2
+      },
+      "usage_coverage": {
+        "prompt_tokens": 1.0,
+        "completion_tokens": 1.0,
+        "thinking_tokens": 1.0,
+        "total_tokens": 1.0
+      },
+      "token_accounting_complete": true,
+      "total_execution_seconds": 22.223752999998396,
+      "avg_latency_seconds": 11.111876499999198,
+      "latency_known_cases": 2,
+      "latency_coverage": 1.0,
+      "total_llm_seconds": 21.04152780000004,
+      "avg_llm_latency_seconds": 10.52076390000002,
+      "llm_latency_known_cases": 2,
+      "llm_latency_coverage": 1.0,
+      "refusal_count": 0,
+      "refusal_rate": 0.0,
+      "infra_error_count": 0,
+      "infrastructure_error_rate": 0.0,
+      "response_error_count": 0,
+      "response_error_rate": 0.0,
+      "execution_error_count": 0,
+      "execution_error_rate": 0.0,
+      "valid_response_accuracy": 1.0,
+      "valid_responses_evaluated": 2,
+      "coverage": 1.0,
+      "planned": 2,
+      "processed": 2,
+      "error_count": 0,
+      "error_counts": {}
+    },
+    "details": [
+      {
+        "case_id": "live-sat",
+        "mus_size": 2,
+        "expected_sat": true,
+        "predicted_sat": true,
+        "is_sat_correct": true,
+        "expected_mus": [],
+        "predicted_mus": [],
+        "is_mus_correct": false,
+        "metadata": {
+          "latency_seconds": 10.681397899999865,
+          "llm_latency_seconds": 10.681397899999865,
+          "case_latency_seconds": 11.288195399996766,
+          "prompt_tokens": 666,
+          "completion_tokens": 250,
+          "thinking_tokens": 0,
+          "total_tokens": 916,
+          "request_attempts": 1
+        },
+        "reasoning": "Для формализации логических правил с использованием библиотеки z3-solver, мы объявим две булевых переменные x и y. Затем для каждого правила добавим соответствующее ограничение в solver с помощью assert_and_track, указывая ID правила. Важно использовать Implies для импликаций и не утверждать консеквент напрямую. Мы не будем использовать дополнительные методы или аргументы Solver().",
+        "generated_code": "from z3 import *\n\nsolver = Solver()\nx = Bool('x')  # Датчик включен\ny = Bool('y')  # Лампа горит\n\n# R1: Датчик включен.\nsolver.assert_and_track(x, 'R1')\n\n# R2: Если датчик включен, лампа горит.\nsolver.assert_and_track(Implies(x, y), 'R2')\n\n# R3: Лампа горит.\nsolver.assert_and_track(y, 'R3')",
+        "error": null,
+        "failure_tags": [
+          "correct"
+        ],
+        "valid_response": true,
+        "refusal": false,
+        "error_type": null,
+        "error_stage": null,
+        "error_category": null,
+        "raw_response": "{\n  \"reasoning\": \"Для формализации логических правил с использованием библиотеки z3-solver, мы объявим две булевых переменные x и y. Затем для каждого правила добавим соответствующее ограничение в solver с помощью assert_and_track, указывая ID правила. Важно использовать Implies для импликаций и не утверждать консеквент напрямую. Мы не будем использовать дополнительные методы или аргументы Solver().\",\n  \"python_z3_code\": \"from z3 import *\\n\\nsolver = Solver()\\nx = Bool('x')  # Датчик включен\\ny = Bool('y')  # Лампа горит\\n\\n# R1: Датчик включен.\\nsolver.assert_and_track(x, 'R1')\\n\\n# R2: Если датчик включен, лампа горит.\\nsolver.assert_and_track(Implies(x, y), 'R2')\\n\\n# R3: Лампа горит.\\nsolver.assert_and_track(y, 'R3')\"\n}",
+        "mus_precision": null,
+        "mus_recall": null,
+        "mus_f1": null
+      },
+      {
+        "case_id": "live-unsat",
+        "mus_size": 3,
+        "expected_sat": false,
+        "predicted_sat": false,
+        "is_sat_correct": true,
+        "expected_mus": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "predicted_mus": [
+          "R1",
+          "R2",
+          "R3"
+        ],
+        "is_mus_correct": true,
+        "metadata": {
+          "latency_seconds": 10.360129900000175,
+          "llm_latency_seconds": 10.360129900000175,
+          "case_latency_seconds": 10.93555760000163,
+          "prompt_tokens": 669,
+          "completion_tokens": 329,
+          "thinking_tokens": 0,
+          "total_tokens": 998,
+          "request_attempts": 1
+        },
+        "reasoning": "Для решения задачи формальной верификации необходимо перевести логические правила в исполняемый Python-код с использованием библиотеки z3-solver. В данном случае, у нас есть три правила: R1, R2 и R3. Переменные x и y объявлены как Bool-переменные. Правило R1 утверждает, что датчик включен (x = True). Правило R2 является импликацией: если датчик включен (x), то лампа горит (y). Правило R3 утверждает, что лампа не горит (Not(y)). Все правила обрабатываются через assert_and_track с соответствующими ID-строками. Важно отметить, что некоторые правила могут быть избыточными и не должны попасть в unsat_core.",
+        "generated_code": "from z3 import Solver, Bool, Implies\n\nsolver = Solver()\nx = Bool('x')\ny = Bool('y')\n\n# Rule R1: Датчик включен.\nsolver.assert_and_track(x, 'R1')\n\n# Rule R2: Если датчик включен, лампа горит.\nsolver.assert_and_track(Implies(x, y), 'R2')\n\n# Rule R3: Лампа не горит.\nsolver.assert_and_track(Not(y), 'R3')",
+        "error": null,
+        "failure_tags": [
+          "correct"
+        ],
+        "valid_response": true,
+        "refusal": false,
+        "error_type": null,
+        "error_stage": null,
+        "error_category": null,
+        "raw_response": "{\n  \"reasoning\": \"Для решения задачи формальной верификации необходимо перевести логические правила в исполняемый Python-код с использованием библиотеки z3-solver. В данном случае, у нас есть три правила: R1, R2 и R3. Переменные x и y объявлены как Bool-переменные. Правило R1 утверждает, что датчик включен (x = True). Правило R2 является импликацией: если датчик включен (x), то лампа горит (y). Правило R3 утверждает, что лампа не горит (Not(y)). Все правила обрабатываются через assert_and_track с соответствующими ID-строками. Важно отметить, что некоторые правила могут быть избыточными и не должны попасть в unsat_core.\",\n  \"python_z3_code\": \"from z3 import Solver, Bool, Implies\\n\\nsolver = Solver()\\nx = Bool('x')\\ny = Bool('y')\\n\\n# Rule R1: Датчик включен.\\nsolver.assert_and_track(x, 'R1')\\n\\n# Rule R2: Если датчик включен, лампа горит.\\nsolver.assert_and_track(Implies(x, y), 'R2')\\n\\n# Rule R3: Лампа не горит.\\nsolver.assert_and_track(Not(y), 'R3')\"\n}",
+        "mus_precision": 1.0,
+        "mus_recall": 1.0,
+        "mus_f1": 1.0
+      }
+    ],
+    "run_info": null,
+    "report_schema_version": 3,
+    "metric_definitions_version": "3",
+    "z3_execution_protocol_version": "1",
+    "status": "completed"
+  }
+}

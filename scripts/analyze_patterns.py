@@ -8,13 +8,16 @@ import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import matplotlib
+from matplotlib.axes import Axes
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # pylint: disable=wrong-import-position
 import numpy as np  # pylint: disable=wrong-import-position
 import pandas as pd  # pylint: disable=wrong-import-position
+from numpy.typing import NDArray  # pylint: disable=wrong-import-position
 
 STRATEGY_NAMES = {"direct": "Прямой LLM-подход", "z3": "Нейросимвольный (Z3)"}
 
@@ -50,7 +53,7 @@ def clean_model_name(name: str) -> str:
     return name.rsplit("/", maxsplit=1)[-1]
 
 
-def _build_case_to_pattern(manifest: list[dict]) -> dict[str, str]:
+def _build_case_to_pattern(manifest: list[dict[str, Any]]) -> dict[str, str]:
     """Сопоставляет case_id -> паттерн для UNSAT-кейсов."""
     case_to_pattern: dict[str, str] = {}
     dataset_paths = {
@@ -80,9 +83,9 @@ def _build_case_to_pattern(manifest: list[dict]) -> dict[str, str]:
 
 
 def _collect_records(
-    manifest: list[dict], case_to_pattern: dict[str, str]
-) -> list[dict]:
-    records: list[dict] = []
+    manifest: list[dict[str, Any]], case_to_pattern: dict[str, str]
+) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
     for item in manifest:
         if item.get("type") != "report":
             continue
@@ -133,12 +136,12 @@ def _y_values_for_strategy(
 
 
 def _draw_bars(
-    ax,
+    ax: Axes,
     model_df: pd.DataFrame,
     patterns: list[str],
     strategies: list[str],
     colors: dict[str, str],
-) -> np.ndarray:
+) -> NDArray[np.int_]:
     """Рисует сгруппированные столбцы и возвращает x-координаты."""
     x = np.arange(len(patterns))
     width = 0.35

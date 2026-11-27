@@ -1,68 +1,39 @@
 """Z3-translation evaluation strategy."""
 
+from logicmus_eval.enums import EvaluationErrorStage
 from logicmus_eval.evaluation.strategies.base import (
-    PROMPT_TAIL,
     BaseEvaluationStrategy,
     format_rules_block,
     format_variable_block,
 )
-from logicmus_eval.extractor import StructuredOutputExtractor
-from logicmus_eval.models.evaluation import CasePrediction, ExtractionMetadata
+from logicmus_eval.evaluation.strategies.z3_prompt import (
+    Z3_PROMPT_TEMPLATE,
+)
+from logicmus_eval.extractor import ExtractionResult, StructuredOutputExtractor
+from logicmus_eval.models.evaluation import (
+    Z3_EXECUTION_PROTOCOL_VERSION,
+    CasePrediction,
+    ExtractionMetadata,
+    Z3ExecutionResult,
+)
 from logicmus_eval.models.llm import LLMToZ3Response
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.sandbox.executor import Z3CodeExecutor
 
-Z3_PROMPT_TEMPLATE = (
-    "Ты — эксперт по формальной верификации. "
-    "Переведи логические правила в исполняемый Python-код "
-    "с библиотекой z3-solver.\n"
-    "\n"
-    "ВАЖНО: Не все правила обязательно участвуют в выводе. Обрабатывай все "
-    "правила через assert_and_track, но помни, что некоторые могут быть "
-    "избыточными — они не должны попасть в unsat_core.\n"
-    "\n"
-    "ТРЕБОВАНИЯ К КОДУ:\n"
-    "1. Создай solver = Solver().\n"
-    "2. Объяви перечисленные ниже переменные с указанными типами Bool или Real.\n"
-    "3. Для каждого правила добавь ограничение "
-    "через solver.assert_and_track(expr, '{ID правила}').\n"
-    "4. Импликации задавай через Implies(ant, cons), "
-    "не утверждай консеквент напрямую.\n"
-    "5. Проверь: is_sat = (solver.check() == sat).\n"
-    "6. Если результат unsat, извлеки "
-    "conflict_core = [str(c) for c in solver.unsat_core()]. "
-    "Если sat, conflict_core = [].\n"
-    "7. Сначала заполни 'reasoning' на русском, затем "
-    "'python_z3_code' с валидным Python-кодом.\n"
-    "\n"
-    "ОБЪЯВИ РОВНО ЭТИ ПЕРЕМЕННЫЕ (не больше, не меньше):\n"
-    "{variable_block}\n"
-    "\n"
-    "ЗАПРЕЩЕНО:\n"
-    "- Использовать ID правила как имя Bool-переменной.\n"
-    "- Создавать переменные, которых нет в списке выше.\n"
-    "- Использовать переменную до её объявления.\n"
-    "- Объединять разные предикаты в одну переменную "
-    "(например, 'X' и 'неверно, что X' — это две разные "
-    "переменные X и Not(X)).\n"
-    "\n"
-    "ФОРМАТ ОТВЕТА (JSON):\n"
-    "{\n"
-    '  "reasoning": "<пошаговое рассуждение здесь>",\n'
-    '  "python_z3_code": "<валидный Python-код>"\n'
-    "}" + PROMPT_TAIL
-)
+__all__: list[str] = ["Z3_PROMPT_TEMPLATE", "Z3TranslationEvaluationStrategy"]
 
 
 class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
     """Ask the LLM to translate the case to Z3 Python, then execute it."""
 
+    z3_execution_protocol_version: str = Z3_EXECUTION_PROTOCOL_VERSION
+
     def __init__(self, executor: Z3CodeExecutor | None = None) -> None:
-        self.executor = executor or Z3CodeExecutor()
+        self.executor: Z3CodeExecutor = executor or Z3CodeExecutor()
 
     def build_prompt(self, case: LogicTestCase) -> str:
-        rules_block = format_rules_block(case)
-        variable_block = format_variable_block(case)
+        rules_block: str = format_rules_block(case)
+        variable_block: str = format_variable_block(case)
         return Z3_PROMPT_TEMPLATE.replace("{rules_block}", rules_block).replace(
             "{variable_block}", variable_block
         )
@@ -70,18 +41,29 @@ class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
     def evaluate_case(
         self, case: LogicTestCase, extractor: StructuredOutputExtractor
     ) -> tuple[CasePrediction, ExtractionMetadata]:
-        prompt = self.build_prompt(case)
-        result = extractor.extract_with_metadata(prompt, LLMToZ3Response)
+        prompt: str = self.build_prompt(case)
+        result: ExtractionResult[LLMToZ3Response] = extractor.extract_with_metadata(
+            prompt, LLMToZ3Response
+        )
 
-        exec_res = self.executor.execute(result.data.python_z3_code)
+        rule_ids: list[str] = [
+            rule["id"] if isinstance(rule, dict) else rule.id for rule in case.rules
+        ]
+        exec_res: Z3ExecutionResult = self.executor.execute(
+            result.data.python_z3_code, rule_ids
+        )
 
-        prediction = CasePrediction(
+        prediction: CasePrediction = CasePrediction(
             is_sat=exec_res.is_sat,
             conflict_core=exec_res.conflict_core,
             reasoning=result.data.reasoning,
             generated_code=result.data.python_z3_code,
             execution_success=exec_res.success,
             error=exec_res.error,
+            error_type=exec_res.error_type,
+            error_stage=EvaluationErrorStage.EXECUTION
+            if not exec_res.success
+            else None,
             raw_response=result.raw_response,
         )
         return prediction, result.metadata
