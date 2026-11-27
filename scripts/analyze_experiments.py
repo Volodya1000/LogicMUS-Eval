@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pydantic import JsonValue, TypeAdapter
 
+from logicmus_eval.analysis.legacy_guard import reject_controlled
 from logicmus_eval.evaluation.reports import (
     ReportManifestEntry,
     report_is_complete,
@@ -47,6 +48,7 @@ def clean_model_name(name: str) -> str:
 def _load_rows(
     root: Path,
 ) -> tuple[list[dict[str, JsonValue]], list[dict[str, JsonValue]]]:
+    reject_controlled(root)
     manifest = TypeAdapter(list[JsonValue]).validate_json(
         (root / "manifest.json").read_text(encoding="utf-8")
     )

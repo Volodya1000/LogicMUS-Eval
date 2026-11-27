@@ -7,6 +7,7 @@ Usage:
 
 import typer
 
+from logicmus_eval.commands.analyze import controlled
 from logicmus_eval.commands.evaluate import evaluate
 from logicmus_eval.commands.generate import generate
 from logicmus_eval.commands.prepare_experiment import prepare
@@ -25,6 +26,7 @@ app.command(name="prepare-experiment")(prepare)
 app.command(name="experiment-preflight")(check)
 app.command(name="experiment-start")(start)
 app.command(name="experiment-resume")(resume)
+app.command(name="analyze-controlled")(controlled)
 
 if __name__ == "__main__":
     app()

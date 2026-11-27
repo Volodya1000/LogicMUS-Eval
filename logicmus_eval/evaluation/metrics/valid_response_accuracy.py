@@ -2,20 +2,18 @@
 
 from pydantic import JsonValue
 
-from logicmus_eval.evaluation.metrics.accounting import _ratio
 from logicmus_eval.evaluation.metrics.base import BaseMetric
-from logicmus_eval.models.evaluation import EvaluationCaseReport
+from logicmus_eval.evaluation.metrics.semantics import contributions, mean_score
 
 
 class ValidResponseAccuracyMetric(BaseMetric):
     def compute(self) -> dict[str, JsonValue]:
-        valid: list[EvaluationCaseReport] = [
-            r for r in self.reports if r.valid_response
-        ]
         return {
-            "valid_response_accuracy": _ratio(
-                sum(r.is_sat_correct for r in valid), len(valid)
+            "valid_response_accuracy": mean_score(
+                self.reports, "valid_response_accuracy"
             ),
-            "valid_responses_evaluated": len(valid),
-            "coverage": _ratio(len(valid), len(self.reports)),
+            "valid_responses_evaluated": len(
+                contributions(self.reports, "valid_response_accuracy")
+            ),
+            "coverage": mean_score(self.reports, "coverage"),
         }

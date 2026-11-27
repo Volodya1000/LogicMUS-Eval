@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from pydantic import JsonValue
 
 from logicmus_eval.enums import EvaluationErrorType
+from logicmus_eval.evaluation.metrics.semantics import contributions
 from logicmus_eval.models.evaluation import (
     EvaluationCaseReport,
 )
@@ -25,9 +26,9 @@ def accounting_counts(
     return {
         "planned": planned,
         "processed": len(reports),
-        "valid_responses_evaluated": sum(r.valid_response is True for r in reports),
-        "unsat_evaluated": sum(not r.expected_sat for r in reports),
-        "correct_sat": sum(r.is_sat_correct for r in reports),
+        "valid_responses_evaluated": int(sum(contributions(reports, "coverage"))),
+        "unsat_evaluated": len(contributions(reports, "mus_exact_match")),
+        "correct_sat": int(sum(contributions(reports, "sat_accuracy"))),
         "refusal_count": sum(r.refusal is True for r in reports),
         "error_count": sum(errors.values()),
         "error_counts": dict(sorted(errors.items())),

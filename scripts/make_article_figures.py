@@ -27,6 +27,8 @@ import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure
 
+from logicmus_eval.analysis.legacy_guard import reject_controlled
+
 matplotlib.use("Agg")
 
 HEATMAP_X_VALUES = [7, 8, 10, 12, 15, 20, 25, 30]
@@ -97,6 +99,7 @@ def f1(expected: list[str], predicted: list[str]) -> float:
 
 
 def load_data(root: Path) -> tuple[pd.DataFrame, pd.DataFrame]:
+    reject_controlled(root)
     summary = pd.read_csv(root / "summary.csv")
     details_path = root / "details.csv"
     details = pd.read_csv(details_path) if details_path.exists() else pd.DataFrame()

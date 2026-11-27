@@ -32,13 +32,23 @@ def atomic_json(path: Path, value: Any) -> None:
             os.unlink(temporary)
 
 
-class RunJournal:
+class RunJournal:  # pylint: disable=too-many-instance-attributes
     """Keep the lock file: unlinking a locked inode allows two writers on POSIX."""
 
-    def __init__(self, root: Path, identity: str, *, create: bool = False) -> None:
+    def __init__(
+        self,
+        root: Path,
+        identity: str,
+        *,
+        create: bool = False,
+        read_only: bool = False,
+    ) -> None:
         self.root = root
         self.identity = identity
         self.create = create
+        self.read_only = read_only
+        if create and read_only:
+            raise ValueError("Cannot create a read-only journal")
         self.lock: BinaryIO | None = None
         self.db: sqlite3.Connection | None = None
         self.events: list[dict[str, Any]] = []
@@ -46,12 +56,17 @@ class RunJournal:
 
     def __enter__(self) -> Self:
         try:
-            self.lock = (self.root / "writer.lock").open("a+b")
+            self.lock = (self.root / "writer.lock").open(
+                "rb" if self.read_only else "a+b"
+            )
             self.lock.seek(0)
             if os.name == "nt":
                 import msvcrt  # pylint: disable=import-outside-toplevel
 
-                if (self.root / "writer.lock").stat().st_size == 0:
+                if (
+                    not self.read_only
+                    and (self.root / "writer.lock").stat().st_size == 0
+                ):
                     self.lock.write(b"0")
                     self.lock.flush()
                 self.lock.seek(0)
@@ -74,12 +89,15 @@ class RunJournal:
                 raise ValueError("Run journal already exists")
             # mode=rw prevents resume from silently creating an empty database.
             self.db = sqlite3.connect(
-                path if self.create else path.as_uri() + "?mode=rw",
+                path
+                if self.create
+                else path.as_uri() + ("?mode=ro" if self.read_only else "?mode=rw"),
                 uri=not self.create,
                 timeout=0,
             )
-            self.db.execute("PRAGMA journal_mode=DELETE")
-            self.db.execute("PRAGMA synchronous=EXTRA")
+            if not self.read_only:
+                self.db.execute("PRAGMA journal_mode=DELETE")
+                self.db.execute("PRAGMA synchronous=EXTRA")
             if self.create:
                 with self.db:
                     self.db.execute("CREATE TABLE identity (value TEXT NOT NULL)")
@@ -138,6 +156,8 @@ class RunJournal:
             raise ValueError("Run journal is corrupt: invalid JSON") from error
 
     def append(self, event: dict[str, Any]) -> None:
+        if self.read_only:
+            raise ValueError("Cannot append to a read-only journal")
         assert self.db is not None
         payload = canonical_json(event)
         checksum = digest([self.head, payload])

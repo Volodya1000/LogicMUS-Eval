@@ -1,0 +1,47 @@
+{
+  "analysis_version": "controlled-analysis-v1",
+  "purpose": "development",
+  "mode": "primary",
+  "groups": [
+    {
+      "name": "development",
+      "run_ids": ["REPLACE-WITH-SAVED-RUN-UUID"],
+      "model_ids": ["replace-with-served-model-id"],
+      "strategies": ["direct", "z3"]
+    }
+  ],
+  "primary_metric": "mus_exact_match",
+  "additional_metrics": ["sat_accuracy", "mus_f1", "coverage"],
+  "contrasts": [
+    {
+      "name": "development-direct-vs-z3",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "development",
+        "model_id": "replace-with-served-model-id",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 6,
+        "strategy": "direct"
+      },
+      "right": {
+        "group": "development",
+        "model_id": "replace-with-served-model-id",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 6,
+        "strategy": "z3"
+      }
+    }
+  ],
+  "intervals": {
+    "method": "wilson-and-cluster-percentile",
+    "level": 0.95,
+    "repeats": 10000,
+    "seed": 20261127,
+    "min_families": 2
+  }
+}
