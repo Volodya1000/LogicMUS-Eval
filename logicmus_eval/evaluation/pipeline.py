@@ -17,11 +17,12 @@ from logicmus_eval.models.evaluation import (
     CasePrediction,
     EvaluationCaseReport,
     EvaluationSummary,
+    ExtractionMetadata,
     RunInfo,
 )
 from logicmus_eval.models.test_case import LogicTestCase
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class EvaluationPipeline:
@@ -31,9 +32,9 @@ class EvaluationPipeline:
         extractor: StructuredOutputExtractor,
         metrics: Sequence[BaseMetric],
     ) -> None:
-        self.strategy = strategy
-        self.extractor = extractor
-        self.metrics = metrics
+        self.strategy: BaseEvaluationStrategy = strategy
+        self.extractor: StructuredOutputExtractor = extractor
+        self.metrics: Sequence[BaseMetric] = metrics
 
     def _summary(
         self,
@@ -43,6 +44,7 @@ class EvaluationPipeline:
         run_info: RunInfo | None,
     ) -> EvaluationSummary:
         aggregated: dict[str, JsonValue] = {}
+        metric: BaseMetric
         for metric in self.metrics:
             aggregated.update(metric.compute())
         aggregated.update(accounting_counts(details, planned))
@@ -74,15 +76,18 @@ class EvaluationPipeline:
     ) -> EvaluationSummary:
         if limit is not None and limit < 0:
             raise ValueError("limit must be nonnegative")
+        metric: BaseMetric
         for metric in self.metrics:
             metric.reset()
         if run_info is not None:
             run_info.finished_at = None
-        cases = dataset[:limit] if limit is not None else dataset
+        cases: list[LogicTestCase] = dataset[:limit] if limit is not None else dataset
         details: list[EvaluationCaseReport] = []
 
         def snapshot(completed: bool = False) -> EvaluationSummary:
-            report = self._summary(details, len(cases), completed, run_info)
+            report: EvaluationSummary = self._summary(
+                details, len(cases), completed, run_info
+            )
             if output_path is not None:
                 output_path.write_text(
                     report.model_dump_json(indent=2), encoding="utf-8"
@@ -90,7 +95,13 @@ class EvaluationPipeline:
             return report
 
         snapshot()
-        completed = False
+        completed: bool = False
+        index: int
+        case: LogicTestCase
+        prediction: CasePrediction
+        metadata: ExtractionMetadata
+        report: EvaluationSummary
+        exc: ExtractorError
         try:
             for index, case in enumerate(cases):
                 logger.info(
@@ -99,14 +110,14 @@ class EvaluationPipeline:
                     len(cases),
                     case.case_id,
                 )
-                case_started = perf_counter()
+                case_started: float = perf_counter()
                 try:
                     prediction, metadata = self.strategy.evaluate_case(
                         case, self.extractor
                     )
                 except ExtractorError as exc:
                     logger.error("Request failed on case %s: %s", case.case_id, exc)
-                    refusal = exc.error_type is EvaluationErrorType.REFUSAL
+                    refusal: bool = exc.error_type is EvaluationErrorType.REFUSAL
                     prediction = CasePrediction(
                         error=None if refusal else str(exc),
                         error_type=None if refusal else exc.error_type,
@@ -116,7 +127,9 @@ class EvaluationPipeline:
                         reasoning=str(exc) if refusal else "",
                     )
                     metadata = exc.metadata
-                outcome = build_case_report(case, prediction, metadata)
+                outcome: EvaluationCaseReport = build_case_report(
+                    case, prediction, metadata
+                )
                 metadata.case_latency_seconds = perf_counter() - case_started
                 for metric in self.metrics:
                     metric.update_report(outcome)

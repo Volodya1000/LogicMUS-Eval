@@ -88,3 +88,32 @@ and cleanup delays. Cover each in sandbox tests and review IPC cleanup paths.
   the manual hook run flagged this plan's concurrent documentation update as
   "files modified". Stage the completed record and let the commit hook verify
   the final unchanged tree again.
+
+## Follow-up review, 2026-11-27
+
+- User requested responsibility-based modules, one substantial class per file,
+  explicit member/local/parameter/return annotations, and a real short LM Studio
+  check. This explicitly supersedes the initial no-LLM restriction for this smoke.
+- Split the sandbox facade, registry, verification, deadline, exceptions,
+  allowed names, bounded diagnostics, protocol DTO, result construction and
+  process lifecycle. Split extractor metadata/exception/DTO and report DTOs;
+  metrics are a package with one implementation per file and stable exports.
+- Independent reviewer checked that metric bodies are AST-equivalent after
+  removing annotations; prompt/allowlist contents and public imports preserved.
+  The one README path comment was corrected. No outstanding significant finding.
+- Real LM Studio: two requests to the already loaded Qwen2.5 Coder 14B Instruct,
+  22.228 seconds. Production extractor/strategy/worker/pipeline returned SAT/[]
+  and UNSAT/[R1,R2,R3], without response repair. Independent SMT checks establish
+  UNSAT and SAT for each removal. Trace records matching production source SHA256.
+- Evidence: docs/validation/2026-11-27-lmstudio-z3 (raw trace, readable log,
+  pipeline report, independent checks, environment, reproducible short harness).
+- Strict mypy covers 84 project files; sandbox regression tests additionally
+  checked with strict mypy and explicit package bases. No check settings relaxed.
+- Test-only annotation follow-up: defer nested annotations in the parent
+  interrupt test, because its Popen symbol is deliberately monkeypatched.
+  That regression failed before this adjustment and passes afterward.
+- Final annotations also defer executor type annotations, avoiding a pylint
+  runtime-generic false positive for the standard-library tempfile wrapper.
+  Offline replay of the captured real responses on this final source produces
+  the same two verdicts/cores; exact source comparison confirms that import is
+  the only production change since the real calls. No extra LLM requests.

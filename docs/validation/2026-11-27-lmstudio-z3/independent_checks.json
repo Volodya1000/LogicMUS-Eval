@@ -1,0 +1,8 @@
+{
+  "full_core": "unsat",
+  "without_R1": "sat",
+  "without_R2": "sat",
+  "without_R3": "sat",
+  "sat_case": "sat",
+  "production_source_digest_matches_live_run": true
+}

@@ -17,6 +17,7 @@ from logicmus_eval.evaluation.strategies import (
 from logicmus_eval.extractor import ExtractorError, StructuredOutputExtractor
 from logicmus_eval.models.evaluation import (
     CasePrediction,
+    EvaluationCaseReport,
     EvaluationSummary,
     ExtractionMetadata,
     Z3ExecutionResult,
@@ -617,8 +618,10 @@ def test_unrelated_negation_does_not_hide_an_actual_refusal(monkeypatch):
         ("raise SystemExit(4)", "exec_error"),
     ],
 )
-def test_real_worker_failure_counts_once_and_next_case_runs(monkeypatch, code, kind):
-    valid = """
+def test_real_worker_failure_counts_once_and_next_case_runs(
+    monkeypatch: pytest.MonkeyPatch, code: str, kind: str
+) -> None:
+    valid: str = """
 solver = Solver()
 x = Bool('x')
 solver.assert_and_track(x, 'R1')
@@ -628,16 +631,20 @@ solver.assert_and_track(True, 'R4')
 is_sat = True
 conflict_core = ['fabricated']
 """
-    outcomes = [
+    outcomes: list[SimpleNamespace] = [
         response(json.dumps({"reasoning": "analysis", "python_z3_code": item}))
         for item in [code, valid]
     ]
-    pipeline = offline_pipeline(
+    pipeline: EvaluationPipeline = offline_pipeline(
         monkeypatch,
         outcomes,
         strategy=Z3TranslationEvaluationStrategy(Z3CodeExecutor(3)),
     )
-    report = pipeline.run([case(i, sat=False, core=["R1", "R2"]) for i in range(2)])
+    report: EvaluationSummary = pipeline.run(
+        [case(i, sat=False, core=["R1", "R2"]) for i in range(2)]
+    )
+    failed: EvaluationCaseReport
+    succeeded: EvaluationCaseReport
     failed, succeeded = report.details
     assert failed.error_type == kind and failed.error_category == "execution"
     assert failed.error_stage == "execution" and not failed.valid_response
@@ -651,32 +658,40 @@ conflict_core = ['fabricated']
     assert failed.metadata.case_latency_seconds > 0
     assert report.z3_execution_protocol_version == "1"
     assert report.metric_definitions_version == "3"
-    restored = EvaluationSummary.model_validate_json(report.model_dump_json())
+    restored: EvaluationSummary = EvaluationSummary.model_validate_json(
+        report.model_dump_json()
+    )
     assert restored.z3_execution_protocol_version == "1"
 
 
-def test_protocol_only_attaches_to_new_z3_reports(monkeypatch):
-    legacy = EvaluationSummary.model_validate({"metrics": {}, "details": []})
+def test_protocol_only_attaches_to_new_z3_reports(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    legacy: EvaluationSummary = EvaluationSummary.model_validate(
+        {"metrics": {}, "details": []}
+    )
     assert legacy.z3_execution_protocol_version is None
-    direct = offline_pipeline(monkeypatch, []).run([])
+    direct: EvaluationSummary = offline_pipeline(monkeypatch, []).run([])
     assert direct.z3_execution_protocol_version is None
-    translated = offline_pipeline(
+    translated: EvaluationSummary = offline_pipeline(
         monkeypatch, [], strategy=Z3TranslationEvaluationStrategy()
     ).run([])
     assert translated.z3_execution_protocol_version == "1"
 
 
-def test_valid_ids_do_not_prove_semantic_translation_correctness(monkeypatch):
-    code = (
+def test_valid_ids_do_not_prove_semantic_translation_correctness(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    code: str = (
         "solver = Solver(); [solver.assert_and_track(True, key) "
         "for key in ['R1','R2','R3','R4']]"
     )
-    pipeline = offline_pipeline(
+    pipeline: EvaluationPipeline = offline_pipeline(
         monkeypatch,
         [response(json.dumps({"reasoning": "analysis", "python_z3_code": code}))],
         strategy=Z3TranslationEvaluationStrategy(),
     )
-    report = pipeline.run([case(sat=False, core=["R1", "R2"])])
+    report: EvaluationSummary = pipeline.run([case(sat=False, core=["R1", "R2"])])
     assert report.details[0].valid_response
     assert report.details[0].predicted_sat is True
     assert report.metrics["sat_accuracy"] == report.metrics["mus_f1"] == 0

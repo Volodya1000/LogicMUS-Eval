@@ -9,9 +9,9 @@ from logicmus_eval.enums import (
     EvaluationStatus,
 )
 
-REPORT_SCHEMA_VERSION = 3
-METRIC_DEFINITIONS_VERSION = "3"
-Z3_EXECUTION_PROTOCOL_VERSION = "1"
+REPORT_SCHEMA_VERSION: int = 3
+METRIC_DEFINITIONS_VERSION: str = "3"
+Z3_EXECUTION_PROTOCOL_VERSION: str = "1"
 
 
 class ExtractionMetadata(BaseModel):

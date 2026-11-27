@@ -1,0 +1,80 @@
+REAL LM STUDIO SMOKE TEST
+Started UTC: 2026-11-27T16:36:16.965591+00:00
+Endpoint: http://127.0.0.1:1234/v1
+Model: openai/qwen2.5-coder-14b-instruct
+Elapsed: 22.228 seconds; real requests: 2
+Production source SHA256: 34f1b5106cb2946589db9a43f9ef09b2671b0315b7b82e5986e1e651c03b02f2
+Real LiteLLM calls; timeout capped by remaining budget; max_tokens=768; no fabricated responses or code repair
+
+Production path: StructuredOutputExtractor -> Z3TranslationEvaluationStrategy -> Z3CodeExecutor -> worker -> trusted fresh SMT solvers
+Execution protocol: 1; metric definitions: 3
+
+CASE: live-sat
+LLM response id: chatcmpl-ccmgeubirklxy92wi5h2wn
+LLM duration: 10.681 seconds
+LLM usage: {"completion_tokens": 250, "prompt_tokens": 666, "total_tokens": 916, "completion_tokens_details": {"accepted_prediction_tokens": null, "audio_tokens": null, "reasoning_tokens": 0, "rejected_prediction_tokens": null}, "prompt_tokens_details": null}
+RAW MODEL CONTENT:
+{
+  "reasoning": "Для формализации логических правил с использованием библиотеки z3-solver, мы объявим две булевых переменные x и y. Затем для каждого правила добавим соответствующее ограничение в solver с помощью assert_and_track, указывая ID правила. Важно использовать Implies для импликаций и не утверждать консеквент напрямую. Мы не будем использовать дополнительные методы или аргументы Solver().",
+  "python_z3_code": "from z3 import *\n\nsolver = Solver()\nx = Bool('x')  # Датчик включен\ny = Bool('y')  # Лампа горит\n\n# R1: Датчик включен.\nsolver.assert_and_track(x, 'R1')\n\n# R2: Если датчик включен, лампа горит.\nsolver.assert_and_track(Implies(x, y), 'R2')\n\n# R3: Лампа горит.\nsolver.assert_and_track(y, 'R3')"
+}
+
+GENERATED PYTHON (executed unchanged, except supported markdown fence cleaning):
+from z3 import *
+
+solver = Solver()
+x = Bool('x')  # Датчик включен
+y = Bool('y')  # Лампа горит
+
+# R1: Датчик включен.
+solver.assert_and_track(x, 'R1')
+
+# R2: Если датчик включен, лампа горит.
+solver.assert_and_track(Implies(x, y), 'R2')
+
+# R3: Лампа горит.
+solver.assert_and_track(y, 'R3')
+
+valid_response=True; predicted_sat=True; predicted_mus=[]; error=None
+expected_sat=True; expected_mus=[]
+
+CASE: live-unsat
+LLM response id: chatcmpl-9ghf2oob2v6ywi7j0g2pp
+LLM duration: 10.358 seconds
+LLM usage: {"completion_tokens": 329, "prompt_tokens": 669, "total_tokens": 998, "completion_tokens_details": {"accepted_prediction_tokens": null, "audio_tokens": null, "reasoning_tokens": 0, "rejected_prediction_tokens": null}, "prompt_tokens_details": null}
+RAW MODEL CONTENT:
+{
+  "reasoning": "Для решения задачи формальной верификации необходимо перевести логические правила в исполняемый Python-код с использованием библиотеки z3-solver. В данном случае, у нас есть три правила: R1, R2 и R3. Переменные x и y объявлены как Bool-переменные. Правило R1 утверждает, что датчик включен (x = True). Правило R2 является импликацией: если датчик включен (x), то лампа горит (y). Правило R3 утверждает, что лампа не горит (Not(y)). Все правила обрабатываются через assert_and_track с соответствующими ID-строками. Важно отметить, что некоторые правила могут быть избыточными и не должны попасть в unsat_core.",
+  "python_z3_code": "from z3 import Solver, Bool, Implies\n\nsolver = Solver()\nx = Bool('x')\ny = Bool('y')\n\n# Rule R1: Датчик включен.\nsolver.assert_and_track(x, 'R1')\n\n# Rule R2: Если датчик включен, лампа горит.\nsolver.assert_and_track(Implies(x, y), 'R2')\n\n# Rule R3: Лампа не горит.\nsolver.assert_and_track(Not(y), 'R3')"
+}
+
+GENERATED PYTHON (executed unchanged, except supported markdown fence cleaning):
+from z3 import Solver, Bool, Implies
+
+solver = Solver()
+x = Bool('x')
+y = Bool('y')
+
+# Rule R1: Датчик включен.
+solver.assert_and_track(x, 'R1')
+
+# Rule R2: Если датчик включен, лампа горит.
+solver.assert_and_track(Implies(x, y), 'R2')
+
+# Rule R3: Лампа не горит.
+solver.assert_and_track(Not(y), 'R3')
+
+valid_response=True; predicted_sat=False; predicted_mus=['R1', 'R2', 'R3']; error=None
+expected_sat=False; expected_mus=['R1', 'R2', 'R3']
+
+INDEPENDENT SMT CHECKS:
+{
+  "full_core": "unsat",
+  "without_R1": "sat",
+  "without_R2": "sat",
+  "without_R3": "sat",
+  "sat_case": "sat",
+  "production_source_digest_matches_live_run": true
+}
+
+This demonstrates these two concrete requests. It is not a universal correctness or natural-language translation proof. No code repair or repeat requests to obtain executable code.

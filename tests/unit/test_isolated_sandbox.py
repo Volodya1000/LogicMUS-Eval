@@ -1,16 +1,21 @@
 """Offline executor regressions; real processes and independent SMT checks."""
 
+from __future__ import annotations
+
 import subprocess
 import sys
 import time
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import pytest
-import z3
+import z3  # type: ignore[import-untyped]
 
+from logicmus_eval.models.evaluation import Z3ExecutionResult
 from logicmus_eval.sandbox.executor import Z3CodeExecutor
 
-SAT_CODE = "solver = Solver(); solver.assert_and_track(Bool('x'), 'R1')"
-UNSAT_CODE = """
+SAT_CODE: str = "solver = Solver(); solver.assert_and_track(Bool('x'), 'R1')"
+UNSAT_CODE: str = """
 solver = Solver()
 x, y = Bools('x y')
 solver.assert_and_track(x, 'R1')
@@ -19,7 +24,9 @@ solver.assert_and_track(y, 'R3')
 """
 
 
-def execute(code, ids=("R1",), timeout=10):
+def execute(
+    code: str, ids: Sequence[str] = ("R1",), timeout: float = 10
+) -> Z3ExecutionResult:
     return Z3CodeExecutor(timeout).execute(code, list(ids))
 
 
@@ -31,14 +38,14 @@ def execute(code, ids=("R1",), timeout=10):
         "import z3\nSolver, Bool = z3.Solver, z3.Bool",
     ],
 )
-def test_supported_imports_and_sat(prefix):
-    result = execute(prefix + "\n" + SAT_CODE + "\nis_sat = False")
+def test_supported_imports_and_sat(prefix: str) -> None:
+    result: Z3ExecutionResult = execute(prefix + "\n" + SAT_CODE + "\nis_sat = False")
     assert result.success and result.is_sat is True
     assert result.conflict_core == []
 
 
-def test_functions_and_generators_share_namespace():
-    result = execute("""
+def test_functions_and_generators_share_namespace() -> None:
+    result: Z3ExecutionResult = execute("""
 from z3 import *
 solver = Solver()
 x = Bool('x')
@@ -49,8 +56,8 @@ register()
     assert result.success, result.error
 
 
-def test_missing_solver_cannot_be_replaced_by_model_verdict():
-    result = execute("is_sat = True")
+def test_missing_solver_cannot_be_replaced_by_model_verdict() -> None:
+    result: Z3ExecutionResult = execute("is_sat = True")
     assert not result.success and result.is_sat is None
     assert result.error_type == "z3_contract_error"
 
@@ -62,17 +69,24 @@ def test_missing_solver_cannot_be_replaced_by_model_verdict():
         "is_sat = False; conflict_core = ['fake']",
     ],
 )
-def test_trusted_unsat_ignores_forged_verdict_and_core(forged):
-    result = execute(UNSAT_CODE + "\n" + forged, ["R3", "R2", "R1"])
+def test_trusted_unsat_ignores_forged_verdict_and_core(forged: str) -> None:
+    result: Z3ExecutionResult = execute(UNSAT_CODE + "\n" + forged, ["R3", "R2", "R1"])
     assert result.success and result.is_sat is False
     assert result.conflict_core == ["R1", "R2"]
     independently_verify(result.conflict_core)
 
 
-def independently_verify(core):
+def independently_verify(core: Sequence[str]) -> None:
+    x: z3.BoolRef
+    y: z3.BoolRef
     x, y = z3.Bools("x y")
-    formulas = {"R1": x, "R2": z3.Not(x), "R3": y, "R4": z3.Not(y)}
-    solver = z3.Solver()
+    formulas: dict[str, z3.BoolRef] = {
+        "R1": x,
+        "R2": z3.Not(x),
+        "R3": y,
+        "R4": z3.Not(y),
+    }
+    solver: z3.Solver = z3.Solver()
     solver.add(*(formulas[key] for key in core))
     assert solver.check() == z3.unsat
     for removed in core:
@@ -100,14 +114,16 @@ def independently_verify(core):
         ("solver = Solver(); solver.assert_and_track(True, Bool('R1'))", ["R1"]),
     ],
 )
-def test_contract_rejects_untrustworthy_registration(code, ids):
-    result = execute(code, ids)
+def test_contract_rejects_untrustworthy_registration(
+    code: str, ids: Sequence[str]
+) -> None:
+    result: Z3ExecutionResult = execute(code, ids)
     assert not result.success and result.is_sat is None, result
     assert result.error_type == "z3_contract_error", result.error
 
 
-def test_tracking_symbol_collision_does_not_change_formula_semantics():
-    result = execute("""
+def test_tracking_symbol_collision_does_not_change_formula_semantics() -> None:
+    result: Z3ExecutionResult = execute("""
 solver = Solver()
 x = Bool('R1')
 solver.assert_and_track(Not(x), 'R1')
@@ -115,8 +131,8 @@ solver.assert_and_track(Not(x), 'R1')
     assert result.success and result.is_sat is True
 
 
-def test_catching_contract_exception_does_not_hide_violation():
-    result = execute(
+def test_catching_contract_exception_does_not_hide_violation() -> None:
+    result: Z3ExecutionResult = execute(
         SAT_CODE
         + """
 try:
@@ -137,15 +153,15 @@ except Exception:
         '__import__("z3.z3").Solver()',
     ],
 )
-def test_imported_module_cannot_supply_uncontrolled_solver(expression):
-    result = execute("import z3\nsolver = " + expression)
+def test_imported_module_cannot_supply_uncontrolled_solver(expression: str) -> None:
+    result: Z3ExecutionResult = execute("import z3\nsolver = " + expression)
     assert not result.success and result.error_type == "z3_contract_error"
 
 
-def test_several_mus_return_one_verified_deterministically():
+def test_several_mus_return_one_verified_deterministically() -> None:
     code = UNSAT_CODE + "\nsolver.assert_and_track(Not(y), 'R4')"
-    first = execute(code, ["R4", "R2", "R3", "R1"])
-    second = execute(code, ["R1", "R2", "R3", "R4"])
+    first: Z3ExecutionResult = execute(code, ["R4", "R2", "R3", "R1"])
+    second: Z3ExecutionResult = execute(code, ["R1", "R2", "R3", "R4"])
     assert first.success and second.success
     assert first.conflict_core == second.conflict_core
     independently_verify(first.conflict_core)
@@ -165,20 +181,21 @@ def test_several_mus_return_one_verified_deterministically():
         ("raise KeyboardInterrupt()", "exec_error", "KeyboardInterrupt"),
     ],
 )
-def test_nonanswers_are_classified(code, kind, message):
-    result = execute(code)
+def test_nonanswers_are_classified(code: str, kind: str, message: str) -> None:
+    result: Z3ExecutionResult = execute(code)
     assert not result.success and result.is_sat is None
     assert result.error_type == kind
+    assert result.error is not None
     assert message in result.error
 
 
-def observe_workers(monkeypatch):
-    processes = []
-    real_popen = subprocess.Popen
+def observe_workers(monkeypatch: pytest.MonkeyPatch) -> list[subprocess.Popen[str]]:
+    processes: list[subprocess.Popen[str]] = []
+    real_popen: type[subprocess.Popen[str]] = subprocess.Popen
 
-    def start(*args, **kwargs):
+    def start(*args: Any, **kwargs: Any) -> subprocess.Popen[str]:
         # Ownership and bounded cleanup deliberately belong to the executor.
-        process = real_popen(*args, **kwargs)  # pylint: disable=consider-using-with
+        process: subprocess.Popen[str] = real_popen(*args, **kwargs)  # pylint: disable=consider-using-with
         processes.append(process)
         return process
 
@@ -186,21 +203,26 @@ def observe_workers(monkeypatch):
     return processes
 
 
-def test_timeout_reaps_worker_and_next_case_succeeds(monkeypatch):
-    processes = observe_workers(monkeypatch)
-    result = execute("while True: pass", timeout=2)
+def test_timeout_reaps_worker_and_next_case_succeeds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    processes: list[subprocess.Popen[str]] = observe_workers(monkeypatch)
+    result: Z3ExecutionResult = execute("while True: pass", timeout=2)
     assert not result.success and result.error_type == "z3_timeout"
     assert len(processes) == 1 and processes[0].poll() is not None
-    assert processes[0].stdin is None and processes[0].stdout.closed
+    assert processes[0].stdin is None and processes[0].stdout is not None
+    assert processes[0].stdout.closed
     assert execute(SAT_CODE).success
 
 
-def test_abrupt_worker_exit_is_failure_and_next_case_succeeds(monkeypatch):
-    real_popen = subprocess.Popen
-    processes = []
+def test_abrupt_worker_exit_is_failure_and_next_case_succeeds(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_popen: type[subprocess.Popen[str]] = subprocess.Popen
+    processes: list[subprocess.Popen[str]] = []
 
-    def crash(*_args, **kwargs):
-        process = real_popen(  # pylint: disable=consider-using-with
+    def crash(*_args: Any, **kwargs: Any) -> subprocess.Popen[str]:
+        process: subprocess.Popen[str] = real_popen(  # pylint: disable=consider-using-with
             [sys.executable, "-c", "import os; os._exit(17)"], **kwargs
         )
         processes.append(process)
@@ -208,19 +230,25 @@ def test_abrupt_worker_exit_is_failure_and_next_case_succeeds(monkeypatch):
 
     with monkeypatch.context() as patch:
         patch.setattr(subprocess, "Popen", crash)
-        result = execute(SAT_CODE)
+        result: Z3ExecutionResult = execute(SAT_CODE)
     assert not result.success and result.error_type == "z3_worker_error"
     assert processes[0].poll() == 17
     assert execute(SAT_CODE).success
 
 
-def test_parent_interrupt_reaps_worker_and_propagates(monkeypatch):
-    popen_class = subprocess.Popen
-    real_communicate = subprocess.Popen.communicate
-    processes = observe_workers(monkeypatch)
-    first = True
+def test_parent_interrupt_reaps_worker_and_propagates(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    popen_class: type[subprocess.Popen[str]] = subprocess.Popen
+    real_communicate: Callable[..., tuple[str, str | None]] = (
+        subprocess.Popen.communicate
+    )
+    processes: list[subprocess.Popen[str]] = observe_workers(monkeypatch)
+    first: bool = True
 
-    def interrupted(self, *args, **kwargs):
+    def interrupted(
+        self: subprocess.Popen[str], *args: Any, **kwargs: Any
+    ) -> tuple[str, str | None]:
         nonlocal first
         if first:
             first = False
@@ -231,50 +259,56 @@ def test_parent_interrupt_reaps_worker_and_propagates(monkeypatch):
     with pytest.raises(KeyboardInterrupt):
         execute("while True: pass")
     assert len(processes) == 1 and processes[0].poll() is not None
-    assert processes[0].stdin is None and processes[0].stdout.closed
+    assert processes[0].stdin is None and processes[0].stdout is not None
+    assert processes[0].stdout.closed
 
 
-def test_stdout_and_error_diagnostics_are_bounded():
-    result = execute("for i in range(10000): print('x' * 2000)\n" + SAT_CODE)
+def test_stdout_and_error_diagnostics_are_bounded() -> None:
+    result: Z3ExecutionResult = execute(
+        "for i in range(10000): print('x' * 2000)\n" + SAT_CODE
+    )
     assert result.success
     assert len(result.diagnostics) <= 8192
-    failed = execute("int('x' * 1000000)")
-    assert not failed.success and len(failed.error) <= 8192
+    failed: Z3ExecutionResult = execute("int('x' * 1000000)")
+    assert not failed.success and failed.error is not None
+    assert len(failed.error) <= 8192
 
 
-def test_large_ipc_result_is_drained_before_waiting():
+def test_large_ipc_result_is_drained_before_waiting() -> None:
     # A one-member MUS with an ID much larger than a Windows pipe buffer.
-    label = "R" * 200000
-    result = execute(
+    label: str = "R" * 200000
+    result: Z3ExecutionResult = execute(
         f"solver = Solver(); solver.assert_and_track(False, {label!r})", [label]
     )
     assert result.success and result.is_sat is False
     assert result.conflict_core == [label]
 
 
-def test_startup_is_inside_deadline(monkeypatch):
-    real_popen = subprocess.Popen
-    processes = []
+def test_startup_is_inside_deadline(monkeypatch: pytest.MonkeyPatch) -> None:
+    real_popen: type[subprocess.Popen[str]] = subprocess.Popen
+    processes: list[subprocess.Popen[str]] = []
 
-    def slow_start(*args, **kwargs):
+    def slow_start(*args: Any, **kwargs: Any) -> subprocess.Popen[str]:
         time.sleep(0.1)
-        process = real_popen(*args, **kwargs)  # pylint: disable=consider-using-with
+        process: subprocess.Popen[str] = real_popen(*args, **kwargs)  # pylint: disable=consider-using-with
         processes.append(process)
         return process
 
     monkeypatch.setattr(subprocess, "Popen", slow_start)
-    result = execute(SAT_CODE, timeout=0.01)
+    result: Z3ExecutionResult = execute(SAT_CODE, timeout=0.01)
     assert not result.success and result.error_type == "z3_timeout"
     assert processes[0].poll() is not None
 
 
-def test_large_request_cannot_block_deadline_when_worker_never_reads(monkeypatch):
-    real_popen = subprocess.Popen
-    processes = []
+def test_large_request_cannot_block_deadline_when_worker_never_reads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    real_popen: type[subprocess.Popen[str]] = subprocess.Popen
+    processes: list[subprocess.Popen[str]] = []
 
-    def unread(*_args, **kwargs):
+    def unread(*_args: Any, **kwargs: Any) -> subprocess.Popen[str]:
         # The finite sleep also makes a regression fail instead of hanging CI.
-        process = real_popen(  # pylint: disable=consider-using-with
+        process: subprocess.Popen[str] = real_popen(  # pylint: disable=consider-using-with
             [
                 getattr(sys, "_base_executable", sys.executable),
                 "-c",
@@ -286,16 +320,18 @@ def test_large_request_cannot_block_deadline_when_worker_never_reads(monkeypatch
         return process
 
     monkeypatch.setattr(subprocess, "Popen", unread)
-    result = execute("#" + "x" * 1000000, timeout=2)
+    result: Z3ExecutionResult = execute("#" + "x" * 1000000, timeout=2)
     assert not result.success and result.error_type == "z3_timeout"
     assert processes[0].poll() is not None
     assert processes[0].returncode != 0  # deadline killed it before its normal exit
 
 
-def test_unicode_ipc_ignores_inherited_locale_encoding(monkeypatch):
+def test_unicode_ipc_ignores_inherited_locale_encoding(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv("PYTHONUTF8", "0")
     monkeypatch.setenv("PYTHONIOENCODING", "cp1251")
-    result = execute(
+    result: Z3ExecutionResult = execute(
         "solver = Solver(); solver.assert_and_track(False, '一'); print('Ж')", ["一"]
     )
     assert result.success and result.conflict_core == ["一"]
