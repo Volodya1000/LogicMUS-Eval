@@ -26,13 +26,17 @@ Optional:
         --strategy direct
 """
 
+# The independent smoke CLI deliberately repeats the small LMS invocation helpers.
+# Sharing model orchestration is outside the report-accounting change.
+# pylint: disable=duplicate-code
+
 import argparse
 import subprocess
 import time
 from pathlib import Path
 
 from logicmus_eval.evaluate_llm import run_evaluation
-
+from logicmus_eval.evaluation.reports import require_completed_report
 
 # ---------------------------------------------------------------------------
 # LM Studio model configuration
@@ -151,14 +155,15 @@ def load_model(load_key: str) -> float:
     elapsed = time.perf_counter() - started
 
     print(
-        f"[LOAD OK] {load_key} "
-        f"({elapsed:.2f}s)",
+        f"[LOAD OK] {load_key} ({elapsed:.2f}s)",
         flush=True,
     )
 
     return elapsed
 
 
+# Keep the pre-existing CLI lifecycle/logging sequence together; no runner redesign.
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -183,24 +188,14 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    dataset_file = (
-        args.dataset_dir
-        / "dataset_v1_frozen.jsonl"
-    )
+    dataset_file = args.dataset_dir / "dataset_v1_frozen.jsonl"
 
     if not dataset_file.exists():
-        raise SystemExit(
-            f"[ERROR] Dataset not found: {dataset_file}"
-        )
+        raise SystemExit(f"[ERROR] Dataset not found: {dataset_file}")
 
-    timestamp = time.strftime(
-        "%Y%m%d_%H%M%S"
-    )
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
 
-    output_dir = (
-        Path("experiments")
-        / f"{timestamp}_model_lifecycle_test"
-    )
+    output_dir = Path("experiments") / f"{timestamp}_model_lifecycle_test"
 
     output_dir.mkdir(
         parents=True,
@@ -296,25 +291,16 @@ def main() -> None:
                 # One actual LogicMUS-Eval request
                 # ------------------------------------------------------
 
-                safe_name = (
-                    name
-                    .lower()
-                    .replace(" ", "_")
-                    .replace("-", "_")
-                )
+                safe_name = name.lower().replace(" ", "_").replace("-", "_")
 
-                report_name = (
-                    f"{safe_name}_{args.strategy}_one_case.json"
-                )
+                report_name = f"{safe_name}_{args.strategy}_one_case.json"
 
                 print(
                     "\n[EVAL] running exactly 1 dataset case",
                     flush=True,
                 )
 
-                evaluation_started = (
-                    time.perf_counter()
-                )
+                evaluation_started = time.perf_counter()
 
                 run_evaluation(
                     dataset_dir=str(args.dataset_dir),
@@ -324,27 +310,16 @@ def main() -> None:
                     output_file=report_name,
                 )
 
-                evaluation_time = (
-                    time.perf_counter()
-                    - evaluation_started
-                )
+                evaluation_time = time.perf_counter() - evaluation_started
 
-                report_path = (
-                    args.dataset_dir
-                    / report_name
-                )
+                report_path = args.dataset_dir / report_name
 
-                if not report_path.exists():
-                    raise FileNotFoundError(
-                        "Evaluation returned successfully, "
-                        f"but report was not found: {report_path}"
-                    )
+                require_completed_report(report_path, limit=1)
 
                 evaluation_ok = True
 
                 print(
-                    f"[EVAL OK] {report_path} "
-                    f"({evaluation_time:.2f}s)",
+                    f"[EVAL OK] {report_path} ({evaluation_time:.2f}s)",
                     flush=True,
                 )
 
@@ -360,7 +335,7 @@ def main() -> None:
                     }
                 )
 
-            except Exception as exc:
+            except (OSError, ValueError, subprocess.CalledProcessError) as exc:
                 print(
                     f"[FAIL] {name}: {exc}",
                     flush=True,
@@ -428,23 +403,16 @@ def main() -> None:
     print("=" * 72)
 
     for result in results:
-        status = (
-            "OK"
-            if result["evaluation_ok"]
-            else "FAIL"
-        )
+        status = "OK" if result["evaluation_ok"] else "FAIL"
 
         print(
-            f"{status:4} | "
-            f"{result['model']} | "
-            f"load={result['load_time_seconds']:.2f}s",
+            f"{status:4} | {result['model']} | load={result['load_time_seconds']:.2f}s",
             flush=True,
         )
 
         if "evaluation_time_seconds" in result:
             print(
-                f"       evaluation="
-                f"{result['evaluation_time_seconds']:.2f}s",
+                f"       evaluation={result['evaluation_time_seconds']:.2f}s",
                 flush=True,
             )
 

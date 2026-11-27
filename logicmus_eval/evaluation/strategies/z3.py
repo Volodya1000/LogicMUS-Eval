@@ -82,5 +82,6 @@ class Z3TranslationEvaluationStrategy(BaseEvaluationStrategy):
             generated_code=result.data.python_z3_code,
             execution_success=exec_res.success,
             error=exec_res.error,
+            raw_response=result.raw_response,
         )
         return prediction, result.metadata

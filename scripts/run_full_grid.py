@@ -65,6 +65,10 @@ from typing import Any
 
 from logicmus_eval.enums import ManifestFilename
 from logicmus_eval.evaluate_llm import run_evaluation
+from logicmus_eval.evaluation.reports import (
+    report_is_complete,
+    require_completed_report,
+)
 from logicmus_eval.release import assert_dataset_approved
 from logicmus_eval.run_pipeline import GenerationConfig, run_generation
 
@@ -216,7 +220,7 @@ def append_manifest(
         data = []
 
     if not isinstance(data, list):
-        raise ValueError(f"Manifest must contain a JSON list: {path}")
+        raise TypeError(f"Manifest must contain a JSON list: {path}")
 
     data.append(item)
 
@@ -260,10 +264,7 @@ def run_lms(
         "a",
         encoding="utf-8",
     ) as log:
-        log.write(
-            f"\n[{started_at}] "
-            f"$ {' '.join(command)}\n"
-        )
+        log.write(f"\n[{started_at}] $ {' '.join(command)}\n")
 
         if result.stdout:
             log.write(result.stdout)
@@ -360,8 +361,7 @@ def load_model(
     elapsed = time.perf_counter() - started
 
     print(
-        f"[LOAD OK] {model['label']} "
-        f"({elapsed:.2f}s)",
+        f"[LOAD OK] {model['label']} ({elapsed:.2f}s)",
         flush=True,
     )
 
@@ -391,16 +391,13 @@ def generate_dataset(
         exist_ok=True,
     )
 
-    dataset_path = (
-        dataset_dir / DATASET_NAME
-    )
+    dataset_path = dataset_dir / DATASET_NAME
 
     # Resume support.
     if dataset_path.exists():
         assert_dataset_approved(dataset_path)
         print(
-            f"[DATASET SKIP] {cfg.name}: "
-            f"{dataset_path}",
+            f"[DATASET SKIP] {cfg.name}: {dataset_path}",
             flush=True,
         )
 
@@ -438,8 +435,7 @@ def generate_dataset(
         )
 
     print(
-        f"[DATASET OK] {cfg.name} "
-        f"({elapsed:.2f}s)",
+        f"[DATASET OK] {cfg.name} ({elapsed:.2f}s)",
         flush=True,
     )
 
@@ -451,6 +447,9 @@ def generate_dataset(
 # ============================================================================
 
 
+# This is the existing grid orchestration; extracting jobs/sessions is a separate
+# runner refactor. The checks below remain enabled for all other functions.
+# pylint: disable=too-many-locals,too-many-branches,too-many-statements,too-many-nested-blocks
 def main() -> None:
     """Run the complete overnight benchmark."""
     parser = argparse.ArgumentParser(
@@ -462,8 +461,7 @@ def main() -> None:
         type=int,
         default=DEFAULT_PAIRS,
         help=(
-            "Number of SAT/UNSAT pairs per configuration "
-            f"(default: {DEFAULT_PAIRS})"
+            f"Number of SAT/UNSAT pairs per configuration (default: {DEFAULT_PAIRS})"
         ),
     )
 
@@ -480,27 +478,18 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.pairs < 1:
-        raise SystemExit(
-            "--pairs must be >= 1"
-        )
+        raise SystemExit("--pairs must be >= 1")
 
     if args.context_length < 1:
-        raise SystemExit(
-            "--context-length must be >= 1"
-        )
+        raise SystemExit("--context-length must be >= 1")
 
     # ------------------------------------------------------------------
     # Experiment root.
     # ------------------------------------------------------------------
 
-    timestamp = datetime.now().strftime(
-        "%Y%m%d_%H%M%S"
-    )
+    timestamp = datetime.now().astimezone().strftime("%Y%m%d_%H%M%S")
 
-    root = (
-        Path("experiments")
-        / f"{timestamp}_overnight_grid"
-    )
+    root = Path("experiments") / f"{timestamp}_overnight_grid"
 
     datasets_root = root / "datasets"
     logs_root = root / "logs"
@@ -523,9 +512,7 @@ def main() -> None:
     manifest_path = root / "manifest.json"
     plan_path = root / "plan.json"
 
-    grid = build_grid(
-        args.pairs
-    )
+    grid = build_grid(args.pairs)
 
     # ------------------------------------------------------------------
     # Save immutable experiment plan.
@@ -541,16 +528,9 @@ def main() -> None:
         "models": MODELS,
         "configuration_count": len(grid),
         "expected_requests": (
-            len(grid)
-            * args.pairs
-            * 2
-            * len(STRATEGIES)
-            * len(MODELS)
+            len(grid) * args.pairs * 2 * len(STRATEGIES) * len(MODELS)
         ),
-        "grid": [
-            asdict(cfg)
-            for cfg in grid
-        ],
+        "grid": [asdict(cfg) for cfg in grid],
     }
 
     plan_path.write_text(
@@ -573,9 +553,7 @@ def main() -> None:
     # ------------------------------------------------------------------
 
     print("=" * 80)
-    print(
-        "LogicMUS-Eval / overnight experiment"
-    )
+    print("LogicMUS-Eval / overnight experiment")
     print("=" * 80)
 
     print(
@@ -599,8 +577,7 @@ def main() -> None:
     )
 
     print(
-        "Strategies    : "
-        + ", ".join(STRATEGIES),
+        "Strategies    : " + ", ".join(STRATEGIES),
         flush=True,
     )
 
@@ -614,13 +591,7 @@ def main() -> None:
         flush=True,
     )
 
-    expected_requests = (
-        len(grid)
-        * args.pairs
-        * 2
-        * len(STRATEGIES)
-        * len(MODELS)
-    )
+    expected_requests = len(grid) * args.pairs * 2 * len(STRATEGIES) * len(MODELS)
 
     print(
         f"Total requests: {expected_requests}",
@@ -636,9 +607,7 @@ def main() -> None:
 
     print()
     print("=" * 80)
-    print(
-        "STEP 1: DATASET GENERATION"
-    )
+    print("STEP 1: DATASET GENERATION")
     print("=" * 80)
 
     dataset_paths: dict[str, Path] = {}
@@ -646,18 +615,14 @@ def main() -> None:
     generation_started = time.perf_counter()
 
     for cfg in grid:
-        dataset_dir = (
-                datasets_root
-                / cfg.exp
-                / cfg.name
-        )
+        dataset_dir = datasets_root / cfg.exp / cfg.name
 
         try:
             dataset_path = generate_dataset(
                 cfg,
                 dataset_dir,
             )
-        except Exception as e:
+        except (OSError, ValueError) as e:
             print(
                 f"[SKIP] dataset generation failed for {cfg.name}: {e}",
                 flush=True,
@@ -689,14 +654,10 @@ def main() -> None:
             },
         )
 
-    generation_elapsed = (
-        time.perf_counter()
-        - generation_started
-    )
+    generation_elapsed = time.perf_counter() - generation_started
 
     print(
-        "\n[DATASET GENERATION COMPLETE] "
-        f"{generation_elapsed:.2f}s",
+        f"\n[DATASET GENERATION COMPLETE] {generation_elapsed:.2f}s",
         flush=True,
     )
 
@@ -712,23 +673,13 @@ def main() -> None:
         for model in MODELS:
             model_label = model["label"]
 
-            safe_model_name = (
-                model_label
-                .lower()
-                .replace(" ", "_")
-                .replace("-", "_")
-            )
+            safe_model_name = model_label.lower().replace(" ", "_").replace("-", "_")
 
-            model_log = (
-                logs_root
-                / f"{safe_model_name}.log"
-            )
+            model_log = logs_root / f"{safe_model_name}.log"
 
             print()
             print("=" * 80)
-            print(
-                f"MODEL: {model_label}"
-            )
+            print(f"MODEL: {model_label}")
             print("=" * 80)
 
             # Always start from a clean LM Studio state.
@@ -737,9 +688,7 @@ def main() -> None:
                 flush=True,
             )
 
-            unload_all(
-                model_log
-            )
+            unload_all(model_log)
 
             # We deliberately consider the model load "attempted" before
             # calling lms load so that even a partially successful load is
@@ -765,33 +714,20 @@ def main() -> None:
                 for cfg in grid:
                     if cfg.name not in dataset_paths:
                         continue
-                    dataset_dir = (
-                        datasets_root
-                        / cfg.exp
-                        / cfg.name
-                    )
+                    dataset_dir = datasets_root / cfg.exp / cfg.name
 
                     for strategy in STRATEGIES:
-                        report_name = (
-                            f"{safe_model_name}_"
-                            f"{strategy}.json"
-                        )
+                        report_name = f"{safe_model_name}_{strategy}.json"
 
-                        report_path = (
-                            dataset_dir
-                            / report_name
-                        )
+                        report_path = dataset_dir / report_name
 
                         # --------------------------------------------------
                         # Resume support.
                         # --------------------------------------------------
 
-                        if report_path.exists():
+                        if report_is_complete(report_path, limit=cfg.pairs * 2):
                             print(
-                                f"[SKIP] "
-                                f"{cfg.name} / "
-                                f"{model_label} / "
-                                f"{strategy}",
+                                f"[SKIP] {cfg.name} / {model_label} / {strategy}",
                                 flush=True,
                             )
                             continue
@@ -800,10 +736,7 @@ def main() -> None:
                         print("-" * 80)
 
                         print(
-                            f"[RUN] "
-                            f"{cfg.name} | "
-                            f"{model_label} | "
-                            f"{strategy}",
+                            f"[RUN] {cfg.name} | {model_label} | {strategy}",
                             flush=True,
                         )
 
@@ -814,29 +747,16 @@ def main() -> None:
 
                         try:
                             run_evaluation(
-                                dataset_dir=str(
-                                    dataset_dir
-                                ),
-                                model_name=model[
-                                    "model_name"
-                                ],
+                                dataset_dir=str(dataset_dir),
+                                model_name=model["model_name"],
                                 strategy_name=strategy,
                                 limit=cfg.pairs * 2,
                                 output_file=report_name,
                             )
 
-                            elapsed = (
-                                time.perf_counter()
-                                - started
-                            )
+                            elapsed = time.perf_counter() - started
 
-                            if not report_path.exists():
-                                raise FileNotFoundError(
-                                    "Evaluation returned "
-                                    "successfully, but the "
-                                    f"expected report was not "
-                                    f"created: {report_path}"
-                                )
+                            require_completed_report(report_path, limit=cfg.pairs * 2)
 
                             print(
                                 f"[OK] "
@@ -855,33 +775,15 @@ def main() -> None:
                                     "started_at": started_at,
                                     "finished_at": now_iso(),
                                     "elapsed_seconds": elapsed,
-                                    "session_started_at": (
-                                        session_started_at
-                                    ),
-                                    "load_time_seconds": (
-                                        load_time
-                                    ),
-                                    "config": asdict(
-                                        cfg
-                                    ),
-                                    "model": model[
-                                        "model_name"
-                                    ],
-                                    "model_label": (
-                                        model_label
-                                    ),
-                                    "load_key": model[
-                                        "load_key"
-                                    ],
+                                    "session_started_at": (session_started_at),
+                                    "load_time_seconds": (load_time),
+                                    "config": asdict(cfg),
+                                    "model": model["model_name"],
+                                    "model_label": (model_label),
+                                    "load_key": model["load_key"],
                                     "strategy": strategy,
-                                    "dataset": str(
-                                        dataset_paths[
-                                            cfg.name
-                                        ]
-                                    ),
-                                    "report": str(
-                                        report_path
-                                    ),
+                                    "dataset": str(dataset_paths[cfg.name]),
+                                    "report": str(report_path),
                                 },
                             )
 
@@ -895,11 +797,8 @@ def main() -> None:
                             )
                             raise
 
-                        except Exception as exc:
-                            elapsed = (
-                                time.perf_counter()
-                                - started
-                            )
+                        except (OSError, ValueError) as exc:
+                            elapsed = time.perf_counter() - started
 
                             print(
                                 f"[FAIL] "
@@ -918,33 +817,15 @@ def main() -> None:
                                     "started_at": started_at,
                                     "finished_at": now_iso(),
                                     "elapsed_seconds": elapsed,
-                                    "session_started_at": (
-                                        session_started_at
-                                    ),
-                                    "load_time_seconds": (
-                                        load_time
-                                    ),
-                                    "config": asdict(
-                                        cfg
-                                    ),
-                                    "model": model[
-                                        "model_name"
-                                    ],
-                                    "model_label": (
-                                        model_label
-                                    ),
-                                    "load_key": model[
-                                        "load_key"
-                                    ],
+                                    "session_started_at": (session_started_at),
+                                    "load_time_seconds": (load_time),
+                                    "config": asdict(cfg),
+                                    "model": model["model_name"],
+                                    "model_label": (model_label),
+                                    "load_key": model["load_key"],
                                     "strategy": strategy,
-                                    "dataset": str(
-                                        dataset_paths[
-                                            cfg.name
-                                        ]
-                                    ),
-                                    "report": str(
-                                        report_path
-                                    ),
+                                    "dataset": str(dataset_paths[cfg.name]),
+                                    "report": str(report_path),
                                     "error": str(exc),
                                 },
                             )
@@ -961,24 +842,18 @@ def main() -> None:
                         flush=True,
                     )
 
-                    unload_all(
-                        model_log
-                    )
+                    unload_all(model_log)
 
                     print(
-                        f"[VERIFY UNLOAD] "
-                        f"{model_label}",
+                        f"[VERIFY UNLOAD] {model_label}",
                         flush=True,
                     )
 
                     try:
-                        show_loaded_models(
-                            model_log
-                        )
+                        show_loaded_models(model_log)
                     except subprocess.CalledProcessError as exc:
                         print(
-                            "[WARN] Could not verify "
-                            f"model unload: {exc}",
+                            f"[WARN] Could not verify model unload: {exc}",
                             flush=True,
                         )
 
@@ -992,14 +867,9 @@ def main() -> None:
             flush=True,
         )
 
-        cleanup_log = (
-            logs_root
-            / "final_cleanup.log"
-        )
+        cleanup_log = logs_root / "final_cleanup.log"
 
-        unload_all(
-            cleanup_log
-        )
+        unload_all(cleanup_log)
 
     # ----------------------------------------------------------------------
     # Final information.
@@ -1007,9 +877,7 @@ def main() -> None:
 
     print()
     print("=" * 80)
-    print(
-        "OVERNIGHT RUN FINISHED"
-    )
+    print("OVERNIGHT RUN FINISHED")
     print("=" * 80)
 
     print(
@@ -1028,13 +896,10 @@ def main() -> None:
     )
 
     print()
-    print(
-        "Analyze with:"
-    )
+    print("Analyze with:")
 
     print(
-        f"uv run python scripts/analyze.py "
-        f"{root}",
+        f"uv run python scripts/analyze.py {root}",
         flush=True,
     )
 

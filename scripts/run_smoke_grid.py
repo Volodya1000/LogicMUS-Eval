@@ -19,6 +19,10 @@ from typing import TypedDict
 
 from logicmus_eval.enums import ManifestFilename
 from logicmus_eval.evaluate_llm import run_evaluation
+from logicmus_eval.evaluation.reports import (
+    report_is_complete,
+    require_completed_report,
+)
 from logicmus_eval.logging_utils import configure_logging
 from logicmus_eval.run_pipeline import GenerationConfig, run_generation
 
@@ -135,7 +139,7 @@ def main() -> None:
                 report_name = f"{safe_model}_{strategy}.json"
                 report_path = ds_dir / report_name
 
-                if report_path.exists():
+                if report_is_complete(report_path, limit=PAIRS * 2):
                     print(f"[SKIP] {report_path}", flush=True)
                 else:
                     print(f"[EVAL] {cfg['name']} | {model} | {strategy}", flush=True)
@@ -147,6 +151,7 @@ def main() -> None:
                         output_file=report_name,
                     )
 
+                require_completed_report(report_path, limit=PAIRS * 2)
                 manifest.append(
                     {
                         "type": "report",

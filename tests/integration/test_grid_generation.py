@@ -1,3 +1,7 @@
+# CLI imports are deferred until pytest fixture setup because smoke CLI modules
+# register signal handlers at import time.
+# pylint: disable=import-outside-toplevel
+
 import json
 from pathlib import Path
 
@@ -34,7 +38,29 @@ def test_smoke_grid_uses_the_generated_versioned_file(tmp_path, monkeypatch):
     monkeypatch.setattr(smoke, "run_generation", accepted_generation)
 
     def offline_report(dataset_dir, **_kwargs):
+        from types import SimpleNamespace
+
+        from logicmus_eval.evaluation.pipeline import EvaluationPipeline
+        from logicmus_eval.models.evaluation import CasePrediction, ExtractionMetadata
+        from logicmus_eval.storage import FileStorageManager
+
         assert (Path(dataset_dir) / ManifestFilename.DATASET_JSONL.value).exists()
+        pipeline = EvaluationPipeline(
+            strategy=SimpleNamespace(
+                evaluate_case=lambda *_args: (
+                    CasePrediction(is_sat=True),
+                    ExtractionMetadata(),
+                )
+            ),
+            extractor=SimpleNamespace(),
+            metrics=[],
+        )
+        pipeline.run(
+            FileStorageManager(dataset_dir).load_dataset(
+                ManifestFilename.DATASET_JSONL.value
+            ),
+            output_path=Path(dataset_dir) / _kwargs["output_file"],
+        )
 
     monkeypatch.setattr(smoke, "run_evaluation", offline_report)
     smoke.main()

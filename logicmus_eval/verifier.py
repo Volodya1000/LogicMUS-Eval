@@ -1,6 +1,6 @@
 from typing import Any
 
-import z3  # type: ignore
+import z3  # type: ignore[import-untyped]
 
 from logicmus_eval.models.manifests import ValidationResultDTO
 from logicmus_eval.models.rules import BaseRule, NumericRule

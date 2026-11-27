@@ -1,5 +1,6 @@
 from logicmus_eval.enums import TemplatePackId
 from logicmus_eval.evaluation.metrics import (
+    CodeExecutionErrorRateMetric,
     InfrastructureErrorRateMetric,
     MusValidMetric,
     RefusalRateMetric,
@@ -38,7 +39,7 @@ def test_mus_valid_metric():
         is_satisfiable=False,
         template_pack_id=TemplatePackId.PACK_00,
         predicate_mapping={},
-        rules=[],
+        rules=[{"id": "R1"}, {"id": "R2"}],
         mus_expected=["R1", "R2"],
     )
     metric.update(
@@ -80,6 +81,7 @@ def test_token_usage_metric():
 def test_new_failure_metrics():
     refusal_metric = RefusalRateMetric()
     infra_metric = InfrastructureErrorRateMetric()
+    execution_metric = CodeExecutionErrorRateMetric()
     valid_metric = ValidResponseAccuracyMetric()
 
     case = LogicTestCase(
@@ -97,7 +99,7 @@ def test_new_failure_metrics():
     correct_pred = CasePrediction(is_sat=True)
     wrong_pred = CasePrediction(is_sat=False)
 
-    for metric in (refusal_metric, infra_metric, valid_metric):
+    for metric in (refusal_metric, infra_metric, execution_metric, valid_metric):
         metric.update(case, refusal_pred, ExtractionMetadata())
         metric.update(case, error_pred, ExtractionMetadata())
         metric.update(case, correct_pred, ExtractionMetadata())
@@ -108,8 +110,9 @@ def test_new_failure_metrics():
     assert refusal_res["refusal_rate"] == 0.25
 
     infra_res = infra_metric.compute()
-    assert infra_res["infra_error_count"] == 1
-    assert infra_res["infrastructure_error_rate"] == 0.25
+    assert infra_res["infra_error_count"] == 0
+    assert infra_res["infrastructure_error_rate"] == 0
+    assert execution_metric.compute()["execution_error_count"] == 1
 
     valid_res = valid_metric.compute()
     assert valid_res["valid_responses_evaluated"] == 2

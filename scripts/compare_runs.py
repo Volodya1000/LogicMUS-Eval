@@ -23,11 +23,12 @@ Plots produced:
 import argparse
 import sys
 from pathlib import Path
+from typing import TypedDict
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import pandas as pd  # noqa: E402
+import matplotlib.pyplot as plt
+import pandas as pd
+
+plt.switch_backend("Agg")
 
 METRICS = [
     "sat_accuracy",
@@ -36,6 +37,8 @@ METRICS = [
     "mus_precision",
     "mus_recall",
     "infrastructure_error_rate",
+    "response_error_rate",
+    "execution_error_rate",
 ]
 
 # Pretty labels for the legend.
@@ -45,10 +48,31 @@ MODEL_LABELS = {
     "openai/gpt-oss-20b": "GPT-OSS-20B",
 }
 
+
 # Line styles per strategy — solid for direct, dashed for z3.
-STRATEGY_STYLES: dict[str, dict] = {
-    "direct": {"linestyle": "-", "marker": "o", "markersize": 8, "markerfacecolor": "white", "markeredgewidth": 2},
-    "z3":     {"linestyle": "--", "marker": "s", "markersize": 8, "markerfacecolor": "white", "markeredgewidth": 2},
+class PlotStyle(TypedDict, total=False):
+    linestyle: str
+    marker: str
+    markersize: int
+    markerfacecolor: str
+    markeredgewidth: int
+
+
+STRATEGY_STYLES: dict[str, PlotStyle] = {
+    "direct": {
+        "linestyle": "-",
+        "marker": "o",
+        "markersize": 8,
+        "markerfacecolor": "white",
+        "markeredgewidth": 2,
+    },
+    "z3": {
+        "linestyle": "--",
+        "marker": "s",
+        "markersize": 8,
+        "markerfacecolor": "white",
+        "markeredgewidth": 2,
+    },
 }
 
 # Colors per model — consistent across all plots.
@@ -57,7 +81,6 @@ MODEL_COLORS = {
     "Gemma-4-E4B": "#d62728",
     "GPT-OSS-20B": "#2ca02c",
 }
-
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +101,17 @@ def load_summaries(dirs: list[Path]) -> pd.DataFrame:
         if not summary.exists():
             print(f"[WARN] no summary.csv in {d}", file=sys.stderr)
             continue
-        df = pd.read_csv(summary)
+        df = pd.read_csv(summary, dtype={"metric_definitions_version": "string"})
+        if "status" in df:
+            df = df[df["status"].isna() | (df["status"] == "completed")].copy()
+        if "metric_definitions_version" not in df:
+            df["metric_definitions_version"] = "legacy"
+        df["metric_definitions_version"] = df["metric_definitions_version"].fillna(
+            "legacy"
+        )
+        for metric in METRICS:
+            if metric in df:
+                df[metric] = pd.to_numeric(df[metric], errors="raise")
         df["_source"] = d.name
         frames.append(df)
 
@@ -90,7 +123,8 @@ def load_summaries(dirs: list[Path]) -> pd.DataFrame:
 
     before = len(merged)
     merged = merged.drop_duplicates(
-        subset=["config", "model", "strategy"], keep="first"
+        subset=["config", "model", "strategy", "metric_definitions_version"],
+        keep="first",
     ).reset_index(drop=True)
     after = len(merged)
     if before != after:
@@ -118,6 +152,7 @@ def _line_plot(
     fig, ax = plt.subplots(figsize=(9, 5.5))
 
     for (model_label, strategy), g in sub.groupby(["model_label", "strategy"]):
+        model_label, strategy = str(model_label), str(strategy)
         g = g.sort_values(x_col)
         if metric not in g.columns:
             continue
@@ -179,7 +214,7 @@ def _heatmap(
 
     ax.set_xticks(range(pivot.shape[1]))
     ax.set_xticklabels(
-        [f"{m}\n{s}" for m, s in pivot.columns],
+        [f"{column[0]}\n{column[1]}" for column in pivot.columns],
         fontsize=8,
     )
     ax.set_yticks(range(pivot.shape[0]))
@@ -191,9 +226,13 @@ def _heatmap(
             val = pivot.values[i, j]
             if pd.notna(val):
                 ax.text(
-                    j, i, f"{val:.2f}",
-                    ha="center", va="center",
-                    fontsize=8, color="black",
+                    j,
+                    i,
+                    f"{val:.2f}",
+                    ha="center",
+                    va="center",
+                    fontsize=8,
+                    color="black",
                 )
 
     fig.colorbar(im, ax=ax, fraction=0.03, pad=0.02)
@@ -232,7 +271,20 @@ def main() -> None:
     df.to_csv(merged_csv, index=False)
     print(f"[OK] merged summary: {merged_csv} ({len(df)} rows)")
 
-    # Line plots for each experiment and metric.
+    # Each metric definition version gets separate plots, never pooled means.
+    for version, selected in df.groupby("metric_definitions_version"):
+        destination = (
+            args.output / f"metrics_{version}"
+            if df["metric_definitions_version"].nunique() > 1
+            else args.output
+        )
+        destination.mkdir(exist_ok=True)
+        _save_plots(selected, destination)
+
+    print(f"\nAll plots saved to: {args.output}")
+
+
+def _save_plots(df: pd.DataFrame, destination: Path) -> None:
     for exp, x_col in (
         ("exp1_total_rules", "total_rules"),
         ("exp2_mus_size", "mus_size"),
@@ -241,17 +293,15 @@ def main() -> None:
         if exp not in df["exp"].values:
             continue
         for metric in METRICS:
-            out = args.output / f"{exp}_{metric}.png"
+            out = destination / f"{exp}_{metric}.png"
             _line_plot(df, exp, x_col, metric, out)
             print(f"[OK] {out.name}")
 
     # Heatmaps across all configurations.
     for metric in ("mus_f1", "sat_accuracy"):
-        out = args.output / f"heatmap_{metric}.png"
+        out = destination / f"heatmap_{metric}.png"
         _heatmap(df, metric, out)
         print(f"[OK] {out.name}")
-
-    print(f"\nAll plots saved to: {args.output}")
 
 
 if __name__ == "__main__":

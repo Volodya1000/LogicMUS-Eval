@@ -1,4 +1,4 @@
-import z3  # type: ignore
+import z3  # type: ignore[import-untyped]
 
 from logicmus_eval.models.rules import (
     AndImpliesRule,

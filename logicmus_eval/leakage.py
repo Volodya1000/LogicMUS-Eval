@@ -1,10 +1,15 @@
 """Pair-held-out lexical diagnostics; passing a probe is not proof of no leakage."""
 
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer  # type: ignore
-from sklearn.linear_model import LogisticRegression  # type: ignore
-from sklearn.metrics import balanced_accuracy_score, f1_score  # type: ignore
-from sklearn.model_selection import StratifiedGroupKFold  # type: ignore
+from sklearn.feature_extraction.text import (  # type: ignore[import-untyped]
+    TfidfVectorizer,
+)
+from sklearn.linear_model import LogisticRegression  # type: ignore[import-untyped]
+from sklearn.metrics import (  # type: ignore[import-untyped]
+    balanced_accuracy_score,
+    f1_score,
+)
+from sklearn.model_selection import StratifiedGroupKFold  # type: ignore[import-untyped]
 
 from logicmus_eval.enums import AnalyzerType, MetricType
 from logicmus_eval.models.manifests import TfidfMetrics

@@ -3,7 +3,7 @@ import threading
 import time
 from typing import Any
 
-import z3  # type: ignore
+import z3  # type: ignore[import-untyped]
 
 from logicmus_eval.models.evaluation import Z3ExecutionResult
 
@@ -91,9 +91,12 @@ class Z3CodeExecutor:
 
         def _runner() -> None:
             try:
+                # Executing generated code is this sandbox's explicit purpose.
                 exec(  # noqa: S102  # pylint: disable=exec-used
                     cleaned_code, globals_env, locals_env
                 )
+            # A child thread must relay interrupts as well as execution errors
+            # to the parent; the parent re-raises KeyboardInterrupt/SystemExit.
             except BaseException as ex:  # noqa: BLE001  # pylint: disable=broad-exception-caught
                 exception_holder.append(ex)
 
@@ -112,6 +115,8 @@ class Z3CodeExecutor:
 
         if exception_holder:
             e = exception_holder[0]
+            if isinstance(e, (KeyboardInterrupt, SystemExit)):
+                raise e
             if isinstance(e, SyntaxError):
                 return Z3ExecutionResult(
                     success=False,
