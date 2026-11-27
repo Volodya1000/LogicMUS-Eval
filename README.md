@@ -675,6 +675,19 @@ $env:OPENAI_API_KEY  = "lm-studio"
 
 ## Разработка
 
+Контролируемые офлайн-серии `controlled-v1` описаны в
+[протоколе эксперимента](docs/controlled-experiment-protocol.md).
+Небольшой development-пример запускается без моделей:
+
+```powershell
+uv run logicmus-eval prepare-experiment --plan configs/development-controlled-v1.json --output-dir data/controlled-development
+```
+
+Манифест сохраняет все запланированные ячейки и диагностические провалы;
+непрошедшая серия блокируется для evaluation. Пример не является окончательным
+подтверждающим набором статьи. Формат задач: синтетические шаблонные требования
+со структурными аннотациями.
+
 ```bash
 uv run pytest
 uv run pytest tests/unit -v

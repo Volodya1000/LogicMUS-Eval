@@ -18,6 +18,15 @@ from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.prompt_formatting import format_rules_block, format_variable_block
 
 
+def case_group(case: LogicTestCase) -> str:
+    """Hold an entire controlled family out, with unchanged legacy fallback."""
+    if case.metadata.get("family_id"):
+        return str(case.metadata["family_id"])
+    legacy_id = case.case_id.replace("_UNSAT_", "_").replace("_SAT_", "_")
+    legacy_pair = f"{case.mus_size}:{case.metadata.get('case_seed', legacy_id)}"
+    return str(case.metadata.get("pair_id") or legacy_pair)
+
+
 def grouped_splits(
     labels: list[int], groups: list[str]
 ) -> list[tuple[np.ndarray, np.ndarray]]:
@@ -76,11 +85,7 @@ def calculate_leakage(
     # excluding service metadata.
     direct_texts = [format_rules_block(case) for case in dataset]
     labels = [int(not case.is_satisfiable) for case in dataset]
-    groups = []
-    for case in dataset:
-        legacy_id = case.case_id.replace("_UNSAT_", "_").replace("_SAT_", "_")
-        legacy_pair = f"{case.mus_size}:{case.metadata.get('case_seed', legacy_id)}"
-        groups.append(str(case.metadata.get("pair_id") or legacy_pair))
+    groups = [case_group(case) for case in dataset]
 
     def subset(texts: list[str], indices: list[int]) -> dict[str, TfidfMetrics]:
         return {

@@ -7,6 +7,7 @@ from logicmus_eval.evaluation.refusal_patterns import REFUSAL_PATTERNS
 from logicmus_eval.models.evaluation import (
     CasePrediction,
     EvaluationCaseReport,
+    ExperimentProvenance,
     ExtractionMetadata,
 )
 from logicmus_eval.models.test_case import LogicTestCase
@@ -123,6 +124,7 @@ def build_case_report(
 
     return EvaluationCaseReport(
         case_id=case.case_id,
+        experiment=ExperimentProvenance.from_case_metadata(case.metadata),
         mus_size=case.mus_size,
         expected_sat=case.is_satisfiable,
         expected_mus=case.mus_expected,
