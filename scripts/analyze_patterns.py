@@ -19,6 +19,11 @@ import numpy as np  # pylint: disable=wrong-import-position
 import pandas as pd  # pylint: disable=wrong-import-position
 from numpy.typing import NDArray  # pylint: disable=wrong-import-position
 
+# pylint: disable=wrong-import-position
+from logicmus_eval.analysis.legacy_guard import reject_controlled, reject_report
+
+# pylint: enable=wrong-import-position
+
 STRATEGY_NAMES = {"direct": "Прямой LLM-подход", "z3": "Нейросимвольный (Z3)"}
 
 # Маппинг внутренних названий паттернов на русские термины из статьи
@@ -95,6 +100,7 @@ def _collect_records(
             continue
 
         data = json.loads(report_path.read_text(encoding="utf-8"))
+        reject_report(data)
         model = clean_model_name(item.get("model_label", item["model"]))
         strategy = STRATEGY_NAMES.get(item["strategy"], item["strategy"])
 
@@ -116,6 +122,7 @@ def _collect_records(
 
 
 def load_data(root: Path) -> pd.DataFrame:
+    reject_controlled(root)
     manifest_path = root / "manifest.json"
     if not manifest_path.exists():
         raise FileNotFoundError(f"No manifest.json in {root}")

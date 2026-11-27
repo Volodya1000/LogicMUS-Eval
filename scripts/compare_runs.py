@@ -28,6 +28,8 @@ from typing import TypedDict
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from logicmus_eval.analysis.legacy_guard import reject_controlled
+
 plt.switch_backend("Agg")
 
 METRICS = [
@@ -97,6 +99,7 @@ def load_summaries(dirs: list[Path]) -> pd.DataFrame:
     """
     frames: list[pd.DataFrame] = []
     for d in dirs:
+        reject_controlled(d)
         summary = d / "summary.csv"
         if not summary.exists():
             print(f"[WARN] no summary.csv in {d}", file=sys.stderr)

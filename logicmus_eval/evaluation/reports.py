@@ -136,6 +136,7 @@ def verify_runner_report(path: Path) -> EvaluationSummary:
     from logicmus_eval.evaluation.strategies import (
         DirectEvaluationStrategy,  # pylint: disable=import-outside-toplevel
     )
+    from logicmus_eval.experiment_plan import content_id
     from logicmus_eval.models.evaluation import (
         EvaluationCaseReport,  # pylint: disable=import-outside-toplevel
     )
@@ -145,6 +146,7 @@ def verify_runner_report(path: Path) -> EvaluationSummary:
     from logicmus_eval.runner.preflight import (
         digest,  # pylint: disable=import-outside-toplevel
     )
+    from logicmus_eval.runner.state import replay_inventory
 
     report = EvaluationSummary.model_validate_json(path.read_text(encoding="utf-8"))
     provenance = report.runner_provenance
@@ -171,19 +173,61 @@ def verify_runner_report(path: Path) -> EvaluationSummary:
         != payload["identity"]["source_bundle_sha256"]
     ):
         raise ValueError("Runner provenance differs from manifest")
+    jobs = payload["jobs"]
+    if payload["job_ids"] != [job["job_id"] for job in jobs] or any(
+        job["job_id"]
+        != content_id(
+            digest(payload["identity"]),
+            job["case_uid"],
+            job["model_id"],
+            job["strategy"],
+        )
+        for job in jobs
+    ):
+        raise ValueError("Runner inventory differs from saved identity")
     selected = [
         job
         for job in payload["jobs"]
         if ("model_id" not in provenance or job["model_id"] == provenance["model_id"])
         and ("strategy" not in provenance or job["strategy"] == provenance["strategy"])
     ]
-    with RunJournal(root.resolve(), manifest["manifest_sha256"]) as journal:
+    has_z3 = (
+        provenance.get("strategy") == "z3"
+        if "strategy" in provenance
+        else "z3" in payload["identity"]["config"]["strategies"]
+    )
+    if (
+        report.report_schema_version != payload["identity"]["report_schema_version"]
+        or report.metric_definitions_version
+        != payload["identity"]["metric_definitions_version"]
+        or report.z3_execution_protocol_version
+        != (payload["identity"]["z3_execution_protocol_version"] if has_z3 else None)
+        or provenance.get("protocol") != payload["identity"]["runner_protocol"]
+    ):
+        raise ValueError(
+            "Runner report versions differ from saved identity/strategy scope"
+        )
+    with RunJournal(
+        root.resolve(), manifest["manifest_sha256"], read_only=True
+    ) as journal:
         if provenance.get("journal_head_sha256") != journal.head or provenance.get(
             "journal_event_count"
         ) != len(journal.events):
             raise ValueError(
                 "Runner provenance differs from journal head; rebuild stale report"
             )
+        replay_inventory(journal.events, jobs)
+        requests = {
+            event["job_id"]: event["request"]
+            for event in journal.events
+            if event["kind"] == "started"
+        }
+        if (
+            len(requests) == len(jobs)
+            and digest([requests[job["job_id"]] for job in jobs])
+            != payload["identity"]["requests_sha256"]
+        ):
+            raise ValueError("Runner request inventory differs from saved identity")
         finalized = {
             event["job_id"]: event["outcome"]
             for event in journal.events
