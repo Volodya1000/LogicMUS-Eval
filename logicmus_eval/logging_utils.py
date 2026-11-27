@@ -1,10 +1,10 @@
 import logging
 
-import litellm
-
 
 def configure_logging() -> None:
     """Configure global logging and suppress third-party noise."""
+    import litellm  # pylint: disable=import-outside-toplevel
+
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",

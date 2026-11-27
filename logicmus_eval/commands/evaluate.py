@@ -3,7 +3,6 @@ from typing import Annotated
 
 import typer
 
-from logicmus_eval.evaluate_llm import run_evaluation
 from logicmus_eval.logging_utils import configure_logging
 
 
@@ -42,6 +41,12 @@ def evaluate(
         safe_model = model_name.replace("/", "_").replace(":", "_")
         timestamp = datetime.datetime.now(datetime.UTC).strftime("%Y%m%d_%H%M%S")
         output_file = f"eval_{safe_model}_{strategy}_{timestamp}.json"
+
+    # Offline CLI commands must not import the model client or its network setup.
+    # pylint: disable=import-outside-toplevel
+    from logicmus_eval.evaluate_llm import (
+        run_evaluation,
+    )
 
     run_evaluation(
         dataset_dir=dataset_dir,

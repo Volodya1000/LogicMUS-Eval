@@ -5,6 +5,7 @@ from logicmus_eval.evaluation.strategies.base import (
     BaseEvaluationStrategy,
     format_rules_block,
 )
+from logicmus_eval.evaluation.strategies.semantics import RULE_SEMANTICS
 from logicmus_eval.extractor import StructuredOutputExtractor
 from logicmus_eval.models.evaluation import CasePrediction, ExtractionMetadata
 from logicmus_eval.models.llm import DirectReasoningResponse
@@ -12,21 +13,12 @@ from logicmus_eval.models.test_case import LogicTestCase
 
 DIRECT_PROMPT_TEMPLATE = (
     "Ты — экспертная система логического вывода. "
-    "Проанализируй набор логических правил.\n"
-    "\n"
-    "ВАЖНО: Не все правила обязательно участвуют в выводе. Некоторые "
-    "могут быть фоновыми или избыточными. Твоя задача — найти минимальное "
-    "подмножество правил, которое образует противоречие (если оно есть), "
-    "и вернуть их ID в conflict_core.\n"
-    "\n"
-    "ТВОЯ ЗАДАЧА:\n"
-    "Шаг 1. Выпиши все FACT-правила как аксиомы.\n"
-    "Шаг 2. Применяй modus ponens к IMPLIES-правилам.\n"
-    "Шаг 3. Проверь терминальное правило.\n"
-    "Шаг 4. Если производное значение конфликтует с терминалом — "
-    'установи "is_sat": false и перечисли ID правил, участвующих '
-    'в выводе конфликта, в "conflict_core". Если конфликта нет — '
-    '"is_sat": true и "conflict_core": [].\n'
+    "Проанализируй набор логических правил.\n\n" + RULE_SEMANTICS + "\n"
+    'Для совместимого набора верни "is_sat": true и "conflict_core": [].\n'
+    'Для несовместимого набора верни "is_sat": false и укажи в "conflict_core" '
+    "ID правил из минимального несовместимого подмножества. Это подмножество "
+    "должно стать совместимым при удалении любого из его правил. Используй "
+    "исходные ID из списка правил.\n"
     "\n"
     "ФОРМАТ ОТВЕТА (JSON):\n"
     "{\n"

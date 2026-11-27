@@ -1,6 +1,8 @@
+from collections.abc import Mapping
 from datetime import datetime
+from typing import Literal, Self
 
-from pydantic import BaseModel, Field, JsonValue
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, ValidationError
 
 from logicmus_eval.enums import (
     EvaluationErrorCategory,
@@ -49,6 +51,35 @@ class Z3ExecutionResult(BaseModel):
     execution_time: float = 0.0
 
 
+class ExperimentProvenance(BaseModel):
+    """Controlled experiment identifiers and counts recorded by the dataset."""
+
+    model_config = ConfigDict(strict=True)
+
+    protocol_version: Literal["controlled-v1"]
+    cell_id: str
+    family_id: str
+    pair_id: str
+    pattern_id: str
+    purpose: str
+    series_id: str
+    series_kind: str
+    seed: int
+    pair_index: int
+    total_rules: int
+    construction_rule_count: int
+    independent_noise_count: int
+    case_uid: str
+
+    @classmethod
+    def from_case_metadata(cls, metadata: Mapping[str, object]) -> Self | None:
+        """Return provenance only when the case records every required field."""
+        try:
+            return cls.model_validate(metadata)
+        except ValidationError:
+            return None
+
+
 class EvaluationCaseReport(BaseModel):
     case_id: str
     mus_size: int
@@ -60,6 +91,7 @@ class EvaluationCaseReport(BaseModel):
     is_mus_correct: bool
     metadata: ExtractionMetadata
     reasoning: str
+    experiment: ExperimentProvenance | None = None
     generated_code: str | None = None
     error: str | None = None
     failure_tags: list[str] = Field(default_factory=list)
