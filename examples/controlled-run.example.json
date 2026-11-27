@@ -1,0 +1,38 @@
+{
+  "config_version": "controlled-run-v1",
+  "series_manifest": "../data/controlled-development/series.manifest.json",
+  "endpoint": "http://localhost:1234/v1",
+  "api_key_env": null,
+  "models": [
+    {
+      "model_id": "replace-with-served-model-id",
+      "expected_profile": {
+        "served_model_id": null,
+        "revision": null,
+        "model_file": null,
+        "quantization": null,
+        "context_tokens": null,
+        "backend_version": null,
+        "chat_template": null,
+        "tokenizer": null
+      },
+      "generation": {
+        "max_tokens": 2048,
+        "temperature": 0.0,
+        "top_p": null,
+        "seed": null,
+        "reasoning_effort": null
+      }
+    }
+  ],
+  "strategies": ["direct", "z3"],
+  "request_timeout_seconds": 120.0,
+  "retry": {
+    "max_attempts": 3,
+    "initial_delay_seconds": 2.0,
+    "max_delay_seconds": 10.0,
+    "transient_errors": ["api_timeout", "api_connection", "api_rate_limit"]
+  },
+  "z3_timeout_seconds": 5.0,
+  "diagnostic_parent_run": null
+}

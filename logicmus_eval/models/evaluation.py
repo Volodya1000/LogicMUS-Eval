@@ -26,6 +26,7 @@ class ExtractionMetadata(BaseModel):
     thinking_tokens: int | None = None
     total_tokens: int | None = None
     request_attempts: int | None = None
+    finish_reason: str | None = None
 
 
 class CasePrediction(BaseModel):
@@ -105,6 +106,7 @@ class EvaluationCaseReport(BaseModel):
     mus_precision: float | None = None
     mus_recall: float | None = None
     mus_f1: float | None = None
+    inference: dict[str, JsonValue] | None = None
 
 
 class RunInfo(BaseModel):
@@ -129,3 +131,4 @@ class EvaluationSummary(BaseModel):
     metric_definitions_version: str | None = None
     z3_execution_protocol_version: str | None = None
     status: EvaluationStatus | None = None
+    runner_provenance: dict[str, JsonValue] | None = None

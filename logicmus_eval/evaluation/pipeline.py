@@ -7,19 +7,19 @@ from time import perf_counter
 from pydantic import JsonValue
 
 from logicmus_eval.enums import EvaluationErrorType, EvaluationStatus
+from logicmus_eval.errors import ExtractorError
 from logicmus_eval.evaluation.diagnostics import build_case_report
 from logicmus_eval.evaluation.metrics import BaseMetric, accounting_counts
 from logicmus_eval.evaluation.strategies import BaseEvaluationStrategy
-from logicmus_eval.extractor import ExtractorError, StructuredOutputExtractor
 from logicmus_eval.models.evaluation import (
     METRIC_DEFINITIONS_VERSION,
     REPORT_SCHEMA_VERSION,
     CasePrediction,
     EvaluationCaseReport,
     EvaluationSummary,
-    ExtractionMetadata,
     RunInfo,
 )
+from logicmus_eval.models.extraction import ExtractionClient
 from logicmus_eval.models.test_case import LogicTestCase
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -29,12 +29,48 @@ class EvaluationPipeline:
     def __init__(
         self,
         strategy: BaseEvaluationStrategy,
-        extractor: StructuredOutputExtractor,
+        extractor: ExtractionClient | None,
         metrics: Sequence[BaseMetric],
     ) -> None:
         self.strategy: BaseEvaluationStrategy = strategy
-        self.extractor: StructuredOutputExtractor = extractor
+        self.extractor: ExtractionClient | None = extractor
         self.metrics: Sequence[BaseMetric] = metrics
+
+    def evaluate_case(self, case: LogicTestCase) -> EvaluationCaseReport:
+        """Shared single-case boundary for legacy and durable execution."""
+        if self.extractor is None:
+            raise ValueError("Evaluation requires an extractor")
+        case_started: float = perf_counter()
+        try:
+            prediction, metadata = self.strategy.evaluate_case(case, self.extractor)
+        except ExtractorError as exc:
+            logger.error("Request failed on case %s: %s", case.case_id, exc)
+            refusal: bool = exc.error_type is EvaluationErrorType.REFUSAL
+            prediction = CasePrediction(
+                error=None if refusal else str(exc),
+                error_type=None if refusal else exc.error_type,
+                error_stage=None if refusal else exc.stage,
+                raw_response=exc.raw_response,
+                refusal=refusal or exc.refusal,
+                reasoning=str(exc) if refusal else "",
+            )
+            metadata = exc.metadata
+        outcome: EvaluationCaseReport = build_case_report(case, prediction, metadata)
+        metadata.case_latency_seconds = perf_counter() - case_started
+        return outcome
+
+    def from_outcomes(
+        self,
+        details: list[EvaluationCaseReport],
+        planned: int,
+        run_info: RunInfo | None = None,
+    ) -> EvaluationSummary:
+        """Rebuild all metrics from finalized outcomes; never increment on resume."""
+        for metric in self.metrics:
+            metric.reset()
+            for outcome in details:
+                metric.update_report(outcome)
+        return self._summary(details, planned, len(details) == planned, run_info)
 
     def _summary(
         self,
@@ -98,10 +134,7 @@ class EvaluationPipeline:
         completed: bool = False
         index: int
         case: LogicTestCase
-        prediction: CasePrediction
-        metadata: ExtractionMetadata
         report: EvaluationSummary
-        exc: ExtractorError
         try:
             for index, case in enumerate(cases):
                 logger.info(
@@ -110,27 +143,7 @@ class EvaluationPipeline:
                     len(cases),
                     case.case_id,
                 )
-                case_started: float = perf_counter()
-                try:
-                    prediction, metadata = self.strategy.evaluate_case(
-                        case, self.extractor
-                    )
-                except ExtractorError as exc:
-                    logger.error("Request failed on case %s: %s", case.case_id, exc)
-                    refusal: bool = exc.error_type is EvaluationErrorType.REFUSAL
-                    prediction = CasePrediction(
-                        error=None if refusal else str(exc),
-                        error_type=None if refusal else exc.error_type,
-                        error_stage=None if refusal else exc.stage,
-                        raw_response=exc.raw_response,
-                        refusal=refusal or exc.refusal,
-                        reasoning=str(exc) if refusal else "",
-                    )
-                    metadata = exc.metadata
-                outcome: EvaluationCaseReport = build_case_report(
-                    case, prediction, metadata
-                )
-                metadata.case_latency_seconds = perf_counter() - case_started
+                outcome = self.evaluate_case(case)
                 for metric in self.metrics:
                     metric.update_report(outcome)
                 details.append(outcome)

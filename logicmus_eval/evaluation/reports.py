@@ -115,3 +115,94 @@ def report_is_complete(
         logger.warning("Ignoring report %s: %s", path, exc)
         return False
     return True
+
+
+def verify_runner_report(path: Path) -> EvaluationSummary:
+    """Verify a new runner report against its manifest and committed journal.
+
+    This checks the saved experiment, without requiring today's sources to match
+    the historical run. Resume additionally checks the current executable bundle.
+    Hashes detect accidental corruption; they are not signatures against tampering.
+    """
+    # pylint: disable=too-many-locals,import-outside-toplevel
+    import json  # pylint: disable=import-outside-toplevel
+
+    from logicmus_eval.evaluation.metrics import (
+        build_metrics,  # pylint: disable=import-outside-toplevel
+    )
+    from logicmus_eval.evaluation.pipeline import (
+        EvaluationPipeline,  # pylint: disable=import-outside-toplevel
+    )
+    from logicmus_eval.evaluation.strategies import (
+        DirectEvaluationStrategy,  # pylint: disable=import-outside-toplevel
+    )
+    from logicmus_eval.models.evaluation import (
+        EvaluationCaseReport,  # pylint: disable=import-outside-toplevel
+    )
+    from logicmus_eval.runner.journal import (
+        RunJournal,  # pylint: disable=import-outside-toplevel
+    )
+    from logicmus_eval.runner.preflight import (
+        digest,  # pylint: disable=import-outside-toplevel
+    )
+
+    report = EvaluationSummary.model_validate_json(path.read_text(encoding="utf-8"))
+    provenance = report.runner_provenance
+    root = next(
+        (
+            p
+            for p in (path.parent, path.parent.parent)
+            if (p / "run.manifest.json").is_file()
+        ),
+        None,
+    )
+    if provenance is None or root is None:
+        raise ValueError(
+            "Runner provenance is unavailable; historical reports are not upgraded"
+        )
+    manifest = json.loads((root / "run.manifest.json").read_text(encoding="utf-8"))
+    payload = manifest["payload"]
+    if (
+        manifest["manifest_sha256"] != digest(payload)
+        or provenance.get("manifest_sha256") != manifest["manifest_sha256"]
+        or provenance.get("run_id") != payload["run_id"]
+        or provenance.get("identity_sha256") != digest(payload["identity"])
+        or provenance.get("source_bundle_sha256")
+        != payload["identity"]["source_bundle_sha256"]
+    ):
+        raise ValueError("Runner provenance differs from manifest")
+    selected = [
+        job
+        for job in payload["jobs"]
+        if ("model_id" not in provenance or job["model_id"] == provenance["model_id"])
+        and ("strategy" not in provenance or job["strategy"] == provenance["strategy"])
+    ]
+    with RunJournal(root.resolve(), manifest["manifest_sha256"]) as journal:
+        if provenance.get("journal_head_sha256") != journal.head or provenance.get(
+            "journal_event_count"
+        ) != len(journal.events):
+            raise ValueError(
+                "Runner provenance differs from journal head; rebuild stale report"
+            )
+        finalized = {
+            event["job_id"]: event["outcome"]
+            for event in journal.events
+            if event["kind"] == "finalized"
+        }
+        expected = [
+            EvaluationCaseReport.model_validate(finalized[job["job_id"]])
+            for job in selected
+            if job["job_id"] in finalized
+        ]
+    rebuilt = EvaluationPipeline(
+        DirectEvaluationStrategy(), None, build_metrics()
+    ).from_outcomes(expected, len(selected))
+    if (
+        report.details != expected
+        or report.metrics != rebuilt.metrics
+        or report.status != rebuilt.status
+    ):
+        raise ValueError(
+            "Runner report provenance does not match committed outcomes/metrics"
+        )
+    return report

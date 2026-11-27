@@ -6,8 +6,8 @@ from logicmus_eval.evaluation.strategies.base import (
     format_rules_block,
 )
 from logicmus_eval.evaluation.strategies.semantics import RULE_SEMANTICS
-from logicmus_eval.extractor import StructuredOutputExtractor
 from logicmus_eval.models.evaluation import CasePrediction, ExtractionMetadata
+from logicmus_eval.models.extraction import ExtractionClient
 from logicmus_eval.models.llm import DirectReasoningResponse
 from logicmus_eval.models.test_case import LogicTestCase
 
@@ -37,7 +37,7 @@ class DirectEvaluationStrategy(BaseEvaluationStrategy):
         return DIRECT_PROMPT_TEMPLATE.replace("{rules_block}", rules_block)
 
     def evaluate_case(
-        self, case: LogicTestCase, extractor: StructuredOutputExtractor
+        self, case: LogicTestCase, extractor: ExtractionClient
     ) -> tuple[CasePrediction, ExtractionMetadata]:
         prompt = self.build_prompt(case)
         result = extractor.extract_with_metadata(prompt, DirectReasoningResponse)

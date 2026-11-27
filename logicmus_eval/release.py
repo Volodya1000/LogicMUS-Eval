@@ -2,30 +2,28 @@
 
 import json
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from logicmus_eval.enums import ManifestFilename
 from logicmus_eval.hashing import compute_file_sha256
 from logicmus_eval.models.manifests import BenchmarkManifest
 from logicmus_eval.models.pipeline import LeakageReport
 
+if TYPE_CHECKING:
+    from logicmus_eval.experiment_preparation import ExperimentManifest
 
-def _assert_controlled_approved(dataset_path: Path) -> None:  # pylint: disable=too-many-locals
+
+def assert_controlled_series_approved(manifest_path: Path) -> "ExperimentManifest":
+    """Validate precisely the selected manifest and all of its contained artifacts."""
     # Local import keeps the legacy release contract independent of preparation.
     from logicmus_eval.experiment_plan import (  # pylint: disable=import-outside-toplevel
         ExperimentPlan,
     )
     from logicmus_eval.experiment_preparation import (  # pylint: disable=import-outside-toplevel
-        SERIES_MANIFEST,
         ExperimentManifest,
         manifest_checks_passed,
     )
 
-    candidates = [
-        parent / SERIES_MANIFEST for parent in list(dataset_path.resolve().parents)[:3]
-    ]
-    manifest_path = next((p for p in candidates if p.is_file()), None)
-    if manifest_path is None:
-        raise ValueError("Dataset not approved: controlled series manifest is missing")
     manifest = ExperimentManifest.model_validate_json(
         manifest_path.read_text(encoding="utf-8")
     )
@@ -43,10 +41,11 @@ def _assert_controlled_approved(dataset_path: Path) -> None:  # pylint: disable=
                 (item.reference_path, item.reference_sha256),
             )
         )
-    registered = False
     for relative, expected_hash in artifacts:
         if relative is None or expected_hash is None:
             raise ValueError("Dataset not approved: incomplete series artifacts")
+        if Path(relative).is_absolute():
+            raise ValueError("Dataset not approved: absolute artifact path")
         path = (root / relative).resolve()
         if not path.is_relative_to(root) or not path.is_file():
             raise ValueError("Dataset not approved: missing or invalid series artifact")
@@ -54,8 +53,25 @@ def _assert_controlled_approved(dataset_path: Path) -> None:  # pylint: disable=
             raise ValueError(
                 "Dataset not approved: series artifact hash differs from manifest"
             )
-        registered = registered or path == dataset_path.resolve()
-    if not registered:
+    return manifest
+
+
+def _assert_controlled_approved(dataset_path: Path) -> None:
+    candidates = [
+        parent / "series.manifest.json"
+        for parent in list(dataset_path.resolve().parents)[:3]
+    ]
+    manifest_path = next((p for p in candidates if p.is_file()), None)
+    if manifest_path is None:
+        raise ValueError("Dataset not approved: controlled series manifest is missing")
+    manifest = assert_controlled_series_approved(manifest_path)
+    registered = [
+        manifest.combined_path,
+        *(item.dataset_path for item in manifest.cells),
+    ]
+    if dataset_path.resolve() not in {
+        (manifest_path.parent / str(relative)).resolve() for relative in registered
+    }:
         raise ValueError(
             "Dataset not approved: dataset is not registered in series manifest"
         )

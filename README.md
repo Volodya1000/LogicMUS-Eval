@@ -698,3 +698,53 @@ uv run ruff format logicmus_eval tests
 uv run mypy logicmus_eval
 uv run pylint logicmus_eval
 ```
+# Возобновляемый controlled-run
+
+Для уже допущенной серии PR #5 добавлены отдельная JSON-конфигурация инференса,
+офлайн-проверка и журнал с возобновлением по случаям. Начните с
+[небольшого примера](examples/controlled-run.example.json), указав свой
+`series.manifest.json`, модель и параметры:
+
+```powershell
+# Только офлайн-проверка: без импорта LLM-клиента, HTTP и загрузки моделей.
+uv run logicmus-eval experiment-preflight --config examples/controlled-run.example.json
+
+# Реальный запуск и продолжение (эти команды обращаются к модели).
+uv run logicmus-eval experiment-start --config examples/controlled-run.example.json --run-dir experiments/run-01
+uv run logicmus-eval experiment-preflight --run-dir experiments/run-01
+uv run logicmus-eval experiment-resume --run-dir experiments/run-01
+
+# Явное разрешение повтора неопределенной HTTP-попытки с сохранением ее истории.
+uv run logicmus-eval experiment-resume --run-dir experiments/run-01 --indeterminate-policy retry
+```
+
+Runner повторно проверяет допуск всей серии, план и все хеши; выполняет только
+cell-файлы, без удвоения через combined. Перед HTTP фиксируется намерение,
+после ответа — сырой ответ, затем — финальный outcome. Сохраненный ответ
+обрабатывается без HTTP; завершенные ошибки и отказы не перезапрашиваются.
+Сбой до фиксации ответа оставляет indeterminate: по умолчанию resume
+останавливается. Exactly-once HTTP и отсутствие расходов при таком сбое
+не гарантируются. SQLite `synchronous=EXTRA`, проверка цепочки и конца журнала,
+транзакции и OS-lock обеспечивают восстановление при завершении процесса;
+при потере питания гарантии зависят от локальной ФС, ОС и исправного хранения.
+
+Manifest и outcomes сохраняют конфигурацию и фактические messages/schema/request
+hash, ответы/IDs/finish_reason/usage/время, заданные и наблюдаемые сведения о
+модели, версии метрик/Z3/runtime и хеш реальных Python-исходников. Неизвестное
+остается неизвестным; принятые сервером параметры не считаются подтвержденными.
+Изменения условий блокируют resume до HTTP. Секреты и HTTP-заголовки не пишутся.
+`finish_reason=length`, проблемы контекста и неизвестный usage имеют явную
+диагностику. Отчеты и метрики восстанавливаются только из финальных outcomes;
+наличие ошибок модели не мешает завершенности всех запланированных случаев.
+
+[Полное описание](docs/resumable-controlled-runner.md) содержит поведение после
+сбоя на каждой стадии, проверку происхождения отчета, ограничения и диагностические
+перезапуски. Все новые API-регрессии используют mocks и нулевой backoff; реальные
+модели в разработке этого PR не запрашиваются и не загружаются. Готовность к
+масштабному подтверждающему эксперименту не заявляется: окончательный набор
+еще должен быть зафиксирован и допущен.
+
+Проверки этого изменения: **374 теста пройдены** (`python -m pytest -q`),
+`ruff check .`, `ruff format --check .`, `mypy` и `pylint` прошли.
+Новые API-проверки выполняются через mocks, включая границу HTTP;
+backoff в тестах нулевой.

@@ -86,6 +86,11 @@ class EvaluationErrorType(StrEnum):
     API_TIMEOUT = "api_timeout"
     API_CONNECTION = "api_connection"
     API_RATE_LIMIT = "api_rate_limit"
+    API_ERROR = "api_error"
+    API_UNAVAILABLE = "api_unavailable"
+    CONTEXT_ERROR = "context_error"
+    MODEL_PROFILE_MISMATCH = "model_profile_mismatch"
+    GENERATION_TRUNCATED = "generation_truncated"
     EMPTY_RESPONSE = "empty_response"
     JSON_ERROR = "json_error"
     SCHEMA_ERROR = "schema_error"
@@ -101,7 +106,15 @@ class EvaluationErrorType(StrEnum):
 
     @property
     def category(self) -> EvaluationErrorCategory | None:
-        if self in {self.API_TIMEOUT, self.API_CONNECTION, self.API_RATE_LIMIT}:
+        if self in {
+            self.API_TIMEOUT,
+            self.API_CONNECTION,
+            self.API_RATE_LIMIT,
+            self.API_ERROR,
+            self.API_UNAVAILABLE,
+            self.CONTEXT_ERROR,
+            self.MODEL_PROFILE_MISMATCH,
+        }:
             return EvaluationErrorCategory.API
         if self in {
             self.EXEC_ERROR,
