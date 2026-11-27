@@ -22,7 +22,7 @@ from logicmus_eval.models.evaluation import (
     Z3ExecutionResult,
 )
 from logicmus_eval.models.test_case import LogicTestCase
-from logicmus_eval.sandbox.executor import SAFE_BUILTINS, Z3CodeExecutor
+from logicmus_eval.sandbox.executor import Z3CodeExecutor
 
 
 def case(index=0, *, sat=True, core=()):
@@ -358,7 +358,7 @@ def test_missing_verdict_from_strategy_is_a_processed_failure(monkeypatch):
 
 def test_execution_failure_retains_prediction_but_earns_zero(monkeypatch):
     executor = SimpleNamespace(
-        execute=lambda _code: Z3ExecutionResult(
+        execute=lambda _code, _ids: Z3ExecutionResult(
             success=False, is_sat=False, conflict_core=["R1"], error="execution failed"
         )
     )
@@ -498,13 +498,6 @@ def test_interrupted_entrypoint_keeps_run_info_without_finish_time(
     assert report.run_info.total_cases_processed == report.metrics["processed"] == 1
 
 
-@pytest.mark.parametrize("error", [KeyboardInterrupt, SystemExit])
-def test_generated_process_interrupt_is_not_a_model_failure(monkeypatch, error):
-    monkeypatch.setitem(SAFE_BUILTINS, error.__name__, error)
-    with pytest.raises(error):
-        Z3CodeExecutor().execute(f"raise {error.__name__}()")
-
-
 def test_error_rates_separate_api_response_and_execution(monkeypatch):
     outcomes = [litellm.exceptions.Timeout("timeout", "offline", "openai")] * 3
     report = offline_pipeline(
@@ -519,7 +512,7 @@ def test_error_rates_separate_api_response_and_execution(monkeypatch):
 
 def test_case_latency_includes_z3_and_keeps_request_latency(monkeypatch):
     executor = SimpleNamespace(
-        execute=lambda _code: Z3ExecutionResult(success=True, is_sat=True)
+        execute=lambda _code, _ids: Z3ExecutionResult(success=True, is_sat=True)
     )
     pipeline = offline_pipeline(
         monkeypatch,
@@ -570,7 +563,7 @@ def test_quoted_or_negated_refusal_marker_is_not_a_refusal(monkeypatch, reasonin
 
 def test_refusal_marker_in_generated_code_does_not_invalidate_answer(monkeypatch):
     executor = SimpleNamespace(
-        execute=lambda _code: Z3ExecutionResult(success=True, is_sat=True)
+        execute=lambda _code, _ids: Z3ExecutionResult(success=True, is_sat=True)
     )
     pipeline = offline_pipeline(
         monkeypatch,
@@ -605,3 +598,85 @@ def test_unrelated_negation_does_not_hide_an_actual_refusal(monkeypatch):
     ).run([case()])
     assert report.metrics["refusal_count"] == 1
     assert report.metrics["coverage"] == report.metrics["sat_accuracy"] == 0
+
+
+@pytest.mark.parametrize(
+    "code,kind",
+    [
+        ("is_sat = True", "z3_contract_error"),
+        ("1/0", "exec_error"),
+        ("while True: pass", "z3_timeout"),
+        (
+            (
+                "solver = Solver(); x = Real('x'); "
+                "solver.assert_and_track(2**x == 3, 'R1'); "
+                "[solver.assert_and_track(True, key) for key in ['R2','R3','R4']]"
+            ),
+            "z3_solver_unknown",
+        ),
+        ("raise SystemExit(4)", "exec_error"),
+    ],
+)
+def test_real_worker_failure_counts_once_and_next_case_runs(monkeypatch, code, kind):
+    valid = """
+solver = Solver()
+x = Bool('x')
+solver.assert_and_track(x, 'R1')
+solver.assert_and_track(Not(x), 'R2')
+solver.assert_and_track(True, 'R3')
+solver.assert_and_track(True, 'R4')
+is_sat = True
+conflict_core = ['fabricated']
+"""
+    outcomes = [
+        response(json.dumps({"reasoning": "analysis", "python_z3_code": item}))
+        for item in [code, valid]
+    ]
+    pipeline = offline_pipeline(
+        monkeypatch,
+        outcomes,
+        strategy=Z3TranslationEvaluationStrategy(Z3CodeExecutor(3)),
+    )
+    report = pipeline.run([case(i, sat=False, core=["R1", "R2"]) for i in range(2)])
+    failed, succeeded = report.details
+    assert failed.error_type == kind and failed.error_category == "execution"
+    assert failed.error_stage == "execution" and not failed.valid_response
+    assert failed.predicted_sat is None and failed.predicted_mus == []
+    assert succeeded.valid_response and succeeded.is_mus_correct
+    assert succeeded.predicted_sat is False and succeeded.predicted_mus == ["R1", "R2"]
+    assert report.metrics["execution_error_count"] == report.metrics["error_count"] == 1
+    assert report.metrics["error_counts"] == {kind: 1}
+    assert report.metrics["processed"] == report.metrics["planned"] == 2
+    assert report.metrics["coverage"] == report.metrics["sat_accuracy"] == 0.5
+    assert failed.metadata.case_latency_seconds > 0
+    assert report.z3_execution_protocol_version == "1"
+    assert report.metric_definitions_version == "3"
+    restored = EvaluationSummary.model_validate_json(report.model_dump_json())
+    assert restored.z3_execution_protocol_version == "1"
+
+
+def test_protocol_only_attaches_to_new_z3_reports(monkeypatch):
+    legacy = EvaluationSummary.model_validate({"metrics": {}, "details": []})
+    assert legacy.z3_execution_protocol_version is None
+    direct = offline_pipeline(monkeypatch, []).run([])
+    assert direct.z3_execution_protocol_version is None
+    translated = offline_pipeline(
+        monkeypatch, [], strategy=Z3TranslationEvaluationStrategy()
+    ).run([])
+    assert translated.z3_execution_protocol_version == "1"
+
+
+def test_valid_ids_do_not_prove_semantic_translation_correctness(monkeypatch):
+    code = (
+        "solver = Solver(); [solver.assert_and_track(True, key) "
+        "for key in ['R1','R2','R3','R4']]"
+    )
+    pipeline = offline_pipeline(
+        monkeypatch,
+        [response(json.dumps({"reasoning": "analysis", "python_z3_code": code}))],
+        strategy=Z3TranslationEvaluationStrategy(),
+    )
+    report = pipeline.run([case(sat=False, core=["R1", "R2"])])
+    assert report.details[0].valid_response
+    assert report.details[0].predicted_sat is True
+    assert report.metrics["sat_accuracy"] == report.metrics["mus_f1"] == 0

@@ -55,6 +55,9 @@ class EvaluationPipeline:
             run_info=run_info,
             report_schema_version=REPORT_SCHEMA_VERSION,
             metric_definitions_version=METRIC_DEFINITIONS_VERSION,
+            z3_execution_protocol_version=getattr(
+                self.strategy, "z3_execution_protocol_version", None
+            ),
             status=EvaluationStatus.COMPLETED
             if completed
             else EvaluationStatus.RUNNING,

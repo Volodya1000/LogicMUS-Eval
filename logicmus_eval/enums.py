@@ -91,6 +91,10 @@ class EvaluationErrorType(StrEnum):
     SCHEMA_ERROR = "schema_error"
     EXTRACTION_ERROR = "extraction_error"
     EXEC_ERROR = "exec_error"
+    Z3_TIMEOUT = "z3_timeout"
+    Z3_CONTRACT_ERROR = "z3_contract_error"
+    Z3_SOLVER_UNKNOWN = "z3_solver_unknown"
+    Z3_WORKER_ERROR = "z3_worker_error"
     INVALID_RESPONSE = "invalid_response"
     MISSING_ANSWER = "missing_answer"
     REFUSAL = "refusal"
@@ -99,7 +103,13 @@ class EvaluationErrorType(StrEnum):
     def category(self) -> EvaluationErrorCategory | None:
         if self in {self.API_TIMEOUT, self.API_CONNECTION, self.API_RATE_LIMIT}:
             return EvaluationErrorCategory.API
-        if self is self.EXEC_ERROR:
+        if self in {
+            self.EXEC_ERROR,
+            self.Z3_TIMEOUT,
+            self.Z3_CONTRACT_ERROR,
+            self.Z3_SOLVER_UNKNOWN,
+            self.Z3_WORKER_ERROR,
+        }:
             return EvaluationErrorCategory.EXECUTION
         if self is self.REFUSAL:
             return None

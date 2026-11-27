@@ -8,14 +8,14 @@ from z3 import Solver, Bool, sat
 solver = Solver()
 a = Bool('a')
 b = Bool('b')
-solver.add(a)
-solver.add(b)
+solver.assert_and_track(a, 'R1')
+solver.assert_and_track(b, 'R2')
 
 is_sat = (solver.check() == sat)
 conflict_core = []
 """
-    executor = Z3CodeExecutor(timeout_seconds=2.0)
-    result = executor.execute(code)
+    executor = Z3CodeExecutor(timeout_seconds=10.0)
+    result = executor.execute(code, ["R1", "R2"])
 
     assert result.success is True
     assert result.is_sat is True
@@ -34,8 +34,8 @@ solver.assert_and_track(a == False, 'R2')
 is_sat = (solver.check() == sat)
 conflict_core = [str(c) for c in solver.unsat_core()]
 """
-    executor = Z3CodeExecutor(timeout_seconds=2.0)
-    result = executor.execute(code)
+    executor = Z3CodeExecutor(timeout_seconds=10.0)
+    result = executor.execute(code, ["R1", "R2"])
 
     assert result.success is True
     assert result.is_sat is False
@@ -48,7 +48,7 @@ import os
 os.listdir('.')
 """
     executor = Z3CodeExecutor(timeout_seconds=2.0)
-    result = executor.execute(code)
+    result = executor.execute(code, [])
 
     assert result.success is False
 
@@ -56,7 +56,7 @@ os.listdir('.')
 def test_sandbox_intercepts_syntax_error():
     code = "this is an invalid python code!"
     executor = Z3CodeExecutor(timeout_seconds=2.0)
-    result = executor.execute(code)
+    result = executor.execute(code, [])
 
     assert result.success is False
     error_msg = result.error or ""
@@ -69,7 +69,7 @@ while True:
     pass
 """
     executor = Z3CodeExecutor(timeout_seconds=0.5)
-    result = executor.execute(code)
+    result = executor.execute(code, [])
 
     assert result.success is False
     error_msg = result.error or ""
