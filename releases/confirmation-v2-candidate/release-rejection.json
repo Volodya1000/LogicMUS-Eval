@@ -1,0 +1,16 @@
+{
+  "status": "blocked",
+  "gates": {
+    "scientific_plan_frozen": "blocked",
+    "datasets_admitted": "blocked",
+    "configurations_complete": "blocked",
+    "backend_model_verified": "not_verified",
+    "real_smoke": "not_verified",
+    "analysis_bound": "not_verified",
+    "ready_for_initialization": "blocked",
+    "ready_for_scale": "blocked"
+  },
+  "issues": [
+    "[Errno 2] No such file or directory: 'D:\\\\Volodya\\\\ai_experiments\\\\LogicMUS-Eval\\\\releases\\\\confirmation-v2-candidate\\\\release.manifest.json'"
+  ]
+}

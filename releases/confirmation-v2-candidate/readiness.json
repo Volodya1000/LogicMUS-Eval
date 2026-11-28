@@ -1,0 +1,115 @@
+{
+  "status_version": "confirmation-v2-candidate-v1",
+  "status": "blocked",
+  "scientific_candidate_frozen": "passed",
+  "datasets_admitted": "passed",
+  "profiles_complete": "blocked",
+  "exact_input_accounting_verified": "not_verified",
+  "real_smoke": "not_verified",
+  "ready_for_scale": "blocked",
+  "gates": {
+    "scientific_candidate_frozen": "passed",
+    "datasets_admitted": "passed",
+    "profiles_complete": "blocked",
+    "exact_input_accounting_verified": "not_verified",
+    "real_smoke": "not_verified",
+    "ready_for_scale": "blocked"
+  },
+  "preparation_attempts": 1,
+  "generation_requests_executed": 0,
+  "model_load_unload_operations": 0,
+  "final_executable_release_frozen": false,
+  "release_initialized": false,
+  "candidate_is_release_admission": false,
+  "counts": {
+    "cells": 19,
+    "cases": 9728,
+    "independent_families": 2816,
+    "family_cell_occurrences": 4864,
+    "sat": 4864,
+    "unsat": 4864,
+    "planned_requests": 58368,
+    "max_automatic_attempts": 175104
+  },
+  "request_inventory": {
+    "qwen": {
+      "status": "production_preflight_passed_for_proposed_config_only",
+      "jobs": 19456,
+      "requests_file_sha256": "2fe32aa899604b354841319c21a05f2ff721358a3d268d3e17bc083cbc63c295",
+      "bytes": 153847306
+    },
+    "gemma": {
+      "status": "production_preflight_passed_for_proposed_config_only",
+      "jobs": 19456,
+      "requests_file_sha256": "e6f61bfe4c6e06f7ff6837c9ce8dd902929554d6b33133b7c0df7b9ad160c674",
+      "bytes": 153536010
+    },
+    "gpt-oss": {
+      "status": "production_preflight_passed_for_proposed_config_only",
+      "jobs": 19456,
+      "requests_file_sha256": "ace94a1edad1ae23b40d9bd62c4669a15184f3b2fd2e064605d3bc1356a44eea",
+      "bytes": 153536010
+    }
+  },
+  "hashes": {
+    "candidate_receipt_file_sha256": "da362976e77a76feff63756cda4a4a7d2990cceac0f6e6eb9fa4cd2d0b88c567",
+    "scientific_plan_sha256": "3f4683bcb9226ac1c88d5676e6ce1b2145298e33ed3abbb3bfa121a57e70da16",
+    "analysis_sha256": "98d3cb0b200777fbdb680bea83f7d282c56ce621bf4fdb23866e2f7cc7e4b6f8",
+    "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+    "uv_lock_sha256": "19eeec34ea89ff27857c44ae2373a2df6d389bdd28d3409b5d05955a07d635f5",
+    "series_manifest_sha256": "a518f0556244befe280a77d323d7e937cc35472f0365a8c801f886710a575d8b",
+    "data_audit_sha256": "6f8c3da4f67e9227f57177df4438882be66c7f779620cd16588262e9f2bdd3b0",
+    "raw_artifact_index_sha256": "b00dd3c00a253d3551dac8f520fa00f5a706ad277979453670904b0bdd167b25"
+  },
+  "local_artifact_files": 46,
+  "local_artifact_bytes": 627109711,
+  "blockers": [
+    {
+      "code": "PROFILES_EFFECTIVE_BACKEND_UNKNOWN",
+      "detail": "Active tokenizer/template/runtime/context and omitted effective defaults require current per-model evidence; PR #10 records are historical observations.",
+      "unknown_profile_fields": [
+        "qwen/qwen2.5-coder-14b-instruct: context_tokens unknown",
+        "qwen/qwen2.5-coder-14b-instruct: backend_version unknown",
+        "qwen/qwen2.5-coder-14b-instruct: chat_template unknown",
+        "qwen/qwen2.5-coder-14b-instruct: tokenizer unknown",
+        "gemma/google/gemma-4-e4b: context_tokens unknown",
+        "gemma/google/gemma-4-e4b: backend_version unknown",
+        "gemma/google/gemma-4-e4b: chat_template unknown",
+        "gemma/google/gemma-4-e4b: tokenizer unknown",
+        "gpt-oss/openai/gpt-oss-20b: context_tokens unknown",
+        "gpt-oss/openai/gpt-oss-20b: backend_version unknown",
+        "gpt-oss/openai/gpt-oss-20b: chat_template unknown",
+        "gpt-oss/openai/gpt-oss-20b: tokenizer unknown"
+      ]
+    },
+    {
+      "code": "HTTP_INPUT_ACCOUNTING_MISSING",
+      "detail": "Full exact HTTP prompt accounting, including response_format/schema overhead, is unknown. SDK template-only counts are not full HTTP input accounting."
+    },
+    {
+      "code": "STANDALONE_SMOKE_FULL_PARENT_COVERAGE_UNVERIFIED",
+      "detail": "The original fixed selection remains unchanged. PR #10 Qwen template-only maxima target/smoke: direct 2444/2302, z3 3791/3672. Preserve this negative diagnosis; it cannot be converted into exact accounting or coverage."
+    },
+    {
+      "code": "RELEASE_SMOKE_CONFIRMATION_COVERAGE_UNVERIFIED",
+      "detail": "Release smoke must cover exact confirmation inputs per model/strategy under final calibrated conditions, independently from standalone-parent coverage."
+    },
+    {
+      "code": "DEVELOPMENT_CALIBRATION_MISSING",
+      "detail": "2048 output tokens and timeout 120s are proposed conditions, not development-confirmed. Latency, truncation and timeouts have not been measured."
+    },
+    {
+      "code": "REAL_SMOKE_MISSING",
+      "detail": "Zero generation attempts; no real SmokeEvidence, completed no-op resume or diagnostic analysis. No smoke evidence was manufactured."
+    },
+    {
+      "code": "FINAL_EXECUTABLE_RELEASE_NOT_FROZEN",
+      "detail": "Intentional scientific candidate only. Final RunConfigs, release manifest, UUID binding and release admission do not exist."
+    },
+    {
+      "code": "CANDIDATE_REUSE_HANDOFF_UNSUPPORTED",
+      "detail": "Current CLI lacks a candidate-provenance import/handoff verifier. Reuse needs a reviewed immutable-byte/source/environment/provenance handoff; never edit checksums or rerun preparation to seek passage."
+    }
+  ],
+  "next_operator_action": "Establish full HTTP schema-inclusive input accounting and current effective backend profiles before authorizing any real smoke; retain the old fixed-selection negative evidence and resolve both independent coverage gates. See FINALIZATION.md."
+}

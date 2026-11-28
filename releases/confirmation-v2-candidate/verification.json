@@ -1,0 +1,99 @@
+{
+  "verification_version": "confirmation-v2-candidate-v1",
+  "base_commit": "040052fe392d2823a379513aa934ca72469a9c9d",
+  "scientific_freeze_commit": "07ffaa1261f072918af8e82153ce9961b2352d9d",
+  "baseline": {
+    "command": ".venv/Scripts/python.exe -m pytest -q",
+    "passed": 498,
+    "seconds": 226.92
+  },
+  "helper_regressions": {
+    "passed": 9,
+    "red_green_observed": true,
+    "transitive_drift_test": "actual injected dist-info metadata, RED then GREEN"
+  },
+  "full_pytest": {
+    "execution": "configured pre-commit pytest hook on scientific freeze commit",
+    "result": "passed",
+    "collection_count": 507,
+    "collection_command": "python -m pytest --collect-only -q"
+  },
+  "static_checks": {
+    "ruff_check_dot": "passed",
+    "ruff_format_check_dot": "passed, 207 files",
+    "mypy_logicmus_eval_scripts": "passed,137 source files",
+    "pylint_logicmus_eval_and_helper": "passed,10.00/10",
+    "capture_scripts_ruff": "passed"
+  },
+  "git_index_frozen_contract_bytes": "all contract/helper index bytes matched candidate receipt before preparation commit",
+  "single_preparation": {
+    "attempts": 1,
+    "production": "prepare_experiment, unchanged",
+    "manifest_sha256": "a518f0556244befe280a77d323d7e937cc35472f0365a8c801f886710a575d8b",
+    "started_at": "2026-11-28T14:21:00.523768+00:00",
+    "finished_at": "2026-11-28T14:47:31.640510+00:00"
+  },
+  "saved_data_audit": {
+    "status": "passed",
+    "independent_replay_cases": 9728,
+    "stable_insertion_comparisons": 4096,
+    "required_leakage_metrics": 258,
+    "folds_each": 5,
+    "all_mean_ba_at_most": 0.55
+  },
+  "independent_reviewer": {
+    "status": "passed, no remaining material findings",
+    "science": "all19 cells,69 prospective contrasts and unchanged metric/statistical settings",
+    "raw_data": "19/9728/2816, balance, membership/provenance/K/N,9728 representations,512 idem SMT checks,stable insertion,combined,development overlap",
+    "requests": "all58368 saved jobs/full requests match fresh unchanged production preflight, identities,per-request and aggregate digests,counts and unknowns",
+    "raw_index": "exact46 files627109711 bytes and SHA256",
+    "operations": "read-only; no preparation, network, generation, model operations or run initialization"
+  },
+  "raw_file_index": {
+    "files": 46,
+    "bytes": 627109711,
+    "independently_verified": true
+  },
+  "historical_integrity": {
+    "baseline_files_unchanged": 174,
+    "stored_indices_verified": [
+      64,
+      10,
+      90
+    ],
+    "mismatches": [],
+    "protected_git_diff_empty": true
+  },
+  "runtime_logs": {
+    "experiments/confirmation-v2-preparation.stdout.txt": {
+      "sha256": "51064aabb6abe6ac27ff76e5090886d5412907642032b002871f07dc6a46db34",
+      "bytes": 199
+    },
+    "experiments/confirmation-v2-preparation.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "experiments/confirmation-v2-audit.stdout.txt": {
+      "sha256": "39efbbe87a4bd10b3bfa57d1e50a51ae767664b9c8a58fe92356f2480508c018",
+      "bytes": 1002
+    },
+    "experiments/confirmation-v2-audit.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "capture_source_sha256": {
+    "audit-saved.py.txt": "a799e4887c0b7201a120d756febcd73758719fe1f6ad6dd96cddabbfe3d7edde",
+    "summarize-saved.py.txt": "4b57d5bd93abba407f5b07a41f58583d4c7d9c0a2a3c6200e2e36b3f12c9bdf8"
+  },
+  "prohibited_operations": {
+    "llm_generation_requests": 0,
+    "model_load_unload": 0,
+    "experiment_start_resume": 0,
+    "release_resume": 0,
+    "archives_created_or_uploaded": 0,
+    "releases_tags_published": 0
+  },
+  "release_rejection": "production verify_release blocked: no release.manifest.json; initialize rejection regression passed",
+  "remaining_status": "ready_for_scale=blocked; candidate receipt is not release admission"
+}

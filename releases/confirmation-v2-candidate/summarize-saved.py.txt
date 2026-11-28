@@ -1,0 +1,222 @@
+"""Render compact status from actual saved audit outputs; no generation/network."""
+
+import json
+from pathlib import Path
+
+from logicmus_eval.confirmation.service import _profile_unknowns
+from logicmus_eval.hashing import compute_file_sha256
+from logicmus_eval.runner.config import load_config
+from scripts.confirmation_candidate import verify
+
+ROOT = Path("releases/confirmation-v2-candidate").resolve()
+
+
+def read(name):
+    return json.loads((ROOT / name).read_text(encoding="utf-8"))
+
+
+def write(name, value):
+    with (ROOT / name).open("x", encoding="utf-8", newline="\n") as stream:
+        stream.write(value)
+
+
+frozen = verify(ROOT)
+audit = read("data-audit.json")
+requests = read("request-inventory.json")
+index = read("artifact-index.json")
+configs = {
+    name: load_config(ROOT / f"{name}.proposed.json")
+    for name in ("qwen", "gemma", "gpt-oss")
+}
+unknown_profiles = _profile_unknowns(configs)
+admitted = (
+    audit["production_dataset_admission"]
+    == audit["independent_audit_status"]
+    == "passed"
+)
+gates = {
+    "scientific_candidate_frozen": "passed",
+    "datasets_admitted": "passed" if admitted else "blocked",
+    "profiles_complete": "blocked" if unknown_profiles else "passed",
+    "exact_input_accounting_verified": "not_verified",
+    "real_smoke": "not_verified",
+    "ready_for_scale": "blocked",
+}
+blockers = [
+    {
+        "code": "PROFILES_EFFECTIVE_BACKEND_UNKNOWN",
+        "detail": "Active tokenizer/template/runtime/context and omitted effective defaults require current per-model evidence; PR #10 records are historical observations.",
+        "unknown_profile_fields": unknown_profiles,
+    },
+    {
+        "code": "HTTP_INPUT_ACCOUNTING_MISSING",
+        "detail": "Full exact HTTP prompt accounting, including response_format/schema overhead, is unknown. SDK template-only counts are not full HTTP input accounting.",
+    },
+    {
+        "code": "STANDALONE_SMOKE_FULL_PARENT_COVERAGE_UNVERIFIED",
+        "detail": "The original fixed selection remains unchanged. PR #10 Qwen template-only maxima target/smoke: direct 2444/2302, z3 3791/3672. Preserve this negative diagnosis; it cannot be converted into exact accounting or coverage.",
+    },
+    {
+        "code": "RELEASE_SMOKE_CONFIRMATION_COVERAGE_UNVERIFIED",
+        "detail": "Release smoke must cover exact confirmation inputs per model/strategy under final calibrated conditions, independently from standalone-parent coverage.",
+    },
+    {
+        "code": "DEVELOPMENT_CALIBRATION_MISSING",
+        "detail": "2048 output tokens and timeout 120s are proposed conditions, not development-confirmed. Latency, truncation and timeouts have not been measured.",
+    },
+    {
+        "code": "REAL_SMOKE_MISSING",
+        "detail": "Zero generation attempts; no real SmokeEvidence, completed no-op resume or diagnostic analysis. No smoke evidence was manufactured.",
+    },
+    {
+        "code": "FINAL_EXECUTABLE_RELEASE_NOT_FROZEN",
+        "detail": "Intentional scientific candidate only. Final RunConfigs, release manifest, UUID binding and release admission do not exist.",
+    },
+    {
+        "code": "CANDIDATE_REUSE_HANDOFF_UNSUPPORTED",
+        "detail": "Current CLI lacks a candidate-provenance import/handoff verifier. Reuse needs a reviewed immutable-byte/source/environment/provenance handoff; never edit checksums or rerun preparation to seek passage.",
+    },
+]
+if not admitted:
+    blockers.insert(
+        0,
+        {
+            "code": "DATASETS_NOT_ADMITTED",
+            "detail": audit.get("admission_error", audit["checks"]),
+        },
+    )
+status = {
+    "status_version": "confirmation-v2-candidate-v1",
+    "status": "blocked",
+    **gates,
+    "gates": gates,
+    "preparation_attempts": 1,
+    "generation_requests_executed": 0,
+    "model_load_unload_operations": 0,
+    "final_executable_release_frozen": False,
+    "release_initialized": False,
+    "candidate_is_release_admission": False,
+    "counts": audit["actual_inventory"],
+    "request_inventory": {
+        name: {
+            key: value
+            for key, value in data.items()
+            if key in ("status", "jobs", "requests_file_sha256", "bytes", "error")
+        }
+        for name, data in requests["models"].items()
+    },
+    "hashes": {
+        "candidate_receipt_file_sha256": compute_file_sha256(
+            ROOT / "candidate.receipt.json"
+        ),
+        "scientific_plan_sha256": frozen["plan_sha256"],
+        "analysis_sha256": frozen["analysis_sha256"],
+        "source_bundle_sha256": frozen["source_bundle_sha256"],
+        "uv_lock_sha256": frozen["repository_inputs"]["uv.lock"],
+        "series_manifest_sha256": audit["manifest_sha256"],
+        "data_audit_sha256": compute_file_sha256(ROOT / "data-audit.json"),
+        "raw_artifact_index_sha256": compute_file_sha256(ROOT / "artifact-index.json"),
+    },
+    "local_artifact_files": len(index["files"]),
+    "local_artifact_bytes": index["total_bytes"],
+    "blockers": blockers,
+    "next_operator_action": "Establish full HTTP schema-inclusive input accounting and current effective backend profiles before authorizing any real smoke; retain the old fixed-selection negative evidence and resolve both independent coverage gates. See FINALIZATION.md.",
+}
+write("readiness.json", json.dumps(status, ensure_ascii=False, indent=2) + "\n")
+
+lines = [
+    "# Confirmation-v2 offline scientific candidate: blocked for scale",
+    "",
+    "Base: master after PR #10 (`040052fe392d2823a379513aa934ca72469a9c9d`).",
+    "Scientific contracts and receipt were committed in `07ffaa1` before the one",
+    "production preparation began. This is a corrected construction following v1's",
+    "validation failure, **not an independent replication of v1**.",
+    "",
+    "## Actual preparation and data",
+    "",
+    "Exactly **one** production offline preparation. No seed search, sample expansion,",
+    "cell removal, threshold change or second attempt. All raw results remain local",
+    "under `bundle/`; `artifact-index.json` records their sizes and SHA256.",
+    "",
+    f"Production dataset admission: **{audit['production_dataset_admission']}**; separate saved-data audit: **{audit['independent_audit_status']}**.",
+    f"Observed: **{audit['actual_inventory']['cells']} cells, {audit['actual_inventory']['cases']} cases, {audit['actual_inventory']['independent_families']} unique families**, {audit['actual_inventory']['sat']} SAT / {audit['actual_inventory']['unsat']} UNSAT.",
+    f"Planned requests from actual cases: **{audit['actual_inventory']['planned_requests']}**; maximum configured automatic attempts: **{audit['actual_inventory']['max_automatic_attempts']}** (main policy max_attempts=3, not smoke max_attempts=1).",
+    "Explicit repeated indeterminate retries have no finite total bound; default policy remains halt.",
+    "",
+    "| Series | Pattern | K | N | Cases / families | SMT / saved replay | Leakage max BA | Leakage |",
+    "|---|---|---:|---:|---:|---|---:|---|",
+]
+for cell in audit["cells"]:
+    c = cell["cell"]
+    max_ba = cell["leakage_max_balanced_accuracy"]
+    score = "unknown" if max_ba is None else f"{max_ba:.10f}"
+    passed = (
+        cell["leakage_acceptance"] is not None and cell["leakage_acceptance"]["passed"]
+    )
+    smt = (
+        "passed"
+        if cell["production_smt_passed"] and not cell["replayed_independent_errors"]
+        else "blocked"
+    )
+    lines.append(
+        f"| {c['series_id']} | {c['pattern_id']} | {c['k']} | {c['n']} | {cell['cases']} / {cell['families']} | {smt} | {score} | {'passed' if passed else 'blocked'} |"
+    )
+idem = next(cell for cell in audit["cells"] if cell["cell"]["pattern_id"] == "idem")
+lines += ["", "### Idem and integrity checks", ""]
+for name, baseline in idem["duplicate_baselines"].items():
+    lines.append(
+        f"- Idem {name}: BA={baseline['balanced_accuracy']:.10f}; confusion (gold→prediction) `{json.dumps(baseline['confusion_matrix'])}`."
+    )
+lines += [
+    "",
+    "`data-audit.json` preserves every cell's production flags, failures, required",
+    "direct/z3 and primary lexical views/groups, fold scores, actual K/N and rule-ID",
+    "checks, expected case membership/provenance, duplicate baselines, independent",
+    "saved-representation replay, family balance and stable-insertion checks.",
+    f"Overall independent checks: `{json.dumps(audit['checks'], sort_keys=True)}`.",
+    "Independent SMT checks the saved full instance and expected core; SAT after deleting",
+    "each expected member from the full UNSAT instance proves minimality and uniqueness.",
+    "Cross-series copies are reported separately and retained as registered cells;",
+    "combined is checked against ordered source cells and creates no extra requests.",
+    "Passing these probes is not proof of absence of all leakage.",
+    "",
+    "## Proposed requests and remaining gates",
+    "",
+    "`request-inventory.json` records unchanged production preflight outcomes. Exact",
+    "request JSONL is stored only when production admission succeeds; its bytes,",
+    "per-request digest and aggregate production digest are retained. These requests",
+    "are exact for the proposed configs, not a final calibrated release freeze.",
+    "No SDK template-only value is labeled full HTTP accounting. Schema overhead is unknown.",
+    "No generation, real smoke, experiment-start/resume, release-resume, model loading",
+    "or unloading was performed. No SmokeEvidence, archive, Release or tag was created.",
+    "",
+    "| Gate | Status |",
+    "|---|---|",
+]
+lines += [f"| {name} | {value} |" for name, value in gates.items()]
+lines += ["", "Remaining blockers:", ""]
+lines += [f"- `{blocker['code']}`: {blocker['detail']}" for blocker in blockers]
+lines += [
+    "",
+    "**Exact next operator action:** " + status["next_operator_action"],
+    "",
+    "The complete final-freeze order, separate smoke requirements, future-selection",
+    "proposal and candidate-data handoff limitation are in [FINALIZATION.md](FINALIZATION.md).",
+    "Current candidate receipt cannot authorize release initialization/resume.",
+    "",
+    "## Hashes and delivery",
+    "",
+]
+lines += [f"- {name}: `{value}`" for name, value in status["hashes"].items()]
+lines += [
+    "",
+    f"Raw local delivery: {status['local_artifact_files']} files, {status['local_artifact_bytes']} bytes. No archive/upload.",
+    "The compact Git files do not replace the ignored raw bundle. Historical byte",
+    "integrity is recorded in `historical-integrity.json`; the candidate source",
+    "package and dependency lock remain unchanged from the PR #10 base.",
+    "Regression commands, independent review and Git-byte verification are recorded",
+    "in `verification.json`.",
+    "",
+]
+write("RESULTS.md", "\n".join(lines))
+print(json.dumps(gates, indent=2))

@@ -1,0 +1,487 @@
+"""Audit the saved single preparation; never generate cases or call a backend.
+
+Run from repository root with runpy.run_path(..., run_name="__main__") so the
+repository stays on sys.path. Outputs are exclusive and cannot be overwritten.
+"""
+
+import json
+from collections import Counter, defaultdict
+from datetime import UTC, datetime
+from pathlib import Path
+
+from logicmus_eval.confirmation.inventory import families
+from logicmus_eval.confirmation.service import verify_release
+from logicmus_eval.duplicate_cues import audit_duplicates, canonical_formula
+from logicmus_eval.experiment_plan import (
+    ExperimentPlan,
+    case_identity,
+    content_id,
+    family_identity,
+)
+from logicmus_eval.experiment_preparation import (
+    ExperimentManifest,
+    manifest_checks_passed,
+)
+from logicmus_eval.hashing import compute_file_sha256
+from logicmus_eval.independent_smt import reference_check, smt_script
+from logicmus_eval.models.test_case import LogicTestCase
+from logicmus_eval.release import assert_controlled_series_approved
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import digest, preflight
+from scripts.confirmation_candidate import verify
+
+ROOT = Path("releases/confirmation-v2-candidate").resolve()
+DATA = ROOT / "bundle/confirmation"
+
+
+def save(name, payload):
+    path = ROOT / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("x", encoding="utf-8", newline="\n") as stream:
+        stream.write(json.dumps(payload, ensure_ascii=False, indent=2) + "\n")
+
+
+def rows(path):
+    return [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+
+def leakage_metrics(report):
+    if report is None:
+        return []
+    groups = {
+        "primary": {
+            "global": {
+                "word_tfidf": report.global_word,
+                "char_tfidf": report.global_char,
+            },
+            **report.by_mus_size,
+        },
+        **report.by_input,
+    }
+    return [
+        {
+            "view": view,
+            "group": group,
+            "analyzer": analyzer,
+            **metric.model_dump(mode="json"),
+        }
+        for view, grouped in groups.items()
+        for group, metrics in grouped.items()
+        for analyzer, metric in metrics.items()
+    ]
+
+
+frozen = verify(ROOT)
+plan = ExperimentPlan.model_validate_json(
+    (ROOT / "confirmation.plan.json").read_text(encoding="utf-8")
+)
+manifest_path = DATA / "series.manifest.json"
+manifest = ExperimentManifest.model_validate_json(
+    manifest_path.read_text(encoding="utf-8")
+)
+assert [entry.cell for entry in manifest.cells] == plan.cells()
+all_rows, cell_results, stable_groups = [], [], defaultdict(list)
+replay_path = ROOT / "bundle/audit/independent-replay.jsonl"
+replay_path.parent.mkdir(parents=True, exist_ok=True)
+with replay_path.open("x", encoding="utf-8", newline="\n") as replay:
+    for entry in manifest.cells:
+        errors = list(entry.failures)
+        try:
+            actual = rows(DATA / entry.dataset_path) if entry.dataset_path else []
+        except (ValueError, OSError) as error:
+            actual = []
+            errors.append(f"dataset read: {error}")
+        try:
+            reference = (
+                json.loads((DATA / entry.reference_path).read_text(encoding="utf-8"))
+                if entry.reference_path
+                else {}
+            )
+        except (ValueError, OSError) as error:
+            reference = {}
+            errors.append(f"reference read: {error}")
+        identity_errors, replay_errors = [], []
+        exact_shape_errors = []
+        expected_ids = {
+            case_identity(entry.cell, seed, index, sat, plan.protocol_version)
+            for seed in plan.seeds
+            for index in range(plan.pairs_per_seed)
+            for sat in (True, False)
+        }
+        observed = Counter()
+        family_labels = defaultdict(list)
+        for item in actual:
+            metadata = item["metadata"]
+            family = family_identity(
+                entry.cell.pattern_id,
+                entry.cell.k,
+                metadata["seed"],
+                metadata["pair_index"],
+                plan.protocol_version,
+            )
+            if (
+                metadata["family_id"] != family
+                or item["case_id"]
+                != case_identity(
+                    entry.cell,
+                    metadata["seed"],
+                    metadata["pair_index"],
+                    item["is_satisfiable"],
+                    plan.protocol_version,
+                )
+                or metadata["seed"] not in plan.seeds
+                or metadata["pair_index"] not in range(plan.pairs_per_seed)
+                or any(
+                    metadata.get(key) != value
+                    for key, value in {
+                        "protocol_version": plan.protocol_version,
+                        "generator_version": plan.protocol_version,
+                        "purpose": plan.purpose,
+                        "cell_id": entry.cell.cell_id,
+                        "pair_id": content_id(family, entry.cell.n),
+                        "series_id": entry.cell.series_id,
+                        "series_kind": entry.cell.series_kind,
+                        "pattern_id": entry.cell.pattern_id,
+                        "case_uid": item["case_id"],
+                        "total_rules": entry.cell.n,
+                    }.items()
+                )
+            ):
+                identity_errors.append(item["case_id"])
+            if (
+                len(item["rules"]) != entry.cell.n
+                or len({r["id"] for r in item["rules"]}) != entry.cell.n
+                or item["mus_size"] != entry.cell.k
+                or len(set(item["mus_expected"]))
+                != (0 if item["is_satisfiable"] else entry.cell.k)
+            ):
+                exact_shape_errors.append(item["case_id"])
+            observed[item["is_satisfiable"]] += 1
+            family_labels[family].append(item["is_satisfiable"])
+            try:
+                independent = reference_check(item)
+                saved_matches = reference.get(item["case_id"]) == smt_script(
+                    item["rules"]
+                )
+            except (ValueError, KeyError, TypeError) as error:
+                independent = {
+                    "case_id": item["case_id"],
+                    "passed": False,
+                    "error": str(error),
+                }
+                saved_matches = False
+            if not independent["passed"] or not saved_matches:
+                replay_errors.append(item["case_id"])
+            replay.write(json.dumps(independent, ensure_ascii=False) + "\n")
+            stable_groups[(family, item["is_satisfiable"])].append(item)
+        for path, expected in [
+            (entry.dataset_path, entry.dataset_sha256),
+            (entry.reference_path, entry.reference_sha256),
+        ]:
+            try:
+                if not path or compute_file_sha256(DATA / path) != expected:
+                    errors.append(f"absent or mismatched artifact: {path}")
+            except OSError as error:
+                errors.append(f"artifact read: {error}")
+        metrics = leakage_metrics(entry.leakage_report)
+        duplicates = {}
+        try:
+            duplicates = {
+                name: baseline.model_dump(mode="json")
+                for name, baseline in audit_duplicates(
+                    [LogicTestCase.model_validate(item) for item in actual]
+                ).items()
+            }
+        except (ValueError, KeyError, TypeError) as error:
+            errors.append(f"duplicate audit: {error}")
+        result = {
+            "cell": entry.cell.model_dump(mode="json"),
+            "cases": len(actual),
+            "families": len(family_labels),
+            "sat": observed[True],
+            "unsat": observed[False],
+            "paired": all(
+                sorted(labels) == [False, True] for labels in family_labels.values()
+            ),
+            "identity_errors": identity_errors,
+            "exact_k_n_rule_ids_errors": exact_shape_errors,
+            "exact_expected_case_membership": len(actual) == len(expected_ids)
+            and {item["case_id"] for item in actual} == expected_ids,
+            "production_smt_passed": entry.smt_passed,
+            "production_smt_checks": len(entry.smt_checks),
+            "saved_independent_passed": entry.reference_passed,
+            "replayed_independent_checks": len(actual),
+            "replayed_independent_errors": replay_errors,
+            "leakage_acceptance": entry.leakage_acceptance.model_dump(mode="json")
+            if entry.leakage_acceptance
+            else None,
+            "leakage_max_balanced_accuracy": max(
+                (
+                    m["mean_balanced_accuracy"]
+                    for m in metrics
+                    if m["mean_balanced_accuracy"] is not None
+                ),
+                default=None,
+            ),
+            "leakage_measurements": metrics,
+            "duplicate_baselines": duplicates,
+            "failures": errors,
+        }
+        cell_results.append(result)
+        all_rows.extend(actual)
+        print(
+            "audited",
+            entry.cell.series_id,
+            entry.cell.pattern_id,
+            entry.cell.k,
+            entry.cell.n,
+            flush=True,
+        )
+
+stable_errors = []
+stable_comparisons = 0
+for key, variants in stable_groups.items():
+    variants.sort(key=lambda item: len(item["rules"]))
+    previous = None
+    for item in variants:
+        correspondence = item["metadata"]["rule_correspondence"]
+        ordered = [correspondence[rule["id"]] for rule in item["rules"]]
+        rules = {
+            correspondence[rule["id"]]: {k: v for k, v in rule.items() if k != "id"}
+            for rule in item["rules"]
+        }
+        if previous is not None:
+            stable_comparisons += 1
+            old_order, old_rules, old_mapping, old_pack = previous
+            if (
+                [uid for uid in ordered if uid in old_rules] != old_order
+                or any(rules.get(uid) != rule for uid, rule in old_rules.items())
+                or any(
+                    item["predicate_mapping"].get(k) != v
+                    for k, v in old_mapping.items()
+                )
+                or item["template_pack_id"] != old_pack
+            ):
+                stable_errors.append(
+                    {"family": key[0], "is_sat": key[1], "case_uid": item["case_id"]}
+                )
+        previous = ordered, rules, item["predicate_mapping"], item["template_pack_id"]
+
+combined_errors = list(manifest.failures)
+try:
+    combined = rows(DATA / manifest.combined_path) if manifest.combined_path else []
+    combined_hash_matches = bool(
+        manifest.combined_path
+        and compute_file_sha256(DATA / manifest.combined_path)
+        == manifest.combined_sha256
+    )
+except (OSError, ValueError) as error:
+    combined = []
+    combined_hash_matches = False
+    combined_errors.append(str(error))
+development = [
+    ExperimentPlan.model_validate_json((ROOT / name).read_text(encoding="utf-8"))
+    for name in ["development.reference.json", "development.parent.plan.json"]
+]
+actual_families = {item["metadata"]["family_id"] for item in all_rows}
+case_copies = {}
+for label, key in (
+    (
+        "exact_model_input",
+        lambda row: digest(
+            {"rules": row["rules"], "predicate_mapping": row["predicate_mapping"]}
+        ),
+    ),
+    (
+        "canonical_rule_multiset",
+        lambda row: digest(sorted(canonical_formula(rule) for rule in row["rules"])),
+    ),
+):
+    grouped = defaultdict(list)
+    for row in all_rows:
+        grouped[key(row)].append(row)
+    repeated = [group for group in grouped.values() if len(group) > 1]
+    unexpected = [
+        [row["case_id"] for row in group]
+        for group in repeated
+        if len(
+            {
+                (row["metadata"]["family_id"], len(row["rules"]), row["is_satisfiable"])
+                for row in group
+            }
+        )
+        > 1
+    ]
+    case_copies[label] = {
+        "unique_inputs": len(grouped),
+        "repeated_groups": len(repeated),
+        "extra_occurrences": sum(len(group) - 1 for group in repeated),
+        "unexpected_cross_family_or_label": unexpected,
+        "scope": "Existing exact/canonical rule equality; not arbitrary semantic equivalence or alpha-renaming.",
+    }
+overlap = actual_families & set().union(*(families(p) for p in development))
+seed_overlap = set(plan.seeds) & set().union(*(set(p.seeds) for p in development))
+audit = {
+    "audit_version": "confirmation-v2-saved-data-v1",
+    "checked_at": datetime.now(UTC).isoformat(),
+    "manifest_sha256": compute_file_sha256(manifest_path),
+    "plan_sha256": plan.plan_hash,
+    "source_bundle_sha256": manifest.source_bundle_sha256,
+    "cells": cell_results,
+    "cross_series_case_copies": case_copies,
+    "combined_equals_ordered_cells": bool(combined) and combined == all_rows,
+    "combined_hash_matches": combined_hash_matches,
+    "combined_failures": combined_errors,
+    "combined_acceptance": manifest.combined_acceptance.model_dump(mode="json")
+    if manifest.combined_acceptance
+    else None,
+    "combined_leakage_measurements": leakage_metrics(manifest.combined_leakage),
+    "stable_insertion_errors": stable_errors,
+    "stable_insertion_comparisons": stable_comparisons,
+    "development_confirmation_family_overlap": sorted(overlap),
+    "development_confirmation_seed_overlap": sorted(seed_overlap),
+    "actual_inventory": {
+        "cells": len(cell_results),
+        "cases": len(all_rows),
+        "independent_families": len(actual_families),
+        "family_cell_occurrences": sum(c["families"] for c in cell_results),
+        "sat": sum(c["sat"] for c in cell_results),
+        "unsat": sum(c["unsat"] for c in cell_results),
+        "planned_requests": len(all_rows) * 3 * 2,
+        "max_automatic_attempts": len(all_rows) * 3 * 2 * 3,
+    },
+    "production_manifest_checks_passed": manifest_checks_passed(manifest, plan),
+    "scientific_limit": "Technical audits do not establish absence of all leakage or scientific validity outside this template domain.",
+}
+audit["checks"] = {
+    "frozen_plan_matches": manifest.plan_sha256
+    == frozen["plan_sha256"]
+    == plan.plan_hash
+    and manifest.plan == plan.normalized(),
+    "frozen_source_matches": manifest.source_bundle_sha256
+    == frozen["source_bundle_sha256"],
+    "expected_inventory": audit["actual_inventory"]
+    == {
+        "cells": 19,
+        "cases": 9728,
+        "independent_families": 2816,
+        "family_cell_occurrences": 4864,
+        "sat": 4864,
+        "unsat": 4864,
+        "planned_requests": 58368,
+        "max_automatic_attempts": 175104,
+    },
+    "all_cells_checked": all(
+        c["cases"] == 512
+        and c["families"] == 256
+        and c["sat"] == c["unsat"] == 256
+        and c["paired"]
+        and c["exact_expected_case_membership"]
+        and not c["identity_errors"]
+        and not c["exact_k_n_rule_ids_errors"]
+        and not c["replayed_independent_errors"]
+        and c["production_smt_passed"]
+        and c["saved_independent_passed"]
+        and not c["failures"]
+        and c["leakage_acceptance"] is not None
+        and c["leakage_acceptance"]["passed"]
+        for c in cell_results
+    ),
+    "stable_insertion": not stable_errors,
+    "only_expected_case_copies": all(
+        not item["unexpected_cross_family_or_label"] for item in case_copies.values()
+    ),
+    "no_development_overlap": not overlap and not seed_overlap,
+    "combined": audit["combined_equals_ordered_cells"]
+    and combined_hash_matches
+    and not combined_errors
+    and manifest.combined_acceptance is not None
+    and manifest.combined_acceptance.passed,
+    "production_manifest": audit["production_manifest_checks_passed"],
+}
+audit["independent_audit_status"] = (
+    "passed" if all(audit["checks"].values()) else "blocked"
+)
+try:
+    assert_controlled_series_approved(manifest_path)
+    audit["production_dataset_admission"] = "passed"
+except (ValueError, OSError) as error:
+    audit["production_dataset_admission"] = "blocked"
+    audit["admission_error"] = str(error)
+save("data-audit.json", audit)
+
+inventories = {}
+for name in ["qwen", "gemma", "gpt-oss"]:
+    config = load_config(ROOT / f"{name}.proposed.json")
+    try:
+        ready = preflight(config)
+        request_path = ROOT / f"bundle/requests/{name}.requests.jsonl"
+        request_path.parent.mkdir(parents=True, exist_ok=True)
+        with request_path.open("x", encoding="utf-8", newline="\n") as stream:
+            for job in ready.jobs:
+                stream.write(
+                    json.dumps(
+                        {
+                            "job_id": job.job_id,
+                            "case_uid": job.case.case_id,
+                            "model_id": job.model.model_id,
+                            "strategy": job.strategy,
+                            "request_sha256": digest(job.request),
+                            "request": job.request,
+                        },
+                        ensure_ascii=False,
+                    )
+                    + "\n"
+                )
+        inventories[name] = {
+            "status": "production_preflight_passed_for_proposed_config_only",
+            "jobs": len(ready.jobs),
+            "identity": ready.identity,
+            "identity_sha256": ready.identity_hash,
+            "counts": ready.counts,
+            "unknowns": ready.unknowns,
+            "requests_file": request_path.relative_to(ROOT).as_posix(),
+            "requests_file_sha256": compute_file_sha256(request_path),
+            "bytes": request_path.stat().st_size,
+        }
+    except (ValueError, OSError) as error:
+        inventories[name] = {"status": "blocked", "error": str(error)}
+    print("preflight", name, inventories[name]["status"], flush=True)
+save(
+    "request-inventory.json",
+    {
+        "scope": "Exact requests under proposed conditions; not calibrated/frozen final release requests and not HTTP token accounting.",
+        "models": inventories,
+    },
+)
+save("release-rejection.json", verify_release(ROOT))
+origin = json.loads((ROOT / "origin-inventory.json").read_text(encoding="utf-8"))
+changed = [
+    name
+    for name, checksum in origin["historical_files"].items()
+    if compute_file_sha256(Path(name)) != checksum
+]
+save(
+    "historical-integrity.json",
+    {"files_checked": len(origin["historical_files"]), "changed": changed},
+)
+raw = [p for p in (ROOT / "bundle").rglob("*") if p.is_file()]
+save(
+    "artifact-index.json",
+    {
+        "scope": "Local raw artifacts, not uploaded or archived",
+        "files": {
+            p.relative_to(ROOT).as_posix(): {
+                "bytes": p.stat().st_size,
+                "sha256": compute_file_sha256(p),
+            }
+            for p in sorted(raw)
+        },
+        "total_bytes": sum(p.stat().st_size for p in raw),
+    },
+)
+print(json.dumps(audit["actual_inventory"], indent=2))
