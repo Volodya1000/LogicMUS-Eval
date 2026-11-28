@@ -1,0 +1,26 @@
+{
+  "historical_artifacts_rechecked": {
+    "bundle/parent/series.manifest.json": "a1cc6e25e9f17b36c13ba37c8bd856b61b7b9d570a5573126907102148221f04",
+    "bundle/parent/cells/a3d80c7dce8c0a31314bb9c9981cd0de82eb06e519a55c729cc5e1b34f63028d/dataset_controlled.jsonl": "9414dd4947ef8c6ffbb5d3e0c10a6bc9735f182c9930c4f6d3d3500531c2ce54",
+    "bundle/parent/cells/a3d80c7dce8c0a31314bb9c9981cd0de82eb06e519a55c729cc5e1b34f63028d/reference_smt.json": "625e2cc438a99469f418cbdf3d5049b43bd4a1c9f05006d43338c6f8cb3dd2f9",
+    "bundle/parent/cells/b73d9a0d41d6ec8941b74e49c5c32ecc09d9ec9f5de32f1d9d940a92de84b77a/dataset_controlled.jsonl": "25e95809b97da0d81d3dd11133816559aad45aad22c62101b7fde166a36a033e",
+    "bundle/parent/cells/b73d9a0d41d6ec8941b74e49c5c32ecc09d9ec9f5de32f1d9d940a92de84b77a/reference_smt.json": "21c14171e8992ab9208cd3e59e93cafe4f8a6ea377c333a0576c43805a5ef594",
+    "bundle/parent/cells/6554800b2777f2788a457521be28ea5088ba7eb9f7c7b0c04b9748b7f0b9e52d/dataset_controlled.jsonl": "1ca3b5b78b7b7e50e0b02ee6c6e300b542d206db21b5ac40ee02bc2c2ac6a9ca",
+    "bundle/parent/cells/6554800b2777f2788a457521be28ea5088ba7eb9f7c7b0c04b9748b7f0b9e52d/reference_smt.json": "404e81807af81049e047d4d91b65a8c94c91851a608bdc81a2201e9c0f50667b",
+    "bundle/parent/cells/c0f4fec8c20eb07cd945d38eb39e915b538333e1120999c1e58d0c3830c78d63/dataset_controlled.jsonl": "558e2009a39e3e0e0342b45d392d846a8b63290fc8da0e0b531f0a3b3ddc86f1",
+    "bundle/parent/cells/c0f4fec8c20eb07cd945d38eb39e915b538333e1120999c1e58d0c3830c78d63/reference_smt.json": "e00c36b9f72687b9624a9390f8f3327d599731fab187d5e7d8261883195f1bab",
+    "bundle/parent/combined_controlled.jsonl": "5f7d4b302573a21bc90d49a877fbea98ab22e69112f4f474a91b0c39ce7a374c"
+  },
+  "hub_default_scope": "Installed hub definitions observed; not active effective sampling confirmation. Gemma has a template override; do not substitute embedded GGUF template.",
+  "original_hub_copy_sha256": {
+    "google-gemma-4-e4b.model.yaml": "40237402e5a518a2ec0d8abb0404722b5136fa0ae73d9fb624e450e91e4ebb42",
+    "google-gemma-4-e4b.manifest.json": "1fb5337fd5ee8bf4d9546881593874d4c687db4d0e0b34f980b6b410df0da096",
+    "openai-gpt-oss-20b.model.yaml": "08a949f936df06e27c00034893c5e304733f374d63d2a4a69b92d69290698024",
+    "openai-gpt-oss-20b.manifest.json": "2e6b4d2beee2302db87b036a3084443cc59f6c8b49adf4c8caca47408df4b540"
+  },
+  "hub_definitions_json_sha256": {
+    "google-gemma-4-e4b.hub-definition.json": "3bde5eaa53fe4128f7a781d2b9f33801665034a7e278b83b0e5e1faac04f77d0",
+    "openai-gpt-oss-20b.hub-definition.json": "74c353cb136c2cbbc70ca9fb03da449e99a13b39d16d7167d92ee1c4231d15eb"
+  },
+  "packaging": "Original UTF-8 Hub files are stored losslessly as JSON strings with SHA256; embedded GGUF chat templates are stored in gguf-metadata.json. Redundant text copies removed before git staging to avoid newline normalization of byte-bound source copies."
+}

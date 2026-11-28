@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-28T13:30:48.051239+00:00",
+  "method": "production read_snapshot + preflight identity comparison, read-only",
+  "run_dir": "bundle/local-2026-11-28/runs/qwen",
+  "run_id": "1e3a90f5-6210-44a2-82a7-bf1c4107a465",
+  "planned": 16,
+  "attempted": 0,
+  "finalized": 0,
+  "journal_event_count": 0,
+  "journal_head_sha256": "b76af716fdc5d3eeacbb37fdea1319b8dda048b1837fb78c58c5ac0afb8ee139",
+  "files": {
+    "run.manifest.json": "e121b79a1a2b9d213d6c4a551e60ed45bc5397b275de07b7b019624dfafa03c1",
+    "journal.sqlite3": "f5f35e096a0b036fb005edca6bd1369b5a1d4eeb3c705c2a5cd4bd3744e02d1c",
+    "report.json": "60f1e875ae2276fd4ae22ee8ceecb0915792d283c0da3f0f224f50903933df72"
+  },
+  "config_file_sha256": "cb03aeab45722b30298da42a6cf028fa3f86df28457724ce8f8c0de74ee7a795",
+  "request_inventory_sha256": "fda75466e4392161f8f7b553793daa7b41af4b514e7c6f755388e945a4a25cb6",
+  "identity_sha256": "e27a59ca4e881d5b6471027395669264ad564a75f02e6a0dafe823fa970fdeeb",
+  "analysis_plan_sha256": "4a60bbb2619559ed27aaec7c7cea0e300f9c7da0020d9ad78a85cad6588a342e"
+}

@@ -1,0 +1,109 @@
+{
+  "checked_at": "2026-11-28T13:25:26.096375+00:00",
+  "evidence_class": "observed",
+  "app_version": "0.4.13+1",
+  "app_package_sha256": "a408f1fb7c705568e1521a4dbfcbe8be0bf6177bd0a5b349e40801528319d7b7",
+  "cli": "CLI commit: 0b2a176",
+  "runtime_inventory": "LLM ENGINE                                        SELECTED    MODEL FORMAT\nllama.cpp-win-x86_64-avx2@2.13.0                                  GGUF    \nllama.cpp-win-x86_64-nvidia-cuda-avx2@2.13.0                      GGUF    \nllama.cpp-win-x86_64-nvidia-cuda12-avx2@2.83.0       ✓            GGUF    \nllama.cpp-win-x86_64-nvidia-cuda12-avx2@2.73.0                    GGUF    \nllama.cpp-win-x86_64-nvidia-cuda12-avx2@2.71.0                    GGUF    \nllama.cpp-win-x86_64-nvidia-cuda12-avx2@2.67.0                    GGUF    \nllama.cpp-win-x86_64-nvidia-cuda12-avx2@2.64.0                    GGUF    \nllama.cpp-win-x86_64-vulkan-avx2@2.13.0                           GGUF",
+  "backend_manifest": {
+    "version": "2.83.0",
+    "domains": [
+      "llm",
+      "embedding"
+    ],
+    "engine": "llama.cpp",
+    "extension_type": "engine",
+    "target_libraries": [
+      {
+        "name": "llm_engine_cuda12.node",
+        "type": "llm_engine",
+        "version": "0.1.2"
+      },
+      {
+        "name": "liblmstudio_bindings_cuda12.node",
+        "type": "liblmstudio",
+        "version": "0.2.26"
+      }
+    ],
+    "platform": "win",
+    "cpu": {
+      "architecture": "x86_64",
+      "instruction_set_extensions": [
+        "AVX2"
+      ]
+    },
+    "gpu": {
+      "make": "Nvidia",
+      "framework": "CUDA",
+      "targets": [
+        "7.5",
+        "8.0",
+        "8.9",
+        "9.0",
+        "10.0",
+        "12.0"
+      ],
+      "minimum_driver_version": "12040"
+    },
+    "supported_model_formats": [
+      "gguf"
+    ],
+    "manifest_version": "4",
+    "vendor_lib_package_names": [
+      "win-llama-cuda12-vendor-v2"
+    ],
+    "minimum_lmstudio_version": "0.4.0+15",
+    "minimum_llmster_version": "0.0.1+9",
+    "engine_protocol_server": {
+      "runtime_kind": "llama-server",
+      "executable_relative_path": "llama-server.exe"
+    },
+    "name": "llama.cpp-win-x86_64-nvidia-cuda12-avx2"
+  },
+  "backend_files_sha256": {
+    "backend-manifest.json": "f93b17aedc677a9a946e30a348194d1c9df400e88b46cf70250b8f2cebf91bc8",
+    "display-data.json": "af0c8ba3d4562609ba4cc7e045f0069e0fcb7ecb035ab5aedeeda08a1cedb6ce",
+    "engine-protocol-server-artifacts.json": "cbcfb9d921051732d47832f6053283322f3912d929c19cfd1b503e24e83a1204",
+    "ggml-base.dll": "a742281d299a10973738602a25f8a335ea104aa68d812da473e4830aaed89b86",
+    "ggml-cpu.dll": "97600886d0f67c06f62378d4f111dd20d261c0412b19e49ec51645957da3b9cb",
+    "ggml-cuda.dll": "c5b6187b3afe4aa39efc0adfdc662c99211fae760ee3c29328cea15446cd4b1e",
+    "ggml_llamacpp.dll": "c6feee1ea8b2288f74366d06587d5f1fc5b5abc4874d4e7d1f02264d92e83327",
+    "liblmstudio_bindings_cuda12.node": "75662bdd480224749f667159ce755e56a20f38535c9e769dc941dbd3c22e1723",
+    "libomp.dll": "0d6f110d0086696403e2a5fbce1558f5ff56bb1d402110ccf950e8f19209f2bf",
+    "llama-common.dll": "81caeab1e10e077abc30673dc867dff41810314e07afeda3425f7e9cf10ea1ba",
+    "llama-server-impl.dll": "bf52eb2accde6fcd57bce2451b16571320b9e62683a5c2c3fc3a13ba0792204e",
+    "llama-server.exe": "949787bcefd8f358b0e251e59d2f81b13d4f10220f416e804acda2526e58ade6",
+    "llama.dll": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+    "llm_engine.dll": "16435436904872cc20f3191089e169ee905bd72930aac93c4cc9fc4f9406492e",
+    "llm_engine_cuda12.node": "0e3e9b0acf21dd4eaeab4943c74bbb8f914aab58f64d53ce8f970220dceb7aa4",
+    "lmstudiocore.dll": "00e8de6f12e659358c82aeed6abb8ab741cf206578f0eb84a267a9891368fd91",
+    "MSVCP140.dll": "59d325227321d52b9a523ea401ce6787a5d59f78229a0ff3a6f124e5d3445685",
+    "mtmd.dll": "d363d1342617d8e2b2fa8a61c20995396f5610e3df0e17918d07bb34b3cf3305",
+    "VCOMP140.dll": "294397f642d824a97de354aa625f993a97f34d729eca1bde56d5a897ae574888",
+    "VCRUNTIME140.dll": "eb1ee979bf02324712346e5bdbfc59c785388bc50d18cc2688aae4b0734915a0",
+    "VCRUNTIME140_1.dll": "a14b4a42a2c6df04d6d53a8340816023d953406f7f3d94996c7cab30c414ff63"
+  },
+  "selected_backend_preferences": [
+    {
+      "model_format": "gguf",
+      "name": "llama.cpp-win-x86_64-nvidia-cuda12-avx2",
+      "version": "2.83.0"
+    }
+  ],
+  "settings": {
+    "defaultContextLength": {
+      "type": "custom",
+      "value": 4096
+    },
+    "unloadPreviousJITModelOnLoad": true,
+    "unloadPreviousModelOnSelect": true,
+    "separateReasoningContentInAPI": true
+  },
+  "operator_checked": [],
+  "user_supplied": [],
+  "unknown": [
+    "upstream llama.cpp commit for vendor runtime",
+    "effective omitted sampling defaults",
+    "schema contribution to exact OpenAI request prompt"
+  ]
+}

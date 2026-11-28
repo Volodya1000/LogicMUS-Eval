@@ -1,0 +1,75 @@
+{
+  "checked_at": "2026-11-28T13:30:48.051239+00:00",
+  "checked_by": "Codex automated observation; no human attestation",
+  "scope": "this admitted development parent and fixed selection only",
+  "generation_attempts_total": 0,
+  "generation_attempt_limit": 48,
+  "models": {
+    "qwen": {
+      "real_smoke": "not_verified",
+      "status": "blocked",
+      "run_id": "1e3a90f5-6210-44a2-82a7-bf1c4107a465",
+      "planned": 16,
+      "attempted": 0,
+      "finalized": 0,
+      "errors": {},
+      "truncation": "not_observed_no_generation",
+      "coverage": "not_verified",
+      "usage": "not_available_no_generation",
+      "generation_latency_seconds": null,
+      "noop_resume": "not_run_pending_jobs_would_generate",
+      "analysis": "plan_saved_not_executed_no_outcomes",
+      "checker_exit_code": 1,
+      "blockers": [
+        "Exact HTTP input token accounting including response_format schema contribution is not verified. SDK template utility has no response_format option.",
+        "Effective omitted generation defaults and exact active backend implementation are not independently confirmed.",
+        "Template-only diagnostics do not cover parent maximum: direct smoke 2302 < target 2444; z3 smoke 3672 < target 3791. These are not certified full HTTP counts."
+      ]
+    },
+    "gemma": {
+      "real_smoke": "not_verified",
+      "status": "blocked",
+      "run_id": "61aa55d2-ba63-4661-b2e8-a5835affa454",
+      "planned": 16,
+      "attempted": 0,
+      "finalized": 0,
+      "errors": {},
+      "truncation": "not_observed_no_generation",
+      "coverage": "not_verified",
+      "usage": "not_available_no_generation",
+      "generation_latency_seconds": null,
+      "noop_resume": "not_run_pending_jobs_would_generate",
+      "analysis": "plan_saved_not_executed_no_outcomes",
+      "checker_exit_code": 1,
+      "blockers": [
+        "Exact HTTP input token accounting including response_format schema contribution is not verified. SDK template utility has no response_format option.",
+        "Effective omitted generation defaults and exact active backend implementation are not independently confirmed.",
+        "Installed/exposed model has no loaded instance: actual served instance, active context, effective tokenizer/template and backend are unverified. Loading could evict existing Qwen because unloadPreviousJITModelOnLoad=true; operator coordination required."
+      ]
+    },
+    "gpt-oss": {
+      "real_smoke": "not_verified",
+      "status": "blocked",
+      "run_id": "deb13903-ed63-4dac-ae2a-d4744cc04f28",
+      "planned": 16,
+      "attempted": 0,
+      "finalized": 0,
+      "errors": {},
+      "truncation": "not_observed_no_generation",
+      "coverage": "not_verified",
+      "usage": "not_available_no_generation",
+      "generation_latency_seconds": null,
+      "noop_resume": "not_run_pending_jobs_would_generate",
+      "analysis": "plan_saved_not_executed_no_outcomes",
+      "checker_exit_code": 1,
+      "blockers": [
+        "Exact HTTP input token accounting including response_format schema contribution is not verified. SDK template utility has no response_format option.",
+        "Effective omitted generation defaults and exact active backend implementation are not independently confirmed.",
+        "Installed/exposed model has no loaded instance: actual served instance, active context, effective tokenizer/template and backend are unverified. Loading could evict existing Qwen because unloadPreviousJITModelOnLoad=true; operator coordination required."
+      ]
+    }
+  },
+  "future_confirmation": "No confirmation-v2 coverage claim; separate freeze and complete offline admission required.",
+  "time_extrapolation": null,
+  "time_extrapolation_reason": "No measured generation latency; no defensible smoke-based range."
+}

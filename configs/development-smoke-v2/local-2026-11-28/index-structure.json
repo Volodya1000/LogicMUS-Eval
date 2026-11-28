@@ -1,0 +1,874 @@
+[
+  {
+    "domain": "llm",
+    "contextLength": 32768,
+    "indexedModelIdentifier": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "displayName": "Qwen2.5 Coder 14B Instruct",
+    "containingDirSubpath": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "containingDirMtime": 1791648000330,
+    "containingDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "sourceDirectoryType": "user",
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+        "relPath": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+        "sizeBytes": 8988110784,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "entryPoint": {
+      "filename": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+      "relPath": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+      "sizeBytes": 8988110784,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": false,
+    "quant": {
+      "bits": 4,
+      "name": "Q4_K_M"
+    },
+    "arch": "qwen2",
+    "params": "14B",
+    "isCucumber": false,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "sizeBytes": 8988110784,
+    "selfFiles": [
+      {
+        "filename": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+        "relPath": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+        "sizeBytes": 8988110784,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      }
+    ],
+    "altIndexedModelIdentifier": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF",
+    "user": "lmstudio-community",
+    "model": "Qwen2.5-Coder-14B-Instruct-GGUF",
+    "file": "Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "defaultIdentifier": "qwen2.5-coder-14b-instruct",
+    "autoIdentifiers": [
+      "qwen2.5-coder-14b-instruct",
+      "lmstudio-community/qwen2.5-coder-14b-instruct",
+      "qwen2.5-coder-14b-instruct@q4_k_m",
+      "lmstudio-community/qwen2.5-coder-14b-instruct@q4_k_m",
+      "lmstudio-community/qwen2.5-coder-14b-instruct-gguf/qwen2.5-coder-14b-instruct-q4_k_m.gguf",
+      "lmstudio-community/qwen2.5-coder-14b-instruct-gguf"
+    ],
+    "baselessAutoIdentifiers": [
+      "q4_k_m",
+      "gguf-q4_k_m"
+    ]
+  },
+  {
+    "domain": "llm",
+    "contextLength": 131072,
+    "indexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+    "displayName": "GPT-OSS 20B",
+    "containingDirSubpath": "lmstudio-community/gpt-oss-20b-GGUF",
+    "containingDirMtime": 1791647986491,
+    "containingDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF",
+    "sourceDirectoryType": "user",
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "gpt-oss-20b-MXFP4.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+        "relPath": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+        "sizeBytes": 12109565632,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF",
+    "entryPoint": {
+      "filename": "gpt-oss-20b-MXFP4.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "relPath": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "sizeBytes": 12109565632,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": true,
+    "quant": {
+      "bits": 4,
+      "name": "MXFP4"
+    },
+    "arch": "gpt-oss",
+    "params": "20B",
+    "isCucumber": true,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+    "sizeBytes": 12109565632,
+    "selfFiles": [
+      {
+        "filename": "gpt-oss-20b-MXFP4.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+        "relPath": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+        "sizeBytes": 12109565632,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      }
+    ],
+    "altIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF",
+    "user": "lmstudio-community",
+    "model": "gpt-oss-20b-GGUF",
+    "file": "gpt-oss-20b-MXFP4.gguf",
+    "defaultIdentifier": "gpt-oss-20b",
+    "autoIdentifiers": [
+      "gpt-oss-20b",
+      "lmstudio-community/gpt-oss-20b",
+      "gpt-oss-20b@mxfp4",
+      "lmstudio-community/gpt-oss-20b@mxfp4",
+      "lmstudio-community/gpt-oss-20b-gguf/gpt-oss-20b-mxfp4.gguf",
+      "lmstudio-community/gpt-oss-20b-gguf"
+    ],
+    "baselessAutoIdentifiers": [
+      "mxfp4",
+      "gguf-mxfp4"
+    ]
+  },
+  {
+    "domain": "llm",
+    "contextLength": 131072,
+    "indexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+    "displayName": "Gemma 4 E4B Instruct",
+    "containingDirSubpath": "lmstudio-community/gemma-4-E4B-it-GGUF",
+    "containingDirMtime": 1791647985304,
+    "containingDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF",
+    "sourceDirectoryType": "user",
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "gemma-4-E4B-it-Q4_K_M.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+        "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+        "sizeBytes": 5335289664,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      },
+      {
+        "filename": "mmproj-gemma-4-E4B-it-BF16.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+        "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+        "sizeBytes": 991551840,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF",
+    "entryPoint": {
+      "filename": "gemma-4-E4B-it-Q4_K_M.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "sizeBytes": 5335289664,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "visionAdapter": {
+      "filename": "mmproj-gemma-4-E4B-it-BF16.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+      "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+      "sizeBytes": 991551840,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": true,
+    "quant": {
+      "bits": 4,
+      "name": "Q4_K_M"
+    },
+    "arch": "gemma4",
+    "params": "7.5B",
+    "isCucumber": false,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+    "sizeBytes": 6326841504,
+    "selfFiles": [
+      {
+        "filename": "gemma-4-E4B-it-Q4_K_M.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+        "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+        "sizeBytes": 5335289664,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      },
+      {
+        "filename": "mmproj-gemma-4-E4B-it-BF16.gguf",
+        "ext": "gguf",
+        "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+        "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+        "sizeBytes": 991551840,
+        "rootAbsolutePath": "D:/lmstudiomodels"
+      }
+    ],
+    "altIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF",
+    "user": "lmstudio-community",
+    "model": "gemma-4-E4B-it-GGUF",
+    "file": "gemma-4-E4B-it-Q4_K_M.gguf",
+    "defaultIdentifier": "gemma-4-e4b-it",
+    "autoIdentifiers": [
+      "gemma-4-e4b-it",
+      "lmstudio-community/gemma-4-e4b-it",
+      "gemma-4-e4b-it@q4_k_m",
+      "lmstudio-community/gemma-4-e4b-it@q4_k_m",
+      "lmstudio-community/gemma-4-e4b-it-gguf/gemma-4-e4b-it-q4_k_m.gguf",
+      "lmstudio-community/gemma-4-e4b-it-gguf"
+    ],
+    "baselessAutoIdentifiers": [
+      "q4_k_m",
+      "gguf-q4_k_m"
+    ]
+  },
+  {
+    "domain": "llm",
+    "contextLength": 131072,
+    "indexedModelIdentifier": "openai/gpt-oss-20b@lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+    "displayName": "GPT-OSS 20B",
+    "containingDirSubpath": "openai/gpt-oss-20b",
+    "containingDirMtime": 1787402632493,
+    "containingDirAbsolutePath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b",
+    "sourceDirectoryType": "hub",
+    "revision": 7,
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/manifest.json",
+        "relPath": "openai/gpt-oss-20b/manifest.json",
+        "sizeBytes": 583,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/model.yaml",
+        "relPath": "openai/gpt-oss-20b/model.yaml",
+        "sizeBytes": 1447,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/README.md",
+        "relPath": "openai/gpt-oss-20b/README.md",
+        "sizeBytes": 869,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/thumbnail.png",
+        "relPath": "openai/gpt-oss-20b/thumbnail.png",
+        "sizeBytes": 95686,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF",
+    "entryPoint": {
+      "filename": "gpt-oss-20b-MXFP4.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "relPath": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "sizeBytes": 12109565632,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": true,
+    "quant": {
+      "bits": 4,
+      "name": "MXFP4"
+    },
+    "arch": "gpt-oss",
+    "params": "20B",
+    "isCucumber": true,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+    "sizeBytes": 12109664217,
+    "selfFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/manifest.json",
+        "relPath": "openai/gpt-oss-20b/manifest.json",
+        "sizeBytes": 583,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/model.yaml",
+        "relPath": "openai/gpt-oss-20b/model.yaml",
+        "sizeBytes": 1447,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/README.md",
+        "relPath": "openai/gpt-oss-20b/README.md",
+        "sizeBytes": 869,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/thumbnail.png",
+        "relPath": "openai/gpt-oss-20b/thumbnail.png",
+        "sizeBytes": 95686,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "user": "openai",
+    "model": "gpt-oss-20b",
+    "defaultIdentifier": "openai/gpt-oss-20b@mxfp4",
+    "autoIdentifiers": [
+      "openai/gpt-oss-20b@mxfp4",
+      "openai/gpt-oss-20b@gguf-mxfp4",
+      "openai/gpt-oss-20b@gpt-oss-20b",
+      "openai/gpt-oss-20b@lmstudio-community/gpt-oss-20b",
+      "openai/gpt-oss-20b@gpt-oss-20b:mxfp4",
+      "openai/gpt-oss-20b@lmstudio-community/gpt-oss-20b:mxfp4",
+      "openai/gpt-oss-20b@lmstudio-community/gpt-oss-20b-gguf/gpt-oss-20b-mxfp4.gguf",
+      "openai/gpt-oss-20b@lmstudio-community/gpt-oss-20b-gguf"
+    ],
+    "baselessAutoIdentifiers": [
+      "mxfp4",
+      "gguf-mxfp4"
+    ],
+    "virtual": {
+      "isAlt": true,
+      "baseChain": [
+        "openai/gpt-oss-20b",
+        "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf"
+      ],
+      "manifestAbsPath": "C:\\Users\\dva\\.lmstudio\\hub\\models\\openai\\gpt-oss-20b\\model.yaml",
+      "customFieldConfigBaseKey": "ext.virtualModel.customField.openai.gptOss20b.",
+      "customFieldDefinitions": [
+        {
+          "key": "ext.virtualModel.customField.openai.gptOss20b.reasoningEffort",
+          "displayName": "Reasoning Effort",
+          "description": "Controls how much reasoning the model should perform.",
+          "type": "select",
+          "options": [
+            {
+              "label": "Low",
+              "value": "low"
+            },
+            {
+              "label": "Medium",
+              "value": "medium"
+            },
+            {
+              "label": "High",
+              "value": "high"
+            }
+          ],
+          "defaultValue": "low",
+          "effects": [
+            {
+              "type": "setJinjaVariable",
+              "variable": "reasoning_effort"
+            }
+          ]
+        }
+      ],
+      "suggestions": [],
+      "concreteModelOptions": [
+        "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf"
+      ],
+      "concreteModelIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "metadataOverridesParamsStrings": [
+        "20B"
+      ],
+      "metadataOverridesReasoning": true
+    }
+  },
+  {
+    "domain": "llm",
+    "contextLength": 131072,
+    "indexedModelIdentifier": "openai/gpt-oss-20b",
+    "displayName": "GPT-OSS 20B",
+    "containingDirSubpath": "openai/gpt-oss-20b",
+    "containingDirMtime": 1787402632493,
+    "containingDirAbsolutePath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b",
+    "sourceDirectoryType": "hub",
+    "revision": 7,
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/manifest.json",
+        "relPath": "openai/gpt-oss-20b/manifest.json",
+        "sizeBytes": 583,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/model.yaml",
+        "relPath": "openai/gpt-oss-20b/model.yaml",
+        "sizeBytes": 1447,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/README.md",
+        "relPath": "openai/gpt-oss-20b/README.md",
+        "sizeBytes": 869,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/thumbnail.png",
+        "relPath": "openai/gpt-oss-20b/thumbnail.png",
+        "sizeBytes": 95686,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF",
+    "entryPoint": {
+      "filename": "gpt-oss-20b-MXFP4.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "relPath": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "sizeBytes": 12109565632,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": true,
+    "quant": {
+      "bits": 4,
+      "name": "MXFP4"
+    },
+    "arch": "gpt-oss",
+    "params": "20B",
+    "isCucumber": true,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+    "sizeBytes": 12109664217,
+    "selfFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/manifest.json",
+        "relPath": "openai/gpt-oss-20b/manifest.json",
+        "sizeBytes": 583,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/model.yaml",
+        "relPath": "openai/gpt-oss-20b/model.yaml",
+        "sizeBytes": 1447,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/README.md",
+        "relPath": "openai/gpt-oss-20b/README.md",
+        "sizeBytes": 869,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/openai/gpt-oss-20b/thumbnail.png",
+        "relPath": "openai/gpt-oss-20b/thumbnail.png",
+        "sizeBytes": 95686,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "user": "openai",
+    "model": "gpt-oss-20b",
+    "defaultIdentifier": "openai/gpt-oss-20b",
+    "autoIdentifiers": [
+      "openai/gpt-oss-20b"
+    ],
+    "baselessAutoIdentifiers": [
+      "mxfp4",
+      "gguf-mxfp4"
+    ],
+    "virtual": {
+      "isAlt": false,
+      "alts": [
+        {
+          "virtualModelIndexedModelIdentifier": "openai/gpt-oss-20b@lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+          "virtualModelDefaultIdentifier": "openai/gpt-oss-20b@mxfp4",
+          "concreteModelIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf"
+        }
+      ],
+      "baseChain": [
+        "openai/gpt-oss-20b",
+        "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf"
+      ],
+      "manifestAbsPath": "C:\\Users\\dva\\.lmstudio\\hub\\models\\openai\\gpt-oss-20b\\model.yaml",
+      "customFieldConfigBaseKey": "ext.virtualModel.customField.openai.gptOss20b.",
+      "customFieldDefinitions": [
+        {
+          "key": "ext.virtualModel.customField.openai.gptOss20b.reasoningEffort",
+          "displayName": "Reasoning Effort",
+          "description": "Controls how much reasoning the model should perform.",
+          "type": "select",
+          "options": [
+            {
+              "label": "Low",
+              "value": "low"
+            },
+            {
+              "label": "Medium",
+              "value": "medium"
+            },
+            {
+              "label": "High",
+              "value": "high"
+            }
+          ],
+          "defaultValue": "low",
+          "effects": [
+            {
+              "type": "setJinjaVariable",
+              "variable": "reasoning_effort"
+            }
+          ]
+        }
+      ],
+      "suggestions": [],
+      "concreteModelOptions": [
+        "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf"
+      ],
+      "concreteModelIndexedModelIdentifier": "lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf",
+      "metadataOverridesParamsStrings": [
+        "20B"
+      ],
+      "metadataOverridesReasoning": true
+    }
+  },
+  {
+    "domain": "llm",
+    "contextLength": 131072,
+    "indexedModelIdentifier": "google/gemma-4-e4b@lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+    "displayName": "Gemma 4 E4B",
+    "containingDirSubpath": "google/gemma-4-e4b",
+    "containingDirMtime": 1779469193261,
+    "containingDirAbsolutePath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b",
+    "sourceDirectoryType": "hub",
+    "revision": 4,
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/manifest.json",
+        "relPath": "google/gemma-4-e4b/manifest.json",
+        "sizeBytes": 413,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/model.yaml",
+        "relPath": "google/gemma-4-e4b/model.yaml",
+        "sizeBytes": 23038,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/README.md",
+        "relPath": "google/gemma-4-e4b/README.md",
+        "sizeBytes": 1222,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/thumbnail.png",
+        "relPath": "google/gemma-4-e4b/thumbnail.png",
+        "sizeBytes": 70543,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF",
+    "entryPoint": {
+      "filename": "gemma-4-E4B-it-Q4_K_M.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "sizeBytes": 5335289664,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "visionAdapter": {
+      "filename": "mmproj-gemma-4-E4B-it-BF16.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+      "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+      "sizeBytes": 991551840,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": true,
+    "quant": {
+      "bits": 4,
+      "name": "Q4_K_M"
+    },
+    "arch": "gemma4",
+    "params": "7.5B",
+    "isCucumber": false,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+    "sizeBytes": 6326936720,
+    "selfFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/manifest.json",
+        "relPath": "google/gemma-4-e4b/manifest.json",
+        "sizeBytes": 413,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/model.yaml",
+        "relPath": "google/gemma-4-e4b/model.yaml",
+        "sizeBytes": 23038,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/README.md",
+        "relPath": "google/gemma-4-e4b/README.md",
+        "sizeBytes": 1222,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/thumbnail.png",
+        "relPath": "google/gemma-4-e4b/thumbnail.png",
+        "sizeBytes": 70543,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "user": "google",
+    "model": "gemma-4-e4b",
+    "defaultIdentifier": "google/gemma-4-e4b@q4_k_m",
+    "autoIdentifiers": [
+      "google/gemma-4-e4b@q4_k_m",
+      "google/gemma-4-e4b@gguf-q4_k_m",
+      "google/gemma-4-e4b@gemma-4-e4b-it",
+      "google/gemma-4-e4b@lmstudio-community/gemma-4-e4b-it",
+      "google/gemma-4-e4b@gemma-4-e4b-it:q4_k_m",
+      "google/gemma-4-e4b@lmstudio-community/gemma-4-e4b-it:q4_k_m",
+      "google/gemma-4-e4b@lmstudio-community/gemma-4-e4b-it-gguf/gemma-4-e4b-it-q4_k_m.gguf",
+      "google/gemma-4-e4b@lmstudio-community/gemma-4-e4b-it-gguf"
+    ],
+    "baselessAutoIdentifiers": [
+      "q4_k_m",
+      "gguf-q4_k_m"
+    ],
+    "virtual": {
+      "isAlt": true,
+      "baseChain": [
+        "google/gemma-4-e4b",
+        "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf"
+      ],
+      "manifestAbsPath": "C:\\Users\\dva\\.lmstudio\\hub\\models\\google\\gemma-4-e4b\\model.yaml",
+      "customFieldConfigBaseKey": "ext.virtualModel.customField.google.gemma4E4b.",
+      "customFieldDefinitions": [
+        {
+          "key": "ext.virtualModel.customField.google.gemma4E4b.enableThinking",
+          "displayName": "Enable Thinking",
+          "description": "Controls whether the model will think before replying",
+          "type": "boolean",
+          "defaultValue": true,
+          "effects": [
+            {
+              "type": "setJinjaVariable",
+              "variable": "enable_thinking"
+            }
+          ]
+        }
+      ],
+      "suggestions": [],
+      "concreteModelOptions": [
+        "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf"
+      ],
+      "concreteModelIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "metadataOverridesParamsStrings": [
+        "7.9B"
+      ],
+      "metadataOverridesReasoning": true
+    }
+  },
+  {
+    "domain": "llm",
+    "contextLength": 131072,
+    "indexedModelIdentifier": "google/gemma-4-e4b",
+    "displayName": "Gemma 4 E4B",
+    "containingDirSubpath": "google/gemma-4-e4b",
+    "containingDirMtime": 1779469193261,
+    "containingDirAbsolutePath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b",
+    "sourceDirectoryType": "hub",
+    "revision": 4,
+    "format": "gguf",
+    "allFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/manifest.json",
+        "relPath": "google/gemma-4-e4b/manifest.json",
+        "sizeBytes": 413,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/model.yaml",
+        "relPath": "google/gemma-4-e4b/model.yaml",
+        "sizeBytes": 23038,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/README.md",
+        "relPath": "google/gemma-4-e4b/README.md",
+        "sizeBytes": 1222,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/thumbnail.png",
+        "relPath": "google/gemma-4-e4b/thumbnail.png",
+        "sizeBytes": 70543,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "concreteModelDirAbsolutePath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF",
+    "entryPoint": {
+      "filename": "gemma-4-E4B-it-Q4_K_M.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "sizeBytes": 5335289664,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "visionAdapter": {
+      "filename": "mmproj-gemma-4-E4B-it-BF16.gguf",
+      "ext": "gguf",
+      "absPath": "D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+      "relPath": "lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf",
+      "sizeBytes": 991551840,
+      "rootAbsolutePath": "D:/lmstudiomodels"
+    },
+    "trainedForToolUse": true,
+    "quant": {
+      "bits": 4,
+      "name": "Q4_K_M"
+    },
+    "arch": "gemma4",
+    "params": "7.5B",
+    "isCucumber": false,
+    "deviceIdentifier": null,
+    "originalIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+    "sizeBytes": 6326936720,
+    "selfFiles": [
+      {
+        "filename": "manifest.json",
+        "ext": "json",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/manifest.json",
+        "relPath": "google/gemma-4-e4b/manifest.json",
+        "sizeBytes": 413,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "model.yaml",
+        "ext": "yaml",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/model.yaml",
+        "relPath": "google/gemma-4-e4b/model.yaml",
+        "sizeBytes": 23038,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "README.md",
+        "ext": "md",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/README.md",
+        "relPath": "google/gemma-4-e4b/README.md",
+        "sizeBytes": 1222,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      },
+      {
+        "filename": "thumbnail.png",
+        "ext": "png",
+        "absPath": "C:/Users/dva/.lmstudio/hub/models/google/gemma-4-e4b/thumbnail.png",
+        "relPath": "google/gemma-4-e4b/thumbnail.png",
+        "sizeBytes": 70543,
+        "rootAbsolutePath": "C:/Users/dva/.lmstudio/hub/models"
+      }
+    ],
+    "user": "google",
+    "model": "gemma-4-e4b",
+    "defaultIdentifier": "google/gemma-4-e4b",
+    "autoIdentifiers": [
+      "google/gemma-4-e4b"
+    ],
+    "baselessAutoIdentifiers": [
+      "q4_k_m",
+      "gguf-q4_k_m"
+    ],
+    "virtual": {
+      "isAlt": false,
+      "alts": [
+        {
+          "virtualModelIndexedModelIdentifier": "google/gemma-4-e4b@lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+          "virtualModelDefaultIdentifier": "google/gemma-4-e4b@q4_k_m",
+          "concreteModelIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf"
+        }
+      ],
+      "baseChain": [
+        "google/gemma-4-e4b",
+        "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf"
+      ],
+      "manifestAbsPath": "C:\\Users\\dva\\.lmstudio\\hub\\models\\google\\gemma-4-e4b\\model.yaml",
+      "customFieldConfigBaseKey": "ext.virtualModel.customField.google.gemma4E4b.",
+      "customFieldDefinitions": [
+        {
+          "key": "ext.virtualModel.customField.google.gemma4E4b.enableThinking",
+          "displayName": "Enable Thinking",
+          "description": "Controls whether the model will think before replying",
+          "type": "boolean",
+          "defaultValue": true,
+          "effects": [
+            {
+              "type": "setJinjaVariable",
+              "variable": "enable_thinking"
+            }
+          ]
+        }
+      ],
+      "suggestions": [],
+      "concreteModelOptions": [
+        "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf"
+      ],
+      "concreteModelIndexedModelIdentifier": "lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf",
+      "metadataOverridesParamsStrings": [
+        "7.9B"
+      ],
+      "metadataOverridesReasoning": true
+    }
+  }
+]

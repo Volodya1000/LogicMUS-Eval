@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-28T13:30:48.051239+00:00",
+  "method": "production read_snapshot + preflight identity comparison, read-only",
+  "run_dir": "bundle/local-2026-11-28/runs/gpt-oss",
+  "run_id": "deb13903-ed63-4dac-ae2a-d4744cc04f28",
+  "planned": 16,
+  "attempted": 0,
+  "finalized": 0,
+  "journal_event_count": 0,
+  "journal_head_sha256": "7495c1753963f108581cec41939b739125b6dac55fb3661dee96af190bbe10d7",
+  "files": {
+    "run.manifest.json": "c8ada14c5cd869e8a986290ca099362fb1c8e052a5e89ef525576cecb97f4b29",
+    "journal.sqlite3": "5ea43856c3da5a8d8a4d7f3b8f43539dfb7adb6ea3a5bc53cd1eae1c1e20f64c",
+    "report.json": "8aff703cdeed5632f1d17ff1db710398f985c8c6e230e9f7c8b24e553b0e885d"
+  },
+  "config_file_sha256": "dccf719605a21882b5bbb8104b53df7472fa538fb4db0e4841a6ab426082749d",
+  "request_inventory_sha256": "fc7f43e8d1c3934a48f00c1e0c89d330c4ffa800bf1e876683768dc6edb68584",
+  "identity_sha256": "cdb377b6f544b8575607a87da88b678e27571e86a5e395ec985cc5a4156e4e90",
+  "analysis_plan_sha256": "3050b07830f9f7ed5d9f22e886a961f27f59aa5ffc6427cff0ebaee57129d131"
+}

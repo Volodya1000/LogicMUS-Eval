@@ -1,0 +1,29 @@
+[
+  {
+    "type": "llm",
+    "modelKey": "qwen2.5-coder-14b-instruct",
+    "format": "gguf",
+    "displayName": "Qwen2.5 Coder 14B Instruct",
+    "publisher": "lmstudio-community",
+    "path": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "sizeBytes": 8988110784,
+    "indexedModelIdentifier": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "deviceIdentifier": null,
+    "paramsString": "14B",
+    "architecture": "qwen2",
+    "quantization": {
+      "name": "Q4_K_M",
+      "bits": 4
+    },
+    "identifier": "qwen2.5-coder-14b-instruct",
+    "ttlMs": null,
+    "lastUsedTime": 1795872197048,
+    "vision": false,
+    "trainedForToolUse": false,
+    "maxContextLength": 32768,
+    "contextLength": 12288,
+    "status": "idle",
+    "queued": 0,
+    "parallel": 1
+  }
+]

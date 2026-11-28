@@ -1,0 +1,22 @@
+{
+  "checked_at": "2026-11-28T13:30:48.051239+00:00",
+  "sdk_version": "1.5.0",
+  "sdk_models_source_sha256": "8894904436f8b6322701c05e1fcc01728c3c772a8271ef4eba67ab25b335882a",
+  "apply_prompt_template_options": [
+    "omitBosToken",
+    "omitEosToken",
+    "toolDefinitions"
+  ],
+  "response_format_option": null,
+  "evidence_class": "observed SDK interface; unknown exact schema contribution",
+  "tokenization_docs": "https://lmstudio.ai/docs/python/tokenization",
+  "structured_output_docs": "https://lmstudio.ai/docs/developer/openai-compat/structured-output",
+  "interpretation": "Official GGUF structured-output documentation describes grammar sampling. This alone is not saved proof of exact input mapping in installed LM Studio 0.4.13+1. Do not assume zero overhead or construct InfrastructureInputAccounting from template-only diagnostics.",
+  "missing_artifacts": [
+    "InfrastructureInputAccounting",
+    "SmokeEvidence",
+    "completed before/after resume checkpoints",
+    "completed diagnostic analysis"
+  ],
+  "reason": "Required facts and completion have not been established. Existing schemas and gates are unchanged."
+}

@@ -1,0 +1,12 @@
+{
+  "model.yaml": {
+    "source_copy_name": "openai-gpt-oss-20b.model.yaml",
+    "utf8": "model: openai/gpt-oss-20b\nbase:\n  - key: lmstudio-community/gpt-oss-20b-gguf\n    sources:\n      - type: huggingface\n        user: lmstudio-community\n        repo: gpt-oss-20b-GGUF\n  - key: mlx-community/gpt-oss-20b-mxfp4-q8\n    sources:\n      - type: huggingface\n        user: mlx-community\n        repo: gpt-oss-20b-MXFP4-Q8\ncustomFields:\n  - key: reasoningEffort\n    displayName: Reasoning Effort\n    description: Controls how much reasoning the model should perform.\n    type: select\n    defaultValue: low\n    options:\n      - value: low\n        label: Low\n      - value: medium\n        label: Medium\n      - value: high\n        label: High\n    effects:\n      - type: setJinjaVariable\n        variable: reasoning_effort\nmetadataOverrides:\n  domain: llm\n  architectures:\n    - gpt-oss\n  compatibilityTypes:\n    - gguf\n    - safetensors\n  paramsStrings:\n    - 20B\n  minMemoryUsageBytes: 12000000000\n  contextLengths:\n    - 131072\n  vision: false\n  reasoning: true\n  trainedForToolUse: true\nconfig:\n  operation:\n    fields:\n      - key: llm.prediction.temperature\n        value: 0.8\n      - key: llm.prediction.topKSampling\n        value: 40\n      - key: llm.prediction.topPSampling\n        value:\n          checked: true\n          value: 0.8\n      - key: llm.prediction.repeatPenalty\n        value:\n          checked: true\n          value: 1.1\n      - key: llm.prediction.minPSampling\n        value:\n          checked: true\n          value: 0.05\n",
+    "sha256": "08a949f936df06e27c00034893c5e304733f374d63d2a4a69b92d69290698024"
+  },
+  "manifest.json": {
+    "source_copy_name": "openai-gpt-oss-20b.manifest.json",
+    "utf8": "{\n  \"type\": \"model\",\n  \"owner\": \"openai\",\n  \"name\": \"gpt-oss-20b\",\n  \"dependencies\": [\n    {\n      \"type\": \"model\",\n      \"purpose\": \"baseModel\",\n      \"modelKeys\": [\n        \"lmstudio-community/gpt-oss-20b-gguf\",\n        \"mlx-community/gpt-oss-20b-mxfp4-q8\"\n      ],\n      \"sources\": [\n        {\n          \"type\": \"huggingface\",\n          \"user\": \"lmstudio-community\",\n          \"repo\": \"gpt-oss-20b-GGUF\"\n        },\n        {\n          \"type\": \"huggingface\",\n          \"user\": \"mlx-community\",\n          \"repo\": \"gpt-oss-20b-MXFP4-Q8\"\n        }\n      ]\n    }\n  ],\n  \"revision\": 7\n}",
+    "sha256": "2e6b4d2beee2302db87b036a3084443cc59f6c8b49adf4c8caca47408df4b540"
+  }
+}
