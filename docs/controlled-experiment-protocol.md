@@ -1,5 +1,10 @@
 # Контролируемый протокол controlled-v1
 
+Этот документ сохраняет смысл исторического controlled-v1. Новая генерация
+controlled-v2 меняет SAT-сторону idem на `{¬a, a → b, a → ¬b}` и включает версию
+в identities и provenance. См. [аудит](validation/2026-11-28-idem-v2/README.md)
+и [development infrastructure smoke](development-infrastructure-smoke.md).
+
 Это офлайн-протокол подготовки **синтетических шаблонных требований со
 структурными аннотациями** (ID/Var и типы Bool/Real). Он не проверяет понимание
 произвольного естественного языка. Генерация v2, опубликованный v1, исторические

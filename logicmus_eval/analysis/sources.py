@@ -117,6 +117,7 @@ def conditions(
         config.retry,
         identity.z3_execution_protocol_version if strategy == "z3" else None,
         config.z3_timeout_seconds if strategy == "z3" else None,
+        identity.generation_protocol or "controlled-v1",
     )
 
 
@@ -162,6 +163,8 @@ def check_compatibility(rows: list[AnalysisRow]) -> CompatibilityDiagnostic:
     for row in rows:
         model, strategy = row.dimensions.model_id, row.dimensions.strategy
         condition = conditions(row.snapshot, model, strategy)
+        if row.provenance.protocol_version != condition.generation_protocol:
+            raise ValueError("Generation protocol differs from saved run identity")
         if condition.metric_definitions_version != "3":
             raise ValueError(
                 "Unsupported historical metric definitions; use legacy mode"

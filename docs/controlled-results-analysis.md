@@ -1,5 +1,10 @@
 # Offline controlled results analysis
 
+Generation protocols are checked across all input runs, including distinct models
+and groups: analyze controlled-v1 and controlled-v2 separately. Infrastructure
+smoke accepts only development diagnostic analysis; primary summaries and
+confirmation admission remain reserved for independently admitted research data.
+
 This is a development analysis implementation, not the final paper plan or a new
 confirmation experiment. It makes no endpoint calls, imports no network client,
 and does not generate cases, resume a run, re-execute Z3, or edit saved sources.

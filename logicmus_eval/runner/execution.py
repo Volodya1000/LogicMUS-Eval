@@ -46,7 +46,7 @@ def _snapshot(  # pylint: disable=too-many-locals
     report = pipeline.from_outcomes(outcomes, len(ready.jobs))
     attempts = [attempt for state in states.values() for attempt in state.attempts]
     report.runner_provenance = {
-        "protocol": "controlled-run-v1",
+        "protocol": ready.identity["runner_protocol"],
         "run_id": manifest["payload"]["run_id"],
         "manifest_sha256": manifest["manifest_sha256"],
         "identity_sha256": ready.identity_hash,

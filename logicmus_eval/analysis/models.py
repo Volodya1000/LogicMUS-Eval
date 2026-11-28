@@ -92,6 +92,7 @@ class CompatibilityConditions:  # pylint: disable=too-many-instance-attributes
     retry: RetryConfig
     z3_execution_protocol_version: str | None
     z3_timeout_seconds: float | None
+    generation_protocol: str
 
 
 class CompatibilityDiagnostic(StrictModel):

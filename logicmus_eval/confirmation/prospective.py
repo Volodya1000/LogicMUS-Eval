@@ -71,6 +71,8 @@ def validate_template(
     """
     if template.purpose != plan.purpose or template.mode != "primary":
         raise ValueError("Prospective plan must be primary and match purpose")
+    if any(config.infrastructure_smoke is not None for config in configs.values()):
+        raise ValueError("Infrastructure smoke cannot enter a primary prospective plan")
     requested = [r for g in template.groups for r in g.run_ids]
     if set(requested) != configs.keys():
         raise ValueError("Logical run names must exactly cover configured runs")

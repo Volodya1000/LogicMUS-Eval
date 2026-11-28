@@ -10,7 +10,9 @@ from logicmus_eval.runner.config import RunConfig
 
 def families(plan: ExperimentPlan) -> set[str]:
     return {
-        family_identity(cell.pattern_id, cell.k, seed, index)
+        family_identity(
+            cell.pattern_id, cell.k, seed, index, protocol_version=plan.protocol_version
+        )
         for cell in plan.cells()
         for seed in plan.seeds
         for index in range(plan.pairs_per_seed)

@@ -70,7 +70,7 @@ def _accept(
 
 def _expected_cases(plan: ExperimentPlan, cell: ExperimentCell) -> dict[str, bool]:
     return {
-        case_identity(cell, seed, index, is_sat): is_sat
+        case_identity(cell, seed, index, is_sat, plan.protocol_version): is_sat
         for seed in plan.seeds
         for index in range(plan.pairs_per_seed)
         for is_sat in (True, False)
@@ -335,6 +335,7 @@ def prepare_experiment(plan: ExperimentPlan, output_dir: Path) -> ExperimentMani
     root = Path(output_dir)
     root.mkdir(parents=True, exist_ok=True)
     manifest = ExperimentManifest(
+        manifest_version=plan.protocol_version,
         plan=plan.normalized(),
         plan_sha256=plan.plan_hash,
         source_bundle_sha256=compute_source_bundle_hash(),

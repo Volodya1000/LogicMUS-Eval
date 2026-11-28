@@ -1,5 +1,13 @@
 # Версионированный confirmation-выпуск
 
+Актуальный короткий infrastructure-smoke использует отдельный допущенный
+development-parent и фиксированную выборку:
+[инструкция controlled-v2](development-infrastructure-smoke.md).
+Описанный ниже двухсемейный smoke и primary-анализ относятся к историческому
+контракту; их не следует применять к `infrastructure-smoke-v1`.
+Исторические receipts сохраняются; новая проверка реального HTTP требует
+явного происхождения каждой попытки, которого у старых журналов может не быть.
+
 Научный протокол: [`releases/confirmation-v1/protocol.md`](../releases/confirmation-v1/protocol.md).
 Выпуск v1 намеренно не разрешает модельный запуск, пока нет допуска наборов,
 полных профилей, операторской проверки backend и реального development smoke.

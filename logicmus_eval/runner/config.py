@@ -62,6 +62,11 @@ class RetryConfig(StrictModel):
         return self
 
 
+class InfrastructureSmokeConfig(StrictModel):
+    selection_path: str
+    selection_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+
+
 class RunConfig(StrictModel):
     config_version: Literal["controlled-run-v1"]
     series_manifest: str
@@ -73,9 +78,17 @@ class RunConfig(StrictModel):
     retry: RetryConfig
     z3_timeout_seconds: float = Field(gt=0)
     diagnostic_parent_run: str | None = None
+    infrastructure_smoke: InfrastructureSmokeConfig | None = None
 
     @model_validator(mode="after")
     def check_selection(self) -> Self:
+        if self.infrastructure_smoke is not None and set(self.strategies) != {
+            "direct",
+            "z3",
+        }:
+            raise ValueError(
+                "Infrastructure smoke requires both direct and z3 strategies"
+            )
         ids = [model.model_id for model in self.models]
         if len(set(ids)) != len(ids) or len(set(self.strategies)) != len(
             self.strategies
@@ -105,4 +118,10 @@ def load_config(path: Path) -> RunConfig:
     manifest = Path(config.series_manifest)
     if not manifest.is_absolute():
         config.series_manifest = str((path.parent / manifest).resolve())
+    if config.infrastructure_smoke is not None:
+        selection = Path(config.infrastructure_smoke.selection_path)
+        if not selection.is_absolute():
+            config.infrastructure_smoke.selection_path = str(
+                (path.parent / selection).resolve()
+            )
     return config
