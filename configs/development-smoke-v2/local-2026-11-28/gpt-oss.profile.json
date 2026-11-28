@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-28T13:27:11.520967+00:00",
+  "method": "read-only LM Studio inventory/SDK + direct GGUF header/file SHA256",
+  "evidence_class": "observed",
+  "model_id": "openai/gpt-oss-20b",
+  "local_file": "D:\\lmstudiomodels\\lmstudio-community\\gpt-oss-20b-GGUF\\gpt-oss-20b-MXFP4.gguf",
+  "file_bytes": 12109565632,
+  "file_sha256": "65d06d31a3977d553cb3af137b5c26b5f1e9297a6aaa29ae7caa98788cde53ab",
+  "metadata_sha256": "5f5cf14d27ab7a1b95694c67f0ee4b0761554fee4e45e345601b55e4b576daee",
+  "gguf_template_sha256": "f8d9255777615591a7cc1a7c932f5a69e181128902295e1b81221d20d983cac7",
+  "loaded": false,
+  "active_context_tokens": null,
+  "sdk_info": null,
+  "sdk_load_config": null,
+  "operator_checked": [],
+  "user_supplied": [],
+  "unknown": [
+    "effective omitted generation defaults",
+    "exact schema overhead in OpenAI request",
+    "active template override",
+    "active backend version",
+    "active context",
+    "served instance identity"
+  ]
+}

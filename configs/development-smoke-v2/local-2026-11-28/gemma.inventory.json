@@ -1,0 +1,16 @@
+{
+  "smoke": {
+    "path": "bundle/local-2026-11-28/gemma.smoke.requests.jsonl",
+    "file_sha256": "aab485c4ca17ab0d4c8dc4d177717a4d70350a9928baee91efc1f959a432ac55",
+    "requests_sha256": "13cedaf9ca443743ab228748c65323c6bd90a35527c167fc55f631773ca78fd1",
+    "requests": 16,
+    "identity_sha256": "e76a82bd5656051a0f085890f07340a964ada4801da5109686ad953af690e416"
+  },
+  "target": {
+    "path": "bundle/local-2026-11-28/gemma.target.requests.jsonl",
+    "file_sha256": "b753690663abdb4e7e516a433a4fa30e6b4c22dd91f80e83d94155951ec4c622",
+    "requests_sha256": "4cad31f888c22095f6213d4ebb29ab01a5095276188d027137102204a47c1f3b",
+    "requests": 4096,
+    "identity_sha256": "d3b019177acc7f42360645fa76eded7f477a331babd50f6521af4d6a1779cf56"
+  }
+}

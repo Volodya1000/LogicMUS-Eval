@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-28T13:30:48.051239+00:00",
+  "method": "production read_snapshot + preflight identity comparison, read-only",
+  "run_dir": "bundle/local-2026-11-28/runs/gemma",
+  "run_id": "61aa55d2-ba63-4661-b2e8-a5835affa454",
+  "planned": 16,
+  "attempted": 0,
+  "finalized": 0,
+  "journal_event_count": 0,
+  "journal_head_sha256": "a1ad36d546159f63a7dcd06102f3ecf90f8857e3ed3a868f263aae6388721d1d",
+  "files": {
+    "run.manifest.json": "5303ccaf69027b9be2127c26d69e1f11d6a80e6a0f0bd9c5c01db9406b3fc6cd",
+    "journal.sqlite3": "1ebd41e72020c05c02f751afa1751745f7221918510529eb3b03f6e88ddc4cb6",
+    "report.json": "aabae335f0d7df9654eaa3e5c1e734bb7a7fc3e72007600a1b48aee79848fa9d"
+  },
+  "config_file_sha256": "0777f9f2206ad18f1ac338c3dbada88f762cad67fd35771730ec5f8d72fd4270",
+  "request_inventory_sha256": "13cedaf9ca443743ab228748c65323c6bd90a35527c167fc55f631773ca78fd1",
+  "identity_sha256": "e76a82bd5656051a0f085890f07340a964ada4801da5109686ad953af690e416",
+  "analysis_plan_sha256": "b997a7f6fb50634b6b093ad95995bf3ac6fb3a68a2348a7470ed09f67b08249c"
+}

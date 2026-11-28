@@ -1,0 +1,45 @@
+{
+  "checked_at": "2026-11-28T13:25:34.290299+00:00",
+  "method": "read-only LM Studio inventory/SDK + direct GGUF header/file SHA256",
+  "evidence_class": "observed",
+  "model_id": "qwen2.5-coder-14b-instruct",
+  "local_file": "D:\\lmstudiomodels\\lmstudio-community\\Qwen2.5-Coder-14B-Instruct-GGUF\\Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+  "file_bytes": 8988110784,
+  "file_sha256": "ec8991dc0de5af1c40498adb827192971c4169e9f5ac785f9bde23137e2384e2",
+  "metadata_sha256": "868c7dafdc9d3f53fbe9332e0101fce07397c6f68a12011e8f6eebe3d10ce726",
+  "gguf_template_sha256": "cd8e9439f0570856fd70470bf8889ebd8b5d1107207f67a5efb46e342330527f",
+  "loaded": true,
+  "active_context_tokens": 12288,
+  "sdk_info": {
+    "type": "llm",
+    "modelKey": "qwen2.5-coder-14b-instruct",
+    "format": "gguf",
+    "displayName": "Qwen2.5 Coder 14B Instruct",
+    "path": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "sizeBytes": 8988110784,
+    "identifier": "qwen2.5-coder-14b-instruct",
+    "instanceReference": "u4lgpCJIB6qg9Z0IBimPqyku",
+    "vision": false,
+    "trainedForToolUse": false,
+    "maxContextLength": 32768,
+    "contextLength": 12288,
+    "paramsString": "14B",
+    "architecture": "qwen2"
+  },
+  "sdk_load_config": {
+    "gpu": {
+      "ratio": 1.0,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 12288,
+    "flashAttention": true
+  },
+  "operator_checked": [],
+  "user_supplied": [],
+  "unknown": [
+    "effective omitted generation defaults",
+    "exact schema overhead in OpenAI request",
+    "active template override"
+  ]
+}

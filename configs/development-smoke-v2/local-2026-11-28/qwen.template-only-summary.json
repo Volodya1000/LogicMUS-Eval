@@ -1,0 +1,71 @@
+{
+  "checked_at": "2026-11-28T13:29:32.598163+00:00",
+  "method": "LM Studio SDK 1.5.0 apply_prompt_template + tokenize, existing loaded instance only",
+  "measurement_scope": "template-only diagnostic; NOT InfrastructureInputAccounting; schema contribution to OpenAI HTTP prompt not verified",
+  "records_path": "bundle/local-2026-11-28/qwen.template-only-counts.json",
+  "records_sha256": "d3fd6be0b89013d6b61959bc94aa66ef03b883dc4c5fac5f54b906f2b0c9f3c9",
+  "target_requests_sha256": "1a2ea5b20d385d1d8af60d52588c6973b75a7e0a5bb547756fbd8b4cd53e77ee",
+  "smoke_requests_sha256": "fda75466e4392161f8f7b553793daa7b41af4b514e7c6f755388e945a4a25cb6",
+  "target_count": 4096,
+  "smoke_count": 16,
+  "strategies": {
+    "direct": {
+      "target_max": 2444,
+      "smoke_max": 2302,
+      "target_max_records": [
+        {
+          "case_uid": "06a4ee841185b09e91ad81a27e48184b52bf793063bcaf31fa71c950d8a5c4b7",
+          "strategy": "direct",
+          "request_sha256": "0bc6657816a50660463f050176dadb3ce2d9fd087da958f9fefe9b0d047d2292",
+          "formatted_prompt_sha256": "5b8c7b41c8ed8b5404e2bc367a720d10ea5d17897bd03a2e6b29b9447c977a12",
+          "template_only_tokens": 2444
+        }
+      ],
+      "smoke_max_records": [
+        {
+          "case_uid": "2eae78098e001d0a347bcea63c97428d9eba059a083461be911ea71df95a9210",
+          "strategy": "direct",
+          "request_sha256": "ef81187e4f7be39e6917fc0e102182e8979e775766efea52cdd377ca9f8fa197",
+          "formatted_prompt_sha256": "1f49afdea4bfc423b7065a22ed28ef970873e4c1e990afc745b3a9cea5fdaf3a",
+          "template_only_tokens": 2302
+        },
+        {
+          "case_uid": "0fd821fccd9f6ad05a9f52f9763e3c4081e11fba813a0439cffbea558c56f20f",
+          "strategy": "direct",
+          "request_sha256": "f1dd288fbbe40a2e93b578ca3c63b61f6d4aaa9c6c342ed7c91ea2c8cda9d126",
+          "formatted_prompt_sha256": "4805af1212b738d83e7d3878ba21b9493548caaf6fa0747ce8b791b950ae1728",
+          "template_only_tokens": 2302
+        }
+      ]
+    },
+    "z3": {
+      "target_max": 3791,
+      "smoke_max": 3672,
+      "target_max_records": [
+        {
+          "case_uid": "06a4ee841185b09e91ad81a27e48184b52bf793063bcaf31fa71c950d8a5c4b7",
+          "strategy": "z3",
+          "request_sha256": "e2cb6fac9d80af259a92f2f541149b3f09dd7ba1a0d7e729faa2c8030f6d7304",
+          "formatted_prompt_sha256": "59011edc15979ef867e0275f6836f2b987dd459f0dd5c073a63d1181ea65a7fe",
+          "template_only_tokens": 3791
+        }
+      ],
+      "smoke_max_records": [
+        {
+          "case_uid": "2eae78098e001d0a347bcea63c97428d9eba059a083461be911ea71df95a9210",
+          "strategy": "z3",
+          "request_sha256": "229a28ea4a4371c4da9435789a5ece5180c546c6db36ddde7b0ad35cf398aaf0",
+          "formatted_prompt_sha256": "6bcea23af136e1433289ddcd0b2f53f781a0b34914bf54f3f59d37a82f8dd746",
+          "template_only_tokens": 3672
+        },
+        {
+          "case_uid": "0fd821fccd9f6ad05a9f52f9763e3c4081e11fba813a0439cffbea558c56f20f",
+          "strategy": "z3",
+          "request_sha256": "b79cfcaad391f5f98fdee023e401717ff381be8794ced90097553435d4362867",
+          "formatted_prompt_sha256": "d32a5949de01ad701ad4febaf25a72b2f002c9142d24ec577ef8d3dc7d26952d",
+          "template_only_tokens": 3672
+        }
+      ]
+    }
+  }
+}

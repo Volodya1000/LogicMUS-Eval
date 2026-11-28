@@ -1,0 +1,16 @@
+{
+  "smoke": {
+    "path": "bundle/local-2026-11-28/qwen.smoke.requests.jsonl",
+    "file_sha256": "07e20ef39bed27508fe6b43c069066f92d59f14fac5334d6e539c23c3d2d0bdc",
+    "requests_sha256": "fda75466e4392161f8f7b553793daa7b41af4b514e7c6f755388e945a4a25cb6",
+    "requests": 16,
+    "identity_sha256": "e27a59ca4e881d5b6471027395669264ad564a75f02e6a0dafe823fa970fdeeb"
+  },
+  "target": {
+    "path": "bundle/local-2026-11-28/qwen.target.requests.jsonl",
+    "file_sha256": "09174643c2986f6fff8aaed3a2e30f0b223a0ab3eee237b9e7ca7c5056b4580c",
+    "requests_sha256": "1a2ea5b20d385d1d8af60d52588c6973b75a7e0a5bb547756fbd8b4cd53e77ee",
+    "requests": 4096,
+    "identity_sha256": "b74daa8f12561f21290f2268c79d8ffad74f850b6fdda55b040b65b5e53ad180"
+  }
+}

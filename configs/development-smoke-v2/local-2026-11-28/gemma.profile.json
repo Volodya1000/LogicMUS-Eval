@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-11-28T13:26:12.485424+00:00",
+  "method": "read-only LM Studio inventory/SDK + direct GGUF header/file SHA256",
+  "evidence_class": "observed",
+  "model_id": "google/gemma-4-e4b",
+  "local_file": "D:\\lmstudiomodels\\lmstudio-community\\gemma-4-E4B-it-GGUF\\gemma-4-E4B-it-Q4_K_M.gguf",
+  "file_bytes": 5335289664,
+  "file_sha256": "3f72a20a06f626c78e6c475ae07a64c88b2663149c0f6197b56bf7cf1f37585c",
+  "metadata_sha256": "9b1ebe295f343308e8a1e71b0510b5591116576c7106621f883ba45f4e7dc02e",
+  "gguf_template_sha256": "781d10940fbc44be40064b5d43a056fc486c84ceaa55538226368b57314132bf",
+  "loaded": false,
+  "active_context_tokens": null,
+  "sdk_info": null,
+  "sdk_load_config": null,
+  "operator_checked": [],
+  "user_supplied": [],
+  "unknown": [
+    "effective omitted generation defaults",
+    "exact schema overhead in OpenAI request",
+    "active template override",
+    "active backend version",
+    "active context",
+    "served instance identity"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "smoke": {
+    "path": "bundle/local-2026-11-28/gpt-oss.smoke.requests.jsonl",
+    "file_sha256": "5009a729b5b72df4abbbf5338a3c1fc59e35914649cc97a669f7df77b13f900a",
+    "requests_sha256": "fc7f43e8d1c3934a48f00c1e0c89d330c4ffa800bf1e876683768dc6edb68584",
+    "requests": 16,
+    "identity_sha256": "cdb377b6f544b8575607a87da88b678e27571e86a5e395ec985cc5a4156e4e90"
+  },
+  "target": {
+    "path": "bundle/local-2026-11-28/gpt-oss.target.requests.jsonl",
+    "file_sha256": "d13a46cb857131ef6a5f43dcfbed291354ce98f021fb1d4381fca162221a76a2",
+    "requests_sha256": "701b6309d70c54ea52515158091ec51e6be7e3bdaf0e11e28a037f54d95ffb40",
+    "requests": 4096,
+    "identity_sha256": "2bcfbcc93b949bc968be323096cc49902226b7502ac30197fff85dc3b05afc4d"
+  }
+}

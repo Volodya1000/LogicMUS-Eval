@@ -1,0 +1,174 @@
+"""One-shot observation only: no generation, load, unload, or resume calls."""
+import asyncio
+import hashlib
+import json
+import os
+import platform
+import shutil
+import struct
+import subprocess
+import sys
+import urllib.request
+from datetime import UTC, datetime
+from importlib.metadata import distributions
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / 'experiments/live-smoke-tools'))
+sys.path.insert(0, str(REPO))
+import lmstudio
+from logicmus_eval.hashing import compute_file_sha256, compute_source_bundle_hash
+from logicmus_eval.infrastructure_smoke import load_admitted_cases, validate_selection
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import preflight, digest
+
+ROOT = REPO / 'configs/development-smoke-v2'
+OUT = ROOT / 'local-2026-11-28'
+RAW = ROOT / 'bundle/local-2026-11-28'
+OUT.mkdir(exist_ok=False)
+RAW.mkdir(exist_ok=False)
+NOW = datetime.now(UTC).isoformat()
+
+def save(path, data):
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf8', newline='\n')
+
+def cmd(*args):
+    r = subprocess.run(args, cwd=REPO, capture_output=True, text=True, encoding='utf8', check=True)
+    return r.stdout.strip()
+
+def sha(path):
+    with path.open('rb') as f:
+        return hashlib.file_digest(f, 'sha256').hexdigest()
+
+def gguf_metadata(path):
+    formats = {0:'B',1:'b',2:'H',3:'h',4:'I',5:'i',6:'f',7:'?',10:'Q',11:'q',12:'d'}
+    with path.open('rb') as f:
+        def unpack(fmt):
+            return struct.unpack('<'+fmt, f.read(struct.calcsize('<'+fmt)))[0]
+        def string():
+            return f.read(unpack('Q')).decode('utf8')
+        def value(kind, keep=True):
+            if kind == 8:
+                size=unpack('Q')
+                if keep:
+                    return f.read(size).decode('utf8')
+                f.seek(size, 1)
+                return None
+            if kind == 9:
+                subtype, size=unpack('I'), unpack('Q')
+                if subtype in formats:
+                    f.seek(struct.calcsize('<'+formats[subtype])*size, 1)
+                else:
+                    for _ in range(size): value(subtype, False)
+                return {'array_type':subtype,'count':size}
+            return unpack(formats[kind])
+        assert f.read(4)==b'GGUF'
+        version=unpack('I'); tensors=unpack('Q'); count=unpack('Q')
+        result={'gguf_version':version,'tensor_count':tensors,'metadata':{}}
+        for _ in range(count):
+            key=string(); kind=unpack('I'); start=f.tell()
+            item=value(kind)
+            end=f.tell()
+            if key.startswith(('general.', 'tokenizer.')) or key.endswith('.context_length'):
+                if kind==9:
+                    f.seek(start); item['sha256']=hashlib.sha256(f.read(end-start)).hexdigest(); f.seek(end)
+                result['metadata'][key]=item
+        return result
+
+clean=cmd('git','status','--porcelain','--untracked-files=no')
+assert not clean
+base=cmd('git','rev-parse','HEAD')
+assert base=='8dc9f27d8acbf19194f7eacc7111de432d8cc819'
+freeze=json.loads((ROOT/'protocol.freeze.json').read_text())
+assert all(sha(ROOT/name)==expected for name,expected in freeze['files'].items())
+receipt=json.loads((ROOT/'preparation.receipt.json').read_text())
+assert digest(receipt['payload'])==receipt['sha256']
+for rel, expected in receipt['payload']['artifact_sha256'].items() if 'artifact_sha256' in receipt['payload'] else []:
+    assert sha(ROOT/rel)==expected
+parent=ROOT/'bundle/parent/series.manifest.json'
+plan,cases=load_admitted_cases(parent)
+selection=validate_selection(parent,ROOT/'selection.json',cases)
+assert len(cases)==2048 and len(selection.case_uids)==8
+assert sha(parent)==receipt['payload']['parent_manifest_sha256']
+assert selection.selection_sha256==receipt['payload']['selection_sha256']
+assert sha(ROOT/'protocol.freeze.json')==receipt['payload']['protocol_freeze_sha256']
+save(OUT/'admission.json', {'checked_at':NOW,'method':'existing load_admitted_cases + validate_selection; frozen file hashes; historical receipt digest','base_commit':base,'branch':cmd('git','branch','--show-current'),'source_bundle_sha256':compute_source_bundle_hash(),'protocol_freeze_sha256':sha(ROOT/'protocol.freeze.json'),'parent_manifest_sha256':sha(parent),'parent_plan_sha256':plan.plan_hash,'parent_cases':len(cases),'selection':selection.model_dump(mode='json'),'historical_receipt_sha256':sha(ROOT/'preparation.receipt.json')})
+opener=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+for endpoint in ('/v1/models','/api/v1/models','/api/v0/models'):
+    data=json.loads(opener.open('http://127.0.0.1:1234'+endpoint,timeout=10).read())
+    save(OUT/(endpoint.strip('/').replace('/','-')+'.json'),data)
+for command,name in [(('lms','ps','--json'),'loaded'),(('lms','ls','--json'),'installed')]:
+    save(OUT/(name+'.json'),json.loads(cmd(*command)))
+settings=json.loads(Path('C:/Users/dva/.lmstudio/settings.json').read_text())
+app=Path('C:/Program Files/LM Studio/resources/app/package.json')
+backend=Path('C:/Users/dva/.lmstudio/extensions/backends/llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0')
+save(OUT/'backend.json', {'checked_at':NOW,'evidence_class':'observed','app_version':json.loads(app.read_text())['version'],'app_package_sha256':sha(app),'cli':cmd('lms','--version'),'runtime_inventory':cmd('lms','runtime','ls'),'backend_manifest':json.loads((backend/'backend-manifest.json').read_text()),'backend_files_sha256':{p.name:sha(p) for p in backend.iterdir() if p.is_file()},'selected_backend_preferences':json.loads(Path('C:/Users/dva/.lmstudio/.internal/backend-preferences-v1.json').read_text()),'settings':{'defaultContextLength':settings['defaultContextLength'],'unloadPreviousJITModelOnLoad':settings['developer']['unloadPreviousJITModelOnLoad'],'unloadPreviousModelOnSelect':settings['chat']['unloadPreviousModelOnSelect'],'separateReasoningContentInAPI':settings['developer']['separateReasoningContentInAPI']},'operator_checked':[],'user_supplied':[],'unknown':['upstream llama.cpp commit for vendor runtime','effective omitted sampling defaults','schema contribution to exact OpenAI request prompt']})
+index=json.loads(Path('C:/Users/dva/.lmstudio/.internal/model-index-cache.json').read_text())
+save(OUT/'index-structure.json', [{k:v for k,v in m.items() if k not in ('metadata',)} for m in index['models'] if any(s in str(m.get('indexedModelIdentifier','')) for s in ('Qwen2.5','gemma-4','gpt-oss'))])
+files={'qwen':Path('D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf'),'gemma':Path('D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf'),'gpt-oss':Path('D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf')}
+with lmstudio.Client('127.0.0.1:1234') as client:
+    loaded={m.identifier:m for m in client.llm.list_loaded()}
+    ready={}
+    for name,path in files.items():
+        print('hashing',name,flush=True)
+        meta=gguf_metadata(path)
+        template=meta['metadata'].get('tokenizer.chat_template')
+        template_sha=hashlib.sha256(template.encode()).hexdigest() if template else None
+        template_path=OUT/(name+'.chat-template.jinja')
+        if template:
+            template_path.write_text(template,encoding='utf8',newline='\n')
+        metadata_path=OUT/(name+'.gguf-metadata.json')
+        save(metadata_path,meta)
+        cfg=json.loads((ROOT/(name+'.smoke.json')).read_text())
+        cfg['series_manifest']='../bundle/parent/series.manifest.json'
+        cfg['infrastructure_smoke']['selection_path']='../selection.json'
+        model_id=cfg['models'][0]['model_id']
+        active=loaded.get(model_id)
+        observed={'checked_at':datetime.now(UTC).isoformat(),'method':'read-only LM Studio inventory/SDK + direct GGUF header/file SHA256','evidence_class':'observed','model_id':model_id,'local_file':str(path),'file_bytes':path.stat().st_size,'file_sha256':sha(path),'metadata_sha256':sha(metadata_path),'gguf_template_sha256':template_sha,'loaded':active is not None,'active_context_tokens':active.get_context_length() if active else None,'sdk_info':active.get_info().to_dict() if active else None,'sdk_load_config':active.get_load_config().to_dict() if active else None,'operator_checked':[],'user_supplied':[],'unknown':['effective omitted generation defaults','exact schema overhead in OpenAI request','active template override']+([] if active else ['active backend version','active context','served instance identity'])}
+        save(OUT/(name+'.profile.json'),observed)
+        cfg['models'][0]['expected_profile'].update({'served_model_id':model_id if active else None,'revision':None,'model_file':str(path)+'; sha256='+observed['file_sha256'],'quantization':'MXFP4' if name=='gpt-oss' else 'Q4_K_M','context_tokens':observed['active_context_tokens'],'backend_version':'LM Studio 0.4.13+1; selected llama.cpp CUDA12 AVX2 2.83.0' if active else None,'chat_template':None,'tokenizer':None})
+        config_path=OUT/(name+'.operator.json')
+        save(config_path,cfg)
+        smoke=preflight(load_config(config_path))
+        full=load_config(config_path); full.infrastructure_smoke=None
+        target=preflight(full)
+        assert len(smoke.jobs)==16 and len(target.jobs)==4096
+        assert smoke.config.retry.max_attempts==1 and not smoke.config.retry.transient_errors
+        inventories={}
+        for scope,pf in [('smoke',smoke),('target',target)]:
+            inventory=RAW/(name+'.'+scope+'.requests.jsonl')
+            with inventory.open('w',encoding='utf8',newline='\n') as f:
+                for job in pf.jobs:
+                    f.write(json.dumps({'case_uid':job.case.case_id,'strategy':job.strategy,'request_sha256':digest(job.request),'request':job.request},ensure_ascii=False)+'\n')
+            inventories[scope]={'path':inventory.relative_to(ROOT).as_posix(),'file_sha256':sha(inventory),'requests_sha256':pf.identity['requests_sha256'],'requests':len(pf.jobs),'identity_sha256':pf.identity_hash}
+        save(OUT/(name+'.inventory.json'),inventories)
+        ready[name]=(smoke,target)
+
+async def count_qwen():
+    async with lmstudio.AsyncClient('127.0.0.1:1234') as client:
+        loaded=await client.llm.list_loaded()
+        model=next(m for m in loaded if m.identifier=='qwen2.5-coder-14b-instruct')
+        smoke,target=ready['qwen']
+        records=[]
+        sem=asyncio.Semaphore(4)
+        async def one(job):
+            async with sem:
+                formatted=await model.apply_prompt_template({'messages':job.request['body']['messages']})
+                tokens=await model.tokenize(formatted)
+                return {'case_uid':job.case.case_id,'strategy':job.strategy,'request_sha256':digest(job.request),'formatted_prompt_sha256':hashlib.sha256(formatted.encode()).hexdigest(),'template_only_tokens':len(tokens)}
+        for start in range(0,len(target.jobs),128):
+            records.extend(await asyncio.gather(*(one(j) for j in target.jobs[start:start+128])))
+            print('template tokenization',len(records),'/',len(target.jobs),flush=True)
+        selected={digest(j.request) for j in smoke.jobs}
+        save(RAW/'qwen.template-only-counts.json',records)
+        summary={'checked_at':datetime.now(UTC).isoformat(),'method':'LM Studio SDK 1.5.0 apply_prompt_template + tokenize, existing loaded instance only','measurement_scope':'template-only diagnostic; NOT InfrastructureInputAccounting; schema contribution to OpenAI HTTP prompt not verified','records_path':'bundle/local-2026-11-28/qwen.template-only-counts.json','records_sha256':sha(RAW/'qwen.template-only-counts.json'),'target_requests_sha256':target.identity['requests_sha256'],'smoke_requests_sha256':smoke.identity['requests_sha256'],'target_count':len(records),'smoke_count':sum(r['request_sha256'] in selected for r in records),'strategies':{}}
+        for strategy in ('direct','z3'):
+            full=[r for r in records if r['strategy']==strategy]
+            sub=[r for r in full if r['request_sha256'] in selected]
+            summary['strategies'][strategy]={'target_max':max(r['template_only_tokens'] for r in full),'smoke_max':max(r['template_only_tokens'] for r in sub),'target_max_records':[r for r in full if r['template_only_tokens']==max(x['template_only_tokens'] for x in full)],'smoke_max_records':[r for r in sub if r['template_only_tokens']==max(x['template_only_tokens'] for x in sub)]}
+        save(OUT/'qwen.template-only-summary.json',summary)
+
+asyncio.run(count_qwen())
+save(OUT/'environment.json', {'checked_at':NOW,'python':platform.python_version(),'source_bundle_sha256':compute_source_bundle_hash(),'git_commit':base,'uv_lock_sha256':sha(REPO/'uv.lock'),'pyproject_sha256':sha(REPO/'pyproject.toml'),'capture_script_sha256':sha(Path(__file__)),'repository_packages':{d.metadata['Name']:d.version for d in distributions(path=[str(REPO/'.venv/Lib/site-packages')])},'utility_packages':{d.metadata['Name']:d.version for d in distributions(path=[str(REPO/'experiments/live-smoke-tools')])}})
+shutil.copyfile(__file__,OUT/'capture-observations.py.txt')
+print('observations captured; ZERO generation requests',flush=True)

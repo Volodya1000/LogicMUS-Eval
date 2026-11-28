@@ -1,0 +1,72 @@
+"""Record blocked, pending runs. Intentionally contains no generation/resume call."""
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(REPO))
+from logicmus_eval.analysis.plan import AnalysisPlan
+from logicmus_eval.hashing import compute_source_bundle_hash
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import preflight,digest
+from logicmus_eval.runner.snapshot import read_snapshot
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'local-2026-11-28'
+RAW=ROOT/'bundle/local-2026-11-28'
+NOW=datetime.now(UTC).isoformat()
+
+def save(path,data):
+    path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+
+def sha(path):
+    with path.open('rb') as f:
+        return hashlib.file_digest(f,'sha256').hexdigest()
+
+results={}
+for name in ('qwen','gemma','gpt-oss'):
+    cfg=load_config(OUT/(name+'.operator.json'))
+    ready=preflight(cfg)
+    run=(RAW/'runs'/name).resolve()
+    snapshot=read_snapshot(run,[run/'report.json'])
+    assert len(snapshot.states)==16 and snapshot.journal_events==0
+    assert all(not s.attempts and s.outcome is None for s in snapshot.states.values())
+    assert snapshot.manifest.payload.identity.source_bundle_sha256==compute_source_bundle_hash()
+    assert digest(snapshot.manifest.payload.identity.saved_json())==ready.identity_hash
+    report=snapshot.reports[run/'report.json']
+    uuid=snapshot.manifest.payload.run_id
+    plan=json.loads((ROOT/'analysis.template.json').read_text())
+    plan['groups'][0]['run_ids']=[uuid]
+    AnalysisPlan.model_validate(plan)
+    save(OUT/(name+'.diagnostic.plan.json'),plan)
+    shutil.copyfile(run/'run.manifest.json',OUT/(name+'.initialized.manifest.json'))
+    shutil.copyfile(run/'report.json',OUT/(name+'.initialized.report.json'))
+    save(OUT/(name+'.snapshot.json'),{'checked_at':NOW,'method':'production read_snapshot + preflight identity comparison, read-only','run_dir':run.relative_to(ROOT).as_posix(),'run_id':uuid,'planned':len(snapshot.states),'attempted':0,'finalized':0,'journal_event_count':snapshot.journal_events,'journal_head_sha256':snapshot.journal_head,'files':snapshot.files,'config_file_sha256':sha(OUT/(name+'.operator.json')),'request_inventory_sha256':ready.identity['requests_sha256'],'identity_sha256':ready.identity_hash,'analysis_plan_sha256':sha(OUT/(name+'.diagnostic.plan.json'))})
+    # The evidence file is intentionally absent: the existing schema requires
+    # attested_real_http=True and completed artifacts. Never fabricate it.
+    evidence=OUT/(name+'.evidence.json')
+    assert not evidence.exists()
+    args=[sys.executable,'-m','logicmus_eval.cli','check-development-smoke','--root',str(ROOT),'--config',str(OUT/(name+'.operator.json')),'--evidence',str(evidence)]
+    checked=subprocess.run(args,cwd=REPO,capture_output=True,text=True,encoding='utf8')
+    payload=json.loads(checked.stdout)
+    assert checked.returncode==1 and payload['real_smoke']=='not_verified'
+    save(OUT/(name+'.checker.json'),{'checked_at':NOW,'command':args,'exit_code':checked.returncode,'stdout':payload,'stderr':checked.stderr,'scope':'negative checker invocation; absent real-HTTP evidence, not a validation of completed smoke artifacts'})
+    blockers=['Exact HTTP input token accounting including response_format schema contribution is not verified. SDK template utility has no response_format option.','Effective omitted generation defaults and exact active backend implementation are not independently confirmed.']
+    if name=='qwen':
+        blockers.append('Template-only diagnostics do not cover parent maximum: direct smoke 2302 < target 2444; z3 smoke 3672 < target 3791. These are not certified full HTTP counts.')
+    else:
+        blockers.append('Installed/exposed model has no loaded instance: actual served instance, active context, effective tokenizer/template and backend are unverified. Loading could evict existing Qwen because unloadPreviousJITModelOnLoad=true; operator coordination required.')
+    results[name]={'real_smoke':'not_verified','status':'blocked','run_id':uuid,'planned':16,'attempted':0,'finalized':0,'errors':{},'truncation':'not_observed_no_generation','coverage':'not_verified','usage':'not_available_no_generation','generation_latency_seconds':None,'noop_resume':'not_run_pending_jobs_would_generate','analysis':'plan_saved_not_executed_no_outcomes','checker_exit_code':checked.returncode,'blockers':blockers}
+
+save(OUT/'run-status.json',{'checked_at':NOW,'checked_by':'Codex automated observation; no human attestation','scope':'this admitted development parent and fixed selection only','generation_attempts_total':0,'generation_attempt_limit':48,'models':results,'future_confirmation':'No confirmation-v2 coverage claim; separate freeze and complete offline admission required.','time_extrapolation':None,'time_extrapolation_reason':'No measured generation latency; no defensible smoke-based range.'})
+save(OUT/'source-inventory.json',{'source_bundle_sha256':compute_source_bundle_hash(),'files':{p.relative_to(REPO).as_posix():sha(p) for p in sorted((REPO/'logicmus_eval').rglob('*.py'))},'dependencies':{name:sha(REPO/name) for name in ('uv.lock','pyproject.toml')}})
+sdk=REPO/'experiments/live-smoke-tools/lmstudio/_sdk_models/__init__.py'
+save(OUT/'counting-limitations.json',{'checked_at':NOW,'sdk_version':'1.5.0','sdk_models_source_sha256':sha(sdk),'apply_prompt_template_options':['omitBosToken','omitEosToken','toolDefinitions'],'response_format_option':None,'evidence_class':'observed SDK interface; unknown exact schema contribution','tokenization_docs':'https://lmstudio.ai/docs/python/tokenization','structured_output_docs':'https://lmstudio.ai/docs/developer/openai-compat/structured-output','interpretation':'Official GGUF structured-output documentation describes grammar sampling. This alone is not saved proof of exact input mapping in installed LM Studio 0.4.13+1. Do not assume zero overhead or construct InfrastructureInputAccounting from template-only diagnostics.','missing_artifacts':['InfrastructureInputAccounting','SmokeEvidence','completed before/after resume checkpoints','completed diagnostic analysis'],'reason':'Required facts and completion have not been established. Existing schemas and gates are unchanged.'})
+projection=Path('D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/mmproj-gemma-4-E4B-it-BF16.gguf')
+save(OUT/'gemma.vision-adapter.json',{'checked_at':NOW,'evidence_class':'observed file; not an active backend profile','path':str(projection),'bytes':projection.stat().st_size,'sha256':sha(projection),'scope':'Installed companion file; no image inputs in smoke inventory.'})
+shutil.copyfile(__file__,OUT/'finalize-blocked.py.txt')
+print(json.dumps({n:{k:v[k] for k in ('run_id','planned','attempted','finalized','status')} for n,v in results.items()},indent=2))

@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-11-28T13:39:18.856529+00:00",
+  "method": "offline verify_smoke_final.py; no endpoint, generation, load or resume",
+  "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+  "targeted_tests": [
+    {
+      "command": "pytest tests/integration/test_infrastructure_smoke.py -q",
+      "passed": 19
+    },
+    {
+      "command": "pytest tests/unit/test_runner_transport.py tests/integration/test_controlled_runner.py tests/integration/test_confirmation_release.py -q",
+      "passed": 65
+    }
+  ],
+  "full_suite": {
+    "method": "existing pre-commit pytest hook: uv run pytest with UV_NO_SYNC=1",
+    "result": "Passed",
+    "log_sha256": "89ccc52c5c06185e58d9413fd31255afd16d3cda5da2b0a7a9a3a3e305363e78",
+    "output": "trim trailing whitespace.................................................Passed\nfix end of files.........................................................Passed\ncheck toml...........................................(no files to check)Skipped\ncheck yaml...........................................(no files to check)Skipped\ncheck for added large files..............................................Passed\ncheck for merge conflicts................................................Passed\ndebug statements (python)............................(no files to check)Skipped\ndetect private key.......................................................Passed\nuv-lock..............................................(no files to check)Skipped\nruff (legacy alias)..................................(no files to check)Skipped\nruff format..............................................................Passed\nmypy.................................................(no files to check)Skipped\npylint...............................................(no files to check)Skipped\npytest...................................................................Passed\n"
+  },
+  "checks": [
+    "all source/dependency hashes",
+    "historical parent artifact hashes",
+    "all 12336 exact requests and inventory digests",
+    "profile metadata and embedded template hashes",
+    "lossless Hub source hashes",
+    "three read_snapshot files/identities and zero attempts/events/outcomes",
+    "Qwen template-only maxima and complete diagnostic records",
+    "three existing checker not_verified outputs"
+  ],
+  "independent_review": {
+    "reviewer": "Codex subagent review_smoke_evidence; automated, no human attestation",
+    "high_medium_findings": [],
+    "checked": "fresh production preflight equality for all exact target/smoke requests; source/profiles; read_snapshot; packaging; no endpoint calls",
+    "clarification_applied": "Original absolute Windows run paths and non-portable compact evidence are documented."
+  },
+  "real_smoke": "not_verified",
+  "generation_attempts": 0
+}

@@ -1,0 +1,80 @@
+"""Offline final artifact verification. No backend client or executor imports."""
+import hashlib
+import json
+import sys
+from datetime import UTC, datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(REPO))
+from logicmus_eval.hashing import compute_source_bundle_hash
+from logicmus_eval.runner.preflight import digest
+from logicmus_eval.runner.snapshot import read_snapshot
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'local-2026-11-28'
+RAW=ROOT/'bundle/local-2026-11-28'
+
+def read(path):
+    return json.loads(path.read_text(encoding='utf8'))
+
+def sha(path):
+    with path.open('rb') as f:
+        return hashlib.file_digest(f,'sha256').hexdigest()
+
+def save(path,data):
+    path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+
+source=read(OUT/'source-inventory.json')
+assert source['source_bundle_sha256']==compute_source_bundle_hash()
+assert all(sha(REPO/p)==v for p,v in source['files'].items())
+assert all(sha(REPO/p)==v for p,v in source['dependencies'].items())
+admission=read(OUT/'admission.json')
+assert sha(ROOT/'bundle/parent/series.manifest.json')==admission['parent_manifest_sha256']
+assert read(ROOT/'selection.json')['selection_sha256']==admission['selection']['selection_sha256']
+assert all(sha(ROOT/rel)==v for rel,v in read(ROOT/'preparation.receipt.json')['payload']['artifacts'].items())
+for p in OUT.glob('*.json'):
+    read(p)
+for name in ('qwen','gemma','gpt-oss'):
+    profile=read(OUT/(name+'.profile.json'))
+    meta=OUT/(name+'.gguf-metadata.json')
+    assert sha(meta)==profile['metadata_sha256']
+    assert hashlib.sha256(read(meta)['metadata']['tokenizer.chat_template'].encode()).hexdigest()==profile['gguf_template_sha256']
+    snapshot=read(OUT/(name+'.snapshot.json'))
+    run=(ROOT/snapshot['run_dir']).resolve()
+    checked=read_snapshot(run,[run/'report.json'])
+    assert checked.files==snapshot['files']
+    assert sha(OUT/(name+'.operator.json'))==snapshot['config_file_sha256']
+    assert checked.journal_events==0 and len(checked.states)==16
+    assert all(not state.attempts and state.outcome is None for state in checked.states.values())
+    assert sha(OUT/(name+'.initialized.manifest.json'))==sha(run/'run.manifest.json')
+    assert sha(OUT/(name+'.initialized.report.json'))==sha(run/'report.json')
+    inventory=read(OUT/(name+'.inventory.json'))
+    for scope,item in inventory.items():
+        path=ROOT/item['path']
+        assert sha(path)==item['file_sha256']
+        rows=[json.loads(line) for line in path.read_text(encoding='utf8').splitlines()]
+        assert len(rows)==item['requests']==(16 if scope=='smoke' else 4096)
+        assert all(digest(row['request'])==row['request_sha256'] for row in rows)
+        assert digest([row['request'] for row in rows])==item['requests_sha256']
+        assert all(row['request']['transport']['automatic_retries']==0 for row in rows)
+    assert inventory['smoke']['requests_sha256']==snapshot['request_inventory_sha256']
+    assert read(OUT/(name+'.checker.json'))['stdout']['real_smoke']=='not_verified'
+    assert not (OUT/(name+'.evidence.json')).exists()
+for path in OUT.glob('*.hub-definition.json'):
+    assert all(hashlib.sha256(item['utf8'].encode()).hexdigest()==item['sha256'] for item in read(path).values())
+summary=read(OUT/'qwen.template-only-summary.json')
+assert sha(ROOT/summary['records_path'])==summary['records_sha256']
+records=read(ROOT/summary['records_path'])
+smoke={r['request_sha256'] for r in map(json.loads,(RAW/'qwen.smoke.requests.jsonl').read_text(encoding='utf8').splitlines())}
+assert len(records)==4096 and len({r['request_sha256'] for r in records})==4096
+assert sum(r['request_sha256'] in smoke for r in records)==16
+for strategy,expected in summary['strategies'].items():
+    rows=[r for r in records if r['strategy']==strategy]
+    assert max(r['template_only_tokens'] for r in rows)==expected['target_max']
+    assert max(r['template_only_tokens'] for r in rows if r['request_sha256'] in smoke)==expected['smoke_max']
+log=REPO/'experiments/local-smoke-precommit.txt'
+assert any(line.startswith('pytest') and line.rstrip().endswith('Passed') for line in log.read_text(encoding='utf8').splitlines())
+save(OUT/'verification.json',{'checked_at':datetime.now(UTC).isoformat(),'method':'offline verify_smoke_final.py; no endpoint, generation, load or resume','source_bundle_sha256':compute_source_bundle_hash(),'targeted_tests':[{'command':'pytest tests/integration/test_infrastructure_smoke.py -q','passed':19},{'command':'pytest tests/unit/test_runner_transport.py tests/integration/test_controlled_runner.py tests/integration/test_confirmation_release.py -q','passed':65}],'full_suite':{'method':'existing pre-commit pytest hook: uv run pytest with UV_NO_SYNC=1','result':'Passed','log_sha256':sha(log),'output':log.read_text(encoding='utf8')},'checks':['all source/dependency hashes','historical parent artifact hashes','all 12336 exact requests and inventory digests','profile metadata and embedded template hashes','lossless Hub source hashes','three read_snapshot files/identities and zero attempts/events/outcomes','Qwen template-only maxima and complete diagnostic records','three existing checker not_verified outputs'],'independent_review':{'reviewer':'Codex subagent review_smoke_evidence; automated, no human attestation','high_medium_findings':[],'checked':'fresh production preflight equality for all exact target/smoke requests; source/profiles; read_snapshot; packaging; no endpoint calls','clarification_applied':'Original absolute Windows run paths and non-portable compact evidence are documented.'},'real_smoke':'not_verified','generation_attempts':0})
+save(OUT/'artifact-index.json',{'evidence_root':'configs/development-smoke-v2','checked_at':datetime.now(UTC).isoformat(),'scope':'blocked development observation inventory; not SmokeEvidence or a replacement pass flag','files':{p.relative_to(ROOT).as_posix():sha(p) for p in sorted(set([*OUT.rglob('*'),*RAW.rglob('*'),*(ROOT/'bundle/parent').rglob('*'),ROOT/'selection.json',ROOT/'selection.rule.json',ROOT/'parent.plan.json',ROOT/'protocol.freeze.json',ROOT/'preparation.receipt.json',ROOT/'analysis.template.json'])) if p.is_file() and p.name!='artifact-index.json'}})
+print('Offline final verification complete: exact requests, snapshots and hashes; real_smoke remains not_verified.')

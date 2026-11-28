@@ -1,0 +1,150 @@
+{
+  "models": [
+    {
+      "type": "llm",
+      "publisher": "qwen",
+      "key": "qwen/qwen3.8-27b",
+      "display_name": "Qwen3.8 27B",
+      "architecture": "qwen35",
+      "quantization": {
+        "name": "Q4_K_M",
+        "bits_per_weight": 4
+      },
+      "size_bytes": 17742040464,
+      "params_string": "27B",
+      "loaded_instances": [],
+      "max_context_length": 262144,
+      "format": "gguf",
+      "capabilities": {
+        "vision": true,
+        "trained_for_tool_use": true,
+        "reasoning": {
+          "allowed_options": [
+            "off",
+            "low",
+            "medium",
+            "on"
+          ],
+          "default": "on"
+        }
+      },
+      "description": null,
+      "variants": [
+        "qwen/qwen3.8-27b@q4_k_m"
+      ],
+      "selected_variant": "qwen/qwen3.8-27b@q4_k_m"
+    },
+    {
+      "type": "llm",
+      "publisher": "lmstudio-community",
+      "key": "qwen2.5-coder-14b-instruct",
+      "display_name": "Qwen2.5 Coder 14B Instruct",
+      "architecture": "qwen2",
+      "quantization": {
+        "name": "Q4_K_M",
+        "bits_per_weight": 4
+      },
+      "size_bytes": 8988110784,
+      "params_string": "14B",
+      "loaded_instances": [
+        {
+          "id": "qwen2.5-coder-14b-instruct",
+          "config": {
+            "context_length": 12288,
+            "eval_batch_size": 512,
+            "parallel": 1,
+            "flash_attention": true,
+            "offload_kv_cache_to_gpu": true
+          }
+        }
+      ],
+      "max_context_length": 32768,
+      "format": "gguf",
+      "capabilities": {
+        "vision": false,
+        "trained_for_tool_use": false
+      },
+      "description": null
+    },
+    {
+      "type": "llm",
+      "publisher": "openai",
+      "key": "openai/gpt-oss-20b",
+      "display_name": "GPT-OSS 20B",
+      "architecture": "gpt-oss",
+      "quantization": {
+        "name": "MXFP4",
+        "bits_per_weight": 4
+      },
+      "size_bytes": 12109664217,
+      "params_string": "20B",
+      "loaded_instances": [],
+      "max_context_length": 131072,
+      "format": "gguf",
+      "capabilities": {
+        "vision": false,
+        "trained_for_tool_use": true,
+        "reasoning": {
+          "allowed_options": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "default": "low"
+        }
+      },
+      "description": null,
+      "variants": [
+        "openai/gpt-oss-20b@mxfp4"
+      ],
+      "selected_variant": "openai/gpt-oss-20b@mxfp4"
+    },
+    {
+      "type": "llm",
+      "publisher": "google",
+      "key": "google/gemma-4-e4b",
+      "display_name": "Gemma 4 E4B",
+      "architecture": "gemma4",
+      "quantization": {
+        "name": "Q4_K_M",
+        "bits_per_weight": 4
+      },
+      "size_bytes": 6326936720,
+      "params_string": "7.5B",
+      "loaded_instances": [],
+      "max_context_length": 131072,
+      "format": "gguf",
+      "capabilities": {
+        "vision": true,
+        "trained_for_tool_use": true,
+        "reasoning": {
+          "allowed_options": [
+            "off",
+            "on"
+          ],
+          "default": "on"
+        }
+      },
+      "description": null,
+      "variants": [
+        "google/gemma-4-e4b@q4_k_m"
+      ],
+      "selected_variant": "google/gemma-4-e4b@q4_k_m"
+    },
+    {
+      "type": "embedding",
+      "publisher": "nomic-ai",
+      "key": "text-embedding-nomic-embed-text-v1.5",
+      "display_name": "Nomic Embed Text v1.5",
+      "quantization": {
+        "name": "Q4_K_M",
+        "bits_per_weight": 4
+      },
+      "size_bytes": 84106624,
+      "params_string": null,
+      "loaded_instances": [],
+      "max_context_length": 2048,
+      "format": "gguf"
+    }
+  ]
+}
