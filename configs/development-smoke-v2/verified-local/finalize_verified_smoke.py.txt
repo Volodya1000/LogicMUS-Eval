@@ -1,0 +1,68 @@
+"""Offline diagnostic analysis and evidence only after the unchanged checker passes."""
+import json
+import statistics
+import sys
+from collections import Counter
+from datetime import UTC,datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(REPO))
+from logicmus_eval.analysis import analyze
+from logicmus_eval.analysis.plan import AnalysisPlan
+from logicmus_eval.confirmation.infrastructure_evidence import check_development_smoke,_real_http
+from logicmus_eval.confirmation.models import SmokeEvidence
+from logicmus_eval.hashing import compute_file_sha256
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import preflight,digest
+from logicmus_eval.runner.snapshot import read_snapshot
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'verified-local'
+RAW=ROOT/'bundle/verified-local'
+
+def save(path,data):path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+
+def main(name):
+    run=RAW/(name+'.run');snapshot=read_snapshot(run,[run/'report.json'])
+    config=load_config(OUT/(name+'.smoke.json'));ready=preflight(config)
+    assert all(state.outcome is not None for state in snapshot.states.values())
+    analysis=RAW/(name+'.analysis');plan=AnalysisPlan.model_validate_json((OUT/(name+'.diagnostic.plan.json')).read_text())
+    if not analysis.exists():analyze([run],plan,analysis,plots=False)
+    errors=Counter();finish=Counter();times={s:[] for s in ['direct','z3']};attempted=0;http_completed=0;usage=[]
+    jobs={j.job_id:j for j in ready.jobs}
+    accounting=json.loads((RAW/(name+'.input-accounting.json')).read_text())
+    token_counts={(m['strategy'],r['request_sha256']):r['input_tokens'] for m in accounting['measurements'] for r in m['smoke']}
+    usage_checks=[]
+    for job_id,state in snapshot.states.items():
+        outcome=state.outcome
+        if outcome.error_type:errors[outcome.error_type.value]+=1
+        finish[str(outcome.metadata.finish_reason)]+=1
+        attempted+=len(state.attempts)
+        for attempt in state.attempts:
+            if attempt.result is None:continue
+            if hasattr(attempt.result,'elapsed_seconds'):times[jobs[job_id].strategy].append(attempt.result.elapsed_seconds)
+            if attempt.result.kind=='response':
+                raw=attempt.result.response
+                if raw.get('http_status')==200:http_completed+=1
+                usage.append(raw.get('usage'))
+                actual=raw.get('usage',{}).get('prompt_tokens') if isinstance(raw.get('usage'),dict) else None
+                expected=token_counts[(jobs[job_id].strategy,digest(jobs[job_id].request))]
+                usage_checks.append({'request_sha256':digest(jobs[job_id].request),'expected_prompt_tokens':expected,'observed_prompt_tokens':actual,'matches':actual==expected if actual is not None else None})
+    status='not_verified';issue=None
+    try:
+        _real_http(snapshot)
+        if any(check['matches'] is False for check in usage_checks):raise ValueError('Actual HTTP usage differs from frozen full-input accounting')
+        required=[ROOT/'selection.json',Path(config.series_manifest),OUT/'selection.v2.json',OUT/'selection.v2.rule.json',OUT/'measurements.manifest.json',OUT/(name+'.smoke.json'),RAW/(name+'.input-accounting.json')]
+        paths=required+[p for p in run.rglob('*') if p.is_file() and p.name!='writer.lock']+[p for p in analysis.rglob('*') if p.is_file()]
+        evidence=SmokeEvidence(evidence_version='infrastructure-smoke-v1',run_dir=run.relative_to(ROOT).as_posix(),attested_real_http=True,checked_by='Codex automated real HTTP-adapter journal and artifact verification; no human signature',checked_at=datetime.now(UTC).isoformat(),resume_before_report=(run/'resume.before.json').relative_to(ROOT).as_posix(),resume_after_report=(run/'resume.after.json').relative_to(ROOT).as_posix(),analysis_dir=analysis.relative_to(ROOT).as_posix(),longest_input_accounting=(RAW/(name+'.input-accounting.json')).relative_to(ROOT).as_posix(),artifacts={p.relative_to(ROOT).as_posix():compute_file_sha256(p) for p in paths},parent_manifest_sha256=compute_file_sha256(Path(config.series_manifest)),selection_sha256=config.infrastructure_smoke.selection_sha256)
+        check_development_smoke(ROOT,config,evidence)
+        save(OUT/(name+'.evidence.json'),evidence.model_dump(mode='json'))
+        status='passed'
+    except (ValueError,OSError,KeyError) as error:issue=str(error)
+    result={'model':name,'run_id':snapshot.manifest.payload.run_id,'real_smoke':status,'issue':issue,'attempted':attempted,'http_completed':http_completed,'finalized':len(snapshot.states),'errors':dict(errors),'finish_reason':dict(finish),'truncations':errors.get('generation_truncated',0),'total_http_seconds':sum(sum(t) for t in times.values()),'by_strategy':{s:{'attempts':len(t),'total_seconds':sum(t),'mean_seconds':statistics.mean(t) if t else None,'median_seconds':statistics.median(t) if t else None,'max_seconds':max(t) if t else None,'all_seconds':t} for s,t in times.items()},'usage':usage,'usage_accounting_checks':usage_checks,'analysis_manifest_sha256':compute_file_sha256(analysis/'analysis.manifest.json')}
+    save(OUT/(name+'.smoke-results.json'),result)
+    print(json.dumps({k:v for k,v in result.items() if k not in ['usage','by_strategy','usage_accounting_checks']}),flush=True)
+    if status!='passed':sys.exit(1)
+
+if __name__=='__main__':main(sys.argv[1])

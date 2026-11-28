@@ -1,0 +1,14 @@
+{
+  "scope": "Bounded verification following an observed existing Windows cleanup failure; not a production fix",
+  "sandbox_file_rerun": {
+    "passed": 41,
+    "failed": 0,
+    "seconds": 38.03,
+    "stdout_sha256": "8fcfccb3a370a09d3d1900374ef7d59413e400e9140537b00d36d11e653efd02"
+  },
+  "frozen_source_bundle_sha256": "a327cc5f58973ce3123e806dec6990f4444999822e3795d8e957497adb812d95",
+  "production_code_changed": false,
+  "test_or_cleanup_limits_changed": false,
+  "generation_attempts_added": 0,
+  "residual_risk": "intermittent cleanup failure remains observed; final full hook outcome is recorded in Git delivery output"
+}

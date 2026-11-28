@@ -1,0 +1,118 @@
+"""Freeze admitted input-only selection and exact prospective smoke configs."""
+import hashlib
+import io
+import json
+import shutil
+import sys
+import tarfile
+from datetime import UTC,datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(REPO))
+from logicmus_eval.confirmation.models import InfrastructureInputAccounting
+from logicmus_eval.hashing import compute_file_sha256,compute_source_bundle_hash
+from logicmus_eval.infrastructure_smoke import SelectionRule,load_admitted_cases,prepare_selection,validate_selection
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.execution import initialize_run
+from logicmus_eval.runner.preflight import build_request,digest,preflight
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'verified-local'
+RAW=ROOT/'bundle/verified-local'
+
+def save(path,data):
+    text=json.dumps(data,ensure_ascii=False,indent=2)+'\n'
+    if path.exists():assert path.read_text(encoding='utf8')==text,'Refusing to replace '+str(path)
+    else:path.write_text(text,encoding='utf8',newline='\n')
+
+def pin(path,base=OUT):return {'path':str(path.resolve()) if not path.resolve().is_relative_to(base.resolve()) else path.relative_to(base).as_posix(),'sha256':compute_file_sha256(path)}
+
+def main():
+    assert not (OUT/'smoke.execution.freeze.json').exists(),'Execution freeze already exists'
+    parent=ROOT/'bundle/parent/series.manifest.json';plan,cases=load_admitted_cases(parent)
+    original=validate_selection(parent,ROOT/'selection.json',cases)
+    method=json.loads((OUT/'full-http-input-method-verification.json').read_text())
+    assert method['status']=='qualified_method_established_scope_inventories_pending'
+    native=json.loads((OUT/'native-tokenizer-verification.json').read_text())
+    producers=[]
+    for filename in ['measure_installed_prompt_path.py','native_tokenizer_probe.py','verified_attempt_budget.py','execute_verified_smoke.py','prepare_verified_smoke.py','verified_diagnostics.py','analyze_verified_diagnostics.py']:
+        source=REPO/'experiments'/filename;copy=OUT/(filename+'.txt')
+        if copy.exists():assert source.read_bytes()==copy.read_bytes()
+        else:shutil.copyfile(source,copy)
+        producers.append(pin(copy))
+    scopes=[];all_rows={};parent_configs={};summaries={}
+    for name in ['qwen','gemma','gpt-oss']:
+        summary=json.loads((OUT/(name+'.candidate-counts.summary.json')).read_text())
+        assert summary['status']=='candidate-method-pending-final-review'
+        assert 'raw full base/session config' in summary['method']
+        summaries[name]=summary
+        observed=json.loads((OUT/(name+'.measurement-loaded.json')).read_text()) if (OUT/(name+'.measurement-loaded.json')).exists() else json.loads((OUT/(name+'.loaded.json')).read_text())
+        base=json.loads((OUT/(name+'.effective-base-config.json')).read_text())
+        assert digest(base)==summary['base_config_sha256']
+        profile=json.loads((OUT/(name+'.profile.json')).read_text())
+        native_model=next(m for m in native['models'] if m['model']==name)
+        assert native_model['model_file_sha256']==profile['file_sha256']
+        token=OUT/(name+'.effective-tokenizer.json')
+        save(token,{'model_file_sha256':profile['file_sha256'],'metadata':json.loads((OUT/(name+'.tokenizer.json')).read_text()),'native_llama_dll_sha256':native['dll_sha256'],'native_special_flags':native_model['native_special_flags'],'native_add_special':True,'native_parse_special':True})
+        template=OUT/(name+'.effective-chat-template.json')
+        save(template,{'base_config_sha256':digest(base),'prompt_fields':[f for f in base['fields'] if f['key'] in ['llm.prediction.promptTemplate','llm.prediction.systemPrompt','llm.prediction.contextPrefill']],'reasoning':json.loads((OUT/(name+'.diagnostic.json')).read_text())['models'][0]['generation']['reasoning_effort'],'utc_date':datetime.now(UTC).date().isoformat()})
+        cfg=json.loads((OUT/(name+'.diagnostic.json')).read_text())
+        cfg['models'][0]['expected_profile'].update(served_model_id=cfg['models'][0]['model_id'],model_file=profile['local_file']+'; sha256='+profile['file_sha256'],quantization='MXFP4' if name=='gpt-oss' else 'Q4_K_M',context_tokens=observed['context_tokens'],backend_version='LM Studio 0.4.13+1; llama.cpp CUDA12 2.83.0; llama.dll sha256='+native['dll_sha256'],tokenizer=str(token.resolve()),chat_template=str(template.resolve()))
+        config_path=OUT/(name+'.parent.json');save(config_path,cfg)
+        config=load_config(config_path);parent_configs[name]=config
+        rows=[json.loads(l) for l in (RAW/(name+'.development-parent.candidate-counts.jsonl')).read_text().splitlines()]
+        assert len(rows)==4096
+        all_rows[name]=rows
+        for strategy in ['direct','z3']:
+            selected=[r for r in rows if r['strategy']==strategy]
+            by_uid={r['case_uid']:r for r in selected};assert len(by_uid)==len(cases)
+            for case in cases:assert by_uid[case.case_id]['request_sha256']==digest(build_request(config,config.models[0],strategy,case))
+            inventory=RAW/(name+'.'+strategy+'.input-inventory.json')
+            save(inventory,{'model_id':config.models[0].model_id,'strategy':strategy,'tokenizer':str(token.resolve()),'chat_template':str(template.resolve()),'measurements':[{k:r[k] for k in ['case_uid','request_sha256','input_tokens']} for r in selected]})
+            evidence=OUT/(name+'.'+strategy+'.accounting-method.json')
+            save(evidence,{'evidence_version':'external-full-input-accounting-v1','method':'Installed source/native verified HTTP-path replay with exact full base/session, reasoning and schema stack, prediction formatter opts and exact DLL tokenizer. Fixed single-user text-only production schemas, date, model/runtime/context; recheck before/after execution. Full scope inventory measured offline.','checked_by':'Codex automated structural and artifact verification; no human signature','checked_at':datetime.now(UTC).isoformat(),'config_sha256':compute_file_sha256(config_path),'inventory_sha256':compute_file_sha256(inventory),'tokenizer_sha256':compute_file_sha256(token),'chat_template_sha256':compute_file_sha256(template),'covers_messages':True,'covers_chat_template':True,'covers_response_schema':True,'covers_special_tokens':True,'producer_sources':producers[:2]+[pin(Path(method['pins']['original_app_main']))],'verification_artifacts':[pin(OUT/'full-http-input-method-verification.json'),pin(OUT/'native-tokenizer-verification.json'),pin(OUT/(name+'.effective-base-config.json'))]})
+            scopes.append({'model_id':config.models[0].model_id,'strategy':strategy,'config':pin(config_path),'inventory':pin(inventory),'tokenizer':pin(token),'chat_template':pin(template),'accounting_evidence':pin(evidence)})
+    measurement=OUT/'measurements.manifest.json'
+    save(measurement,{'measurement_version':'infrastructure-input-maxima-v1','parent_manifest_sha256':compute_file_sha256(parent),'parent_plan_sha256':plan.plan_hash,'scopes':scopes})
+    rule=SelectionRule.model_validate({'selection_version':'infrastructure-smoke-v2','seed':original.rule.seed,'pair_index':original.rule.pair_index,'base_selection':pin(ROOT/'selection.json',parent.parent),'measurement_manifest':pin(measurement,parent.parent)})
+    save(OUT/'selection.v2.rule.json',rule.model_dump(mode='json'))
+    selection=prepare_selection(parent,rule,OUT/'selection.v2.json')
+    assert selection.case_uids[:8]==original.case_uids and len(selection.case_uids)<=14
+    coverage={};runs={}
+    for name,config in parent_configs.items():
+        payload=config.model_dump(mode='json');payload['series_manifest']='../bundle/parent/series.manifest.json'
+        payload['infrastructure_smoke']={'selection_path':'selection.v2.json','selection_sha256':selection.selection_sha256}
+        config_path=OUT/(name+'.smoke.json');save(config_path,payload)
+        smoke=preflight(load_config(config_path));target=preflight(config)
+        counts={r['request_sha256']:r['input_tokens'] for r in all_rows[name]}
+        measurements=[];coverage[name]={}
+        for strategy in ['direct','z3']:
+            jobs=[j for j in smoke.jobs if j.strategy==strategy]
+            smoke_max=max(counts[digest(j.request)] for j in jobs)
+            measured=summaries[name]['strategies'][strategy]
+            context=config.models[0].expected_profile.context_tokens;output=config.models[0].generation.max_tokens
+            assert smoke_max>=measured['parent_max'] and smoke_max>=measured['confirmation_max']
+            assert max(smoke_max,measured['confirmation_max'])+output < context
+            coverage[name][strategy]={**measured,'smoke_max':smoke_max,'parent_covered':True,'confirmation_covered':True,'context_tokens':context,'max_output_tokens':output,'context_fits':True}
+            measurements.append({'model_id':config.models[0].model_id,'strategy':strategy,'tokenizer':config.models[0].expected_profile.tokenizer,'chat_template':config.models[0].expected_profile.chat_template,'target':[{'request_sha256':digest(j.request),'input_tokens':counts[digest(j.request)]} for j in target.jobs if j.strategy==strategy],'smoke':[{'request_sha256':digest(j.request),'input_tokens':counts[digest(j.request)]} for j in jobs]})
+        accounting=InfrastructureInputAccounting.model_validate({'accounting_version':'infrastructure-input-accounting-v1','target_requests_sha256':target.identity['requests_sha256'],'smoke_requests_sha256':smoke.identity['requests_sha256'],'parent_manifest_sha256':compute_file_sha256(parent),'selection_sha256':selection.selection_sha256,'measurements':measurements})
+        save(RAW/(name+'.input-accounting.json'),accounting.model_dump(mode='json'))
+        manifest=initialize_run(smoke.config,RAW/(name+'.run'))
+        runs[name]={'run_id':manifest['payload']['run_id'],'jobs':len(smoke.jobs),'manifest_sha256':manifest['manifest_sha256']}
+        analysis=json.loads((ROOT/'analysis.template.json').read_text());analysis['groups'][0]['run_ids']=[manifest['payload']['run_id']]
+        save(OUT/(name+'.diagnostic.plan.json'),analysis)
+    total=sum(r['jobs'] for r in runs.values());ledger=[json.loads(l) for l in (RAW/'attempt-ledger.jsonl').read_text().splitlines()];used=sum(r['event']=='intent' for r in ledger)
+    assert total<=84 and total+used<=96
+    save(OUT/'coverage.json',{'method':'verified installed HTTP path; all requests offline; independent maxima comparisons','selection_cases':len(selection.case_uids),'confirmation_generation_attempts':0,'conditions':'new development-calibrated prospective configs; candidate files unchanged; final release/handoff remains separate','models':coverage})
+    source=compute_source_bundle_hash();archive=RAW/'source-smoke-runtime.tar.gz'
+    with tarfile.open(archive,'w:gz') as stream:
+        for path in sorted((REPO/'logicmus_eval').rglob('*.py')):
+            data=path.read_bytes();info=tarfile.TarInfo(path.relative_to(REPO).as_posix());info.size=len(data);stream.addfile(info,io.BytesIO(data))
+    save(OUT/'runtime-source.json',{'source_bundle_sha256':source,'archive_sha256':compute_file_sha256(archive),'historical_candidate_source_sha256':'9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642','historical_parent_source_sha256':'595ec63f07cac8bedf9b3cf610a2f593ae6a1ce2925878f3a97bb811c2eb7f06','versions_equal':False,'scope':'new runner source; historical receipts unmodified, no candidate handoff/release admission'})
+    files=[p for p in OUT.glob('*.json') if p.name not in ['smoke.execution.freeze.json']]+[parent,ROOT/'selection.json']+[RAW/(n+'.'+s+'.input-inventory.json') for n in runs for s in ['direct','z3']]
+    external=[REPO/'experiments/execute_verified_smoke.py',REPO/'experiments/verified_attempt_budget.py',Path(method['pins']['original_app_main']),*Path(native['dll_path']).parent.glob('*.dll')]
+    save(OUT/'smoke.execution.freeze.json',{'frozen_at':datetime.now(UTC).isoformat(),'source_bundle_sha256':source,'rendered_date_utc':datetime.now(UTC).date().isoformat(),'runs':runs,'planned_smoke_attempts':total,'diagnostic_attempts_already_reserved':used,'total_attempt_cap':96,'diagnostic_cap':12,'smoke_cap':84,'automatic_retries':0,'ready_for_scale':'blocked','files':{p.relative_to(ROOT).as_posix():compute_file_sha256(p) for p in files},'external_files':{str(p):compute_file_sha256(p) for p in external}})
+    print(json.dumps({'selection_cases':len(selection.case_uids),'planned_smoke_attempts':total,'diagnostic_attempts':used,'runs':runs}),flush=True)
+
+if __name__=='__main__':main()

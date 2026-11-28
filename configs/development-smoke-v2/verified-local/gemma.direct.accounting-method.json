@@ -1,0 +1,42 @@
+{
+  "evidence_version": "external-full-input-accounting-v1",
+  "method": "Installed source/native verified HTTP-path replay with exact full base/session, reasoning and schema stack, prediction formatter opts and exact DLL tokenizer. Fixed single-user text-only production schemas, date, model/runtime/context; recheck before/after execution. Full scope inventory measured offline.",
+  "checked_by": "Codex automated structural and artifact verification; no human signature",
+  "checked_at": "2026-11-28T16:00:02.013002+00:00",
+  "config_sha256": "70a99b69f150078851662a15cfaf590efe1b84840628854cb08c029329543a87",
+  "inventory_sha256": "6e7b02c9d9e840f89f31435bbd9a48c2c8a8fd368f53c565dd785dc5c5b9f5cb",
+  "tokenizer_sha256": "469cda3fcc970b04fc0b3ed8004a8e16ac1d5b9320a1a8a13e267cbdcadbc756",
+  "chat_template_sha256": "4013d9e39e09955a76c73fc7a6a6a65f2b3cfce8edca12956995f70b86e03691",
+  "covers_messages": true,
+  "covers_chat_template": true,
+  "covers_response_schema": true,
+  "covers_special_tokens": true,
+  "producer_sources": [
+    {
+      "path": "measure_installed_prompt_path.py.txt",
+      "sha256": "50d0c680cebbf30a5e4a54d06922dc3f468ade3fe82a2e66cb357f564e5ed4ca"
+    },
+    {
+      "path": "native_tokenizer_probe.py.txt",
+      "sha256": "5d107c081ea6c3b44945b395062fea24576ffcdc110354281f3c16f3736abebe"
+    },
+    {
+      "path": "C:\\Program Files\\LM Studio\\resources\\app\\.webpack\\main\\index.js",
+      "sha256": "5d5d021a923e2063ad85c1931c040cbba229b70a27c1edd2bf8fe934b8c4d9a7"
+    }
+  ],
+  "verification_artifacts": [
+    {
+      "path": "full-http-input-method-verification.json",
+      "sha256": "c2be9821ddccd2749486b316c412e9d4276530d1bfae00de3df53463c9a249fe"
+    },
+    {
+      "path": "native-tokenizer-verification.json",
+      "sha256": "971b1508b43f16b09f7d43bd71840fae4cbd7b5ff0844e24a123bbe17c272f2f"
+    },
+    {
+      "path": "gemma.effective-base-config.json",
+      "sha256": "1c5cf498f87bc615911dbc68f538ed75071fdeb920213555ee78b3633ceff601"
+    }
+  ]
+}

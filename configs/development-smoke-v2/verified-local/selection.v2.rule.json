@@ -1,0 +1,13 @@
+{
+  "selection_version": "infrastructure-smoke-v2",
+  "seed": 424242,
+  "pair_index": 0,
+  "measurement_manifest": {
+    "path": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\measurements.manifest.json",
+    "sha256": "bfca61766264766b363c4d2b6304711449cf66e1d5d9693127634483c41b3f93"
+  },
+  "base_selection": {
+    "path": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\selection.json",
+    "sha256": "d2d0866b78ac21050e463cdbb76913b8d5d4d848692d4db7c2b0c2a1c2a689d0"
+  }
+}

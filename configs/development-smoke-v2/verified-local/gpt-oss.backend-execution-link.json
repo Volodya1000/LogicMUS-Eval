@@ -1,0 +1,12 @@
+{
+  "run_id": "b4f8be3d-c960-47cd-a5d9-65d37d17d81a",
+  "instance_reference": "0kWN1iOiXCNQLzE3iq47zlRl",
+  "served_model_id": "openai/gpt-oss-20b",
+  "base_config_sha256": "5fe5052a6354472f934afe1e60a17318766539f586c3f17084bba9d485b8b6f9",
+  "observed_backend_before_sha256": "dda8e2f7ed1f749d93868172aa3b5f3f174a3e8a57bf40ac4ec8fa9e504f1364",
+  "execution_receipt_sha256": "39eee502d5df721b57321e4d5cee15b7d89d41ac6719ac92db315d327c54bab7",
+  "execution_freeze_sha256": "c49473e36417514239c40e208023e0d62c40723195189578fb84d6d6fb133045",
+  "smoke_evidence_sha256": "693f564f7d6077ea17eddcfc8e3104410f66ae4f2b71abd13e3aa15c7540e484",
+  "real_smoke": "passed",
+  "evidence_class": "automated observed metadata + production journal verification; no human attestation"
+}

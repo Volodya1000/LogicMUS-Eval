@@ -1,0 +1,34 @@
+{
+  "status": "candidate-method-pending-final-review",
+  "method": "native applyPromptTemplate RPC with raw full base/session config, structured and reasoning stack, omitBos true; exact installed llama.dll vocabulary tokenize add_special=true/parse_special=true",
+  "model_id": "google/gemma-4-e4b",
+  "base_config_sha256": "f87ca0c1a5056db5712196628c8e76ac31958414d4be2cf73b7de9dfa04214f1",
+  "native_special_flags": {
+    "bos": true,
+    "eos": false,
+    "sep": false
+  },
+  "generation_requests": 0,
+  "offline_seconds": 183.98062189999837,
+  "distinct_formatting_requests": 19456,
+  "strategies": {
+    "direct": {
+      "parent_max": 2127,
+      "parent_max_case_uid": "3546f1d67e3e750565a7c717242de1722a21b48519010b1eb38d0a6177f0efce",
+      "confirmation_max": 1584,
+      "original_smoke_max": 2008,
+      "parent_requests": 2048,
+      "confirmation_requests": 9728
+    },
+    "z3": {
+      "parent_max": 3322,
+      "parent_max_case_uid": "08d35ed901933e9472d44518454d09769751685e4679f278e9feb30bac5e3237",
+      "confirmation_max": 2463,
+      "original_smoke_max": 3207,
+      "parent_requests": 2048,
+      "confirmation_requests": 9728
+    }
+  },
+  "rendered_date_utc": "2026-11-28",
+  "context_tokens": 32768
+}

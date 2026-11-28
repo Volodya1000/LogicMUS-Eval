@@ -1,0 +1,33 @@
+{
+  "info": {
+    "type": "llm",
+    "modelKey": "qwen2.5-coder-14b-instruct",
+    "format": "gguf",
+    "displayName": "Qwen2.5 Coder 14B Instruct",
+    "path": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "sizeBytes": 8988110784,
+    "identifier": "qwen2.5-coder-14b-instruct",
+    "instanceReference": "Kf+xdSpjH4mJ3OSBu2IKtOVz",
+    "vision": false,
+    "trainedForToolUse": false,
+    "maxContextLength": 32768,
+    "contextLength": 12288,
+    "paramsString": "14B",
+    "architecture": "qwen2"
+  },
+  "active_llama_dll_modules": [
+    "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll"
+  ],
+  "load_config": {
+    "gpu": {
+      "ratio": 1.0,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 12288,
+    "flashAttention": true
+  },
+  "base_config_sha256": "bc738ccaa3938747c7a541a83aa375b5cc9fbd9ef0a816d42808269755004340",
+  "observed_at": "2026-11-28T16:02:11.728839+00:00",
+  "operator_checked": []
+}

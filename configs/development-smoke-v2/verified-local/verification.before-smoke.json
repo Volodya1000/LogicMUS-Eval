@@ -1,0 +1,12 @@
+{
+  "checked_at": "2026-11-28T15:58:00.109702+00:00",
+  "source_bundle_sha256": "a327cc5f58973ce3123e806dec6990f4444999822e3795d8e957497adb812d95",
+  "project_hooks": {
+    "command": "UV_NO_SYNC=true UV_OFFLINE=true .venv/Scripts/pre-commit.exe run --files [changed production/test files and plan]",
+    "status": "passed",
+    "stdout_sha256": "b5ca40985e8e2d794590d46cc98deb7f974fa27e0ddbc458f4de632434609331"
+  },
+  "full_suite": "project pytest hook passed; exact test collection saved separately",
+  "collection_sha256": "e0c2044c5c243256ef6ae7feecf46c7955e93834d8caa25bd00db9da7ea1522e",
+  "bootstrap_limitation": "Initial uv run attempted build dependency sync through unavailable proxy and failed before hooks; reused existing locked project environment with UV_NO_SYNC and UV_OFFLINE. No dependency/lock changes."
+}

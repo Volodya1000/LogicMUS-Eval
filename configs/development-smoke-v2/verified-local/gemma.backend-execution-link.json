@@ -1,0 +1,12 @@
+{
+  "run_id": "eb8aba70-38c1-457f-b103-e87c0a297b3e",
+  "instance_reference": "dPPS5COGNpk/rQ94g2Dg2IbJ",
+  "served_model_id": "google/gemma-4-e4b",
+  "base_config_sha256": "f87ca0c1a5056db5712196628c8e76ac31958414d4be2cf73b7de9dfa04214f1",
+  "observed_backend_before_sha256": "80c65e8e426a41ea9681f4553f2d312dbbdc80fb560e84794511c00ed7c483f8",
+  "execution_receipt_sha256": "64c652ea713e5b1e24d961dbb6c770fbbf32c248bc39baec987dff865ffd7d6a",
+  "execution_freeze_sha256": "c49473e36417514239c40e208023e0d62c40723195189578fb84d6d6fb133045",
+  "smoke_evidence_sha256": null,
+  "real_smoke": "not_verified",
+  "evidence_class": "automated observed metadata + production journal verification; no human attestation"
+}

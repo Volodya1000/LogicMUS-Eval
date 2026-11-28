@@ -1,0 +1,45 @@
+{
+  "model_file_sha256": "3f72a20a06f626c78e6c475ae07a64c88b2663149c0f6197b56bf7cf1f37585c",
+  "metadata": {
+    "evidence_class": "observed GGUF metadata/file identity",
+    "file_sha256": "3f72a20a06f626c78e6c475ae07a64c88b2663149c0f6197b56bf7cf1f37585c",
+    "tokenizer": {
+      "tokenizer.ggml.model": "gemma4",
+      "tokenizer.ggml.tokens": {
+        "array_type": 8,
+        "count": 262144,
+        "sha256": "5dee95a61b43a64fcd6e243f548755b04c3fb97c7939dc1143e0f5ab0d3cdf95"
+      },
+      "tokenizer.ggml.scores": {
+        "array_type": 6,
+        "count": 262144,
+        "sha256": "d20b88ad6705b95c54de5d8ac8008139b5a86b2d5a4fa0b4b813d676acbfd029"
+      },
+      "tokenizer.ggml.token_type": {
+        "array_type": 5,
+        "count": 262144,
+        "sha256": "2b25f7ac4130eb07c9d2bc7ad95d8409c4139ae5f21af079664f76c7c87ecfb0"
+      },
+      "tokenizer.ggml.merges": {
+        "array_type": 8,
+        "count": 514906,
+        "sha256": "33e5a4f6482eb5cddda32a03d5e34d89427ce5bca12b5e6ee0a5312e683cdf29"
+      },
+      "tokenizer.ggml.bos_token_id": 2,
+      "tokenizer.ggml.eos_token_id": 1,
+      "tokenizer.ggml.unknown_token_id": 3,
+      "tokenizer.ggml.padding_token_id": 0,
+      "tokenizer.ggml.mask_token_id": 4,
+      "tokenizer.ggml.add_space_prefix": false,
+      "tokenizer.ggml.add_bos_token": true
+    }
+  },
+  "native_llama_dll_sha256": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+  "native_special_flags": {
+    "bos": true,
+    "eos": false,
+    "sep": false
+  },
+  "native_add_special": true,
+  "native_parse_special": true
+}

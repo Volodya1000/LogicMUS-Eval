@@ -1,0 +1,16 @@
+{
+  "run_id": "b4f8be3d-c960-47cd-a5d9-65d37d17d81a",
+  "model": "gpt-oss",
+  "jobs": 22,
+  "attempted": 22,
+  "completed": 22,
+  "elapsed_seconds_including_runner": 721.7161181999982,
+  "journal_head": "dab2520bcf36734cf90622483fbff8d8b52bf0654435dceb0e672cfcc23fb36c",
+  "journal_events": 66,
+  "noop_resume_http_attempts": 0,
+  "noop_report_identical": true,
+  "noop_journal_identical": true,
+  "noop_outcomes_identical": true,
+  "real_smoke": "pending evidence checker",
+  "report_sha256": "f100ef4686bb36c14b8a854b6c9c141cff295327dca111160dbf1f175139b008"
+}

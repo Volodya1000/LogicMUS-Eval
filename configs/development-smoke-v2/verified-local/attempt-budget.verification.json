@@ -1,0 +1,8 @@
+{
+  "diagnostic_13_rejected": true,
+  "total_97_rejected": true,
+  "new_run_repeat_rejected": true,
+  "smoke_85_rejected": true,
+  "reservation_survives_reopen": true,
+  "actual_generation_requests": 0
+}

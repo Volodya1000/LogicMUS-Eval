@@ -1,0 +1,59 @@
+{
+  "hypothetical_requests": 58368,
+  "cases_per_model_strategy": 9728,
+  "hardware": "same machine, observed load configs, sequential model/strategy execution",
+  "measured_mean_http_seconds": {
+    "qwen/direct": 9.916230690908957,
+    "qwen/z3": 36.9050525181817,
+    "gemma/direct": 17.597053372726805,
+    "gemma/z3": 43.58984488181853,
+    "gpt-oss/direct": 14.039776609091364,
+    "gpt-oss/z3": 49.87837993636342
+  },
+  "linear_mean_days": 19.357632131393924,
+  "linear_median_scenario_days": 21.58553384888926,
+  "linear_each_scope_slowest_observed_scenario_days": 33.79550902814798,
+  "linear_runner_wall_days": 19.971524900148115,
+  "retries_hypothetical_max3_with_candidate_backoff_2_4_seconds": [
+    {
+      "retryable_failure_probability": 0.0,
+      "mean_attempts_max3": 1.0,
+      "equal_cost_attempts_days": 19.357632131393924,
+      "backoff_hours": 0.0,
+      "if_failures_consume_full_model_timeout_days": 19.357632131393924
+    },
+    {
+      "retryable_failure_probability": 0.05,
+      "mean_attempts_max3": 1.0525,
+      "equal_cost_attempts_days": 20.448218929403218,
+      "backoff_hours": 1.7834666666666668,
+      "if_failures_consume_full_model_timeout_days": 32.93894576071083
+    },
+    {
+      "retryable_failure_probability": 0.1,
+      "mean_attempts_max3": 1.11,
+      "equal_cost_attempts_days": 21.649104999180594,
+      "backoff_hours": 3.8912000000000004,
+      "if_failures_consume_full_model_timeout_days": 47.9953411659292
+    },
+    {
+      "retryable_failure_probability": 0.25,
+      "mean_attempts_max3": 1.3125,
+      "equal_cost_attempts_days": 25.91355883912119,
+      "backoff_hours": 12.16,
+      "if_failures_consume_full_model_timeout_days": 103.7951691293409
+    }
+  ],
+  "actual_pilot_retries": 0,
+  "infrastructure_blockers": {
+    "gemma": "Smoke transport/context/budget failure retained in outcomes"
+  },
+  "limitations": [
+    "11 infrastructure-only cases, deliberately including input maxima; not a representative scientific timing sample",
+    "same output length/latency distribution and fixed reasoning/budget assumptions",
+    "truncated responses measure capped attempts; latency with adequate future budgets is unknown",
+    "no GPU contention, no repeated model loading, no long-run thermal/failure model",
+    "runtime/tokenizer/confirmation files remain separately scoped; no scale authorization",
+    "tokenization elapsed time is excluded from inference timing"
+  ]
+}

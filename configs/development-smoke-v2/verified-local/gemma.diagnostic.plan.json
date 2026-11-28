@@ -1,0 +1,18 @@
+{
+  "analysis_version": "controlled-analysis-v1",
+  "purpose": "development",
+  "mode": "diagnostic",
+  "groups": [
+    {
+      "name": "infrastructure-smoke",
+      "run_ids": [
+        "eb8aba70-38c1-457f-b103-e87c0a297b3e"
+      ]
+    }
+  ],
+  "contrasts": [],
+  "intervals": {
+    "seed": 424242,
+    "repeats": 1000
+  }
+}

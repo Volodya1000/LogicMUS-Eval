@@ -1,0 +1,17 @@
+{
+  "command": [
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\.venv\\Scripts\\python.exe",
+    "-m",
+    "logicmus_eval.cli",
+    "check-development-smoke",
+    "--root",
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2",
+    "--config",
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\qwen.smoke.json",
+    "--evidence",
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\qwen.evidence.json"
+  ],
+  "exit_code": 0,
+  "stdout": "{\"real_smoke\": \"passed\", \"scope\": \"infrastructure-smoke-v1\", \"standalone_research_admission\": \"not_admitted\"}\n",
+  "stderr": ""
+}

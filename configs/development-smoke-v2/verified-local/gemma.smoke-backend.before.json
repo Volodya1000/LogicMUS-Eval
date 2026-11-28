@@ -1,0 +1,33 @@
+{
+  "info": {
+    "type": "llm",
+    "modelKey": "google/gemma-4-e4b",
+    "format": "gguf",
+    "displayName": "Gemma 4 E4B",
+    "path": "google/gemma-4-e4b",
+    "sizeBytes": 6326936720,
+    "identifier": "google/gemma-4-e4b",
+    "instanceReference": "dPPS5COGNpk/rQ94g2Dg2IbJ",
+    "vision": true,
+    "trainedForToolUse": true,
+    "maxContextLength": 131072,
+    "contextLength": 32768,
+    "paramsString": "7.5B",
+    "architecture": "gemma4"
+  },
+  "active_llama_dll_modules": [
+    "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll"
+  ],
+  "load_config": {
+    "gpu": {
+      "ratio": 1.0,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 32768,
+    "flashAttention": true
+  },
+  "base_config_sha256": "f87ca0c1a5056db5712196628c8e76ac31958414d4be2cf73b7de9dfa04214f1",
+  "observed_at": "2026-11-28T16:12:25.524575+00:00",
+  "operator_checked": []
+}

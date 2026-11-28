@@ -1,0 +1,8 @@
+{
+  "scope": "All new compact artifacts byte-identical to staged Git blobs; frozen evidence byte pins unchanged",
+  "new_compact_files_checked": 100,
+  "frozen_files_checked": 65,
+  "production_source_bundle_sha256": "a327cc5f58973ce3123e806dec6990f4444999822e3795d8e957497adb812d95",
+  "git_eol_policy": "verified-local/** -text",
+  "historical_eol_differences_preserved_separately": 6
+}

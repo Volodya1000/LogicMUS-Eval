@@ -1,0 +1,74 @@
+"""Explicit bounded diagnostics, never confirmation or real SmokeEvidence."""
+import argparse
+import hashlib
+import json
+import subprocess
+import sys
+import time
+from datetime import UTC, datetime
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(REPO), str(REPO / 'experiments/live-smoke-tools')]
+import lmstudio
+from logicmus_eval.infrastructure_smoke import load_admitted_cases
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import build_request, digest
+from logicmus_eval.runner.transport import request_completion, TransportError
+
+ROOT = REPO / 'configs/development-smoke-v2'
+OUT = ROOT / 'verified-local'
+RAW = ROOT / 'bundle/verified-local'
+
+def save(path, data):
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf8', newline='\n')
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('model', choices=['qwen','gemma','gpt-oss'])
+    parser.add_argument('--variant', choices=['production','text','schema-marker'],default='production')
+    args = parser.parse_args()
+    config = load_config(OUT / (args.model + '.diagnostic.json'))
+    _, cases = load_admitted_cases(Path(config.series_manifest))
+    # Registered development-only first pair in short Boolean/numeric cells.
+    cases = [c for c in cases if c.metadata['seed']==424242 and c.metadata['pair_index']==0 and c.metadata['total_rules']==8]
+    assert len(cases)==4 and all(c.metadata['purpose']=='development' for c in cases)
+    chosen = [next(c for c in cases if c.metadata['pattern_id']=='chain' and c.is_satisfiable),next(c for c in cases if c.metadata['pattern_id']=='math' and not c.is_satisfiable)]
+    with lmstudio.Client('127.0.0.1:1234') as client:
+        loaded = {m.identifier:m for m in client.llm.list_loaded()}
+        model = loaded[config.models[0].model_id]
+        observation = {'observed_at':datetime.now(UTC).isoformat(),'info':model.get_info().to_dict(),'load_config':model.get_load_config().to_dict(),'context_tokens':model.get_context_length(),'evidence_class':'observed','operator_checked':[]}
+        save(OUT / (args.model+'.loaded.json'),observation)
+        for strategy, case in zip(['direct','z3'],chosen):
+            request=build_request(config, config.models[0], strategy, case)
+            if args.variant=='text':request['body']['response_format']={'type':'text'}
+            if args.variant=='schema-marker':
+                request['body']['response_format']['json_schema']['schema']['description']='ACCOUNTING_MARKER_'+'x'*1024
+            chat=lmstudio.Chat.from_history({'messages':request['body']['messages']})
+            template=model.apply_prompt_template(chat)
+            template_tokens=len(model.tokenize(template))
+            # A safety bound for these diagnostics only, NOT exact HTTP accounting.
+            schema_bytes=len(json.dumps(request['body'].get('response_format',{}),ensure_ascii=False).encode())
+            safety=template_tokens + schema_bytes + 1024 + config.models[0].generation.max_tokens
+            assert safety < observation['context_tokens'], (safety,observation['context_tokens'])
+            log=RAW/'attempt-ledger.jsonl'
+            entries=[json.loads(line) for line in log.read_text().splitlines()] if log.exists() else []
+            intents=[e for e in entries if e['event']=='intent']
+            assert len(intents)<96 and sum(e['phase']=='diagnostic' for e in intents)<12
+            assert not any(e['model']==args.model and e['strategy']==strategy and e['variant']==args.variant for e in intents),'No repeated diagnostics'
+            number=len(intents)+1
+            intent={'event':'intent','phase':'diagnostic','attempt':number,'at':datetime.now(UTC).isoformat(),'model':args.model,'strategy':strategy,'variant':args.variant,'case_uid':case.case_id,'purpose':'development','request_sha256':digest(request),'config_sha256':hashlib.sha256((OUT/(args.model+'.diagnostic.json')).read_bytes()).hexdigest(),'template_only_tokens':template_tokens,'schema_utf8_bytes':schema_bytes,'safety_total_with_1024_reserve':safety,'context_tokens':observation['context_tokens']}
+            with log.open('a',encoding='utf8') as stream:
+                stream.write(json.dumps(intent)+'\n');stream.flush()
+            save(RAW/f'diagnostic-{number:02}.request.json',request)
+            save(RAW/f'diagnostic-{number:02}.template.json',{'template':template,'token_ids':list(model.tokenize(template))})
+            started=time.perf_counter();result=None;error=None
+            try:result=request_completion(**request,api_key=None)
+            except TransportError as exc:error={'type':exc.error_type.value,'response':exc.response}
+            elapsed=time.perf_counter()-started
+            event={'event':'result','attempt':number,'elapsed_seconds':elapsed,'response':result,'error':error}
+            save(RAW/f'diagnostic-{number:02}.response.json',event)
+            with log.open('a',encoding='utf8') as stream:stream.write(json.dumps({k:v for k,v in event.items() if k not in ['response']})+'\n')
+            print(json.dumps({'attempt':number,'model':args.model,'strategy':strategy,'variant':args.variant,'elapsed':elapsed,'usage':result.get('usage') if result else None,'finish_reason':result.get('choices',[{}])[0].get('finish_reason') if result else None,'error':error}),flush=True)
+
+if __name__=='__main__':main()

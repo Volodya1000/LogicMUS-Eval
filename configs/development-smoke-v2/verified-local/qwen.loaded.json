@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-11-28T15:29:03.129436+00:00",
+  "info": {
+    "type": "llm",
+    "modelKey": "qwen2.5-coder-14b-instruct",
+    "format": "gguf",
+    "displayName": "Qwen2.5 Coder 14B Instruct",
+    "path": "lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+    "sizeBytes": 8988110784,
+    "identifier": "qwen2.5-coder-14b-instruct",
+    "instanceReference": "u4lgpCJIB6qg9Z0IBimPqyku",
+    "vision": false,
+    "trainedForToolUse": false,
+    "maxContextLength": 32768,
+    "contextLength": 12288,
+    "paramsString": "14B",
+    "architecture": "qwen2"
+  },
+  "load_config": {
+    "gpu": {
+      "ratio": 1.0,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 12288,
+    "flashAttention": true
+  },
+  "context_tokens": 12288,
+  "evidence_class": "observed",
+  "operator_checked": []
+}

@@ -1,0 +1,16 @@
+{
+  "run_id": "eb8aba70-38c1-457f-b103-e87c0a297b3e",
+  "model": "gemma",
+  "jobs": 22,
+  "attempted": 22,
+  "completed": 22,
+  "elapsed_seconds_including_runner": 694.3099072999976,
+  "journal_head": "adfebefdc6fe716f6f008ad62bd1e359b11713774b8b221fd9fa9dcdd9b09a1a",
+  "journal_events": 66,
+  "noop_resume_http_attempts": 0,
+  "noop_report_identical": true,
+  "noop_journal_identical": true,
+  "noop_outcomes_identical": true,
+  "real_smoke": "pending evidence checker",
+  "report_sha256": "4833cdbbbd8924e76a7ae21ae9e30a718cc3aa74df5a861752af286818d69547"
+}

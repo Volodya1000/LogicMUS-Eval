@@ -1,0 +1,17 @@
+[
+  {
+    "ProcessId": 13276,
+    "ModuleName": "llm_engine.dll",
+    "FileName": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llm_engine.dll"
+  },
+  {
+    "ProcessId": 13276,
+    "ModuleName": "llama.dll",
+    "FileName": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll"
+  },
+  {
+    "ProcessId": 13276,
+    "ModuleName": "ggml_llamacpp.dll",
+    "FileName": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\ggml_llamacpp.dll"
+  }
+]

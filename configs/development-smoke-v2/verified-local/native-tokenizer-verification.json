@@ -1,0 +1,356 @@
+{
+  "method_version": "installed-native-vocabulary-tokenizer-v1",
+  "scope": "Exact installed native tokenizer applied to saved emitted prediction prompts. No inference context, weights, GPU allocations, network, or model generation.",
+  "dll_path": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll",
+  "dll_sha256": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+  "script_sha256": "5d107c081ea6c3b44945b395062fea24576ffcdc110354281f3c16f3736abebe",
+  "runtime_dependencies": {
+    "ggml-base.dll": "a742281d299a10973738602a25f8a335ea104aa68d812da473e4830aaed89b86",
+    "ggml-cpu.dll": "97600886d0f67c06f62378d4f111dd20d261c0412b19e49ec51645957da3b9cb",
+    "ggml-cuda.dll": "c5b6187b3afe4aa39efc0adfdc662c99211fae760ee3c29328cea15446cd4b1e",
+    "ggml_llamacpp.dll": "c6feee1ea8b2288f74366d06587d5f1fc5b5abc4874d4e7d1f02264d92e83327",
+    "libomp.dll": "0d6f110d0086696403e2a5fbce1558f5ff56bb1d402110ccf950e8f19209f2bf",
+    "llama-common.dll": "81caeab1e10e077abc30673dc867dff41810314e07afeda3425f7e9cf10ea1ba",
+    "llama-server-impl.dll": "bf52eb2accde6fcd57bce2451b16571320b9e62683a5c2c3fc3a13ba0792204e",
+    "llama.dll": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+    "llm_engine.dll": "16435436904872cc20f3191089e169ee905bd72930aac93c4cc9fc4f9406492e",
+    "lmstudiocore.dll": "00e8de6f12e659358c82aeed6abb8ab741cf206578f0eb84a267a9891368fd91",
+    "MSVCP140.dll": "59d325227321d52b9a523ea401ce6787a5d59f78229a0ff3a6f124e5d3445685",
+    "mtmd.dll": "d363d1342617d8e2b2fa8a61c20995396f5610e3df0e17918d07bb34b3cf3305",
+    "VCOMP140.dll": "294397f642d824a97de354aa625f993a97f34d729eca1bde56d5a897ae574888",
+    "VCRUNTIME140.dll": "eb1ee979bf02324712346e5bdbfc59c785388bc50d18cc2688aae4b0734915a0",
+    "VCRUNTIME140_1.dll": "a14b4a42a2c6df04d6d53a8340816023d953406f7f3d94996c7cab30c414ff63"
+  },
+  "abi_disassembly_path": "configs\\development-smoke-v2\\bundle\\verified-local\\native-tokenizer-abi.disassembly.txt",
+  "abi_disassembly_sha256": "252c7ec247d4e0f8bbcf4e715e8b7da1f746c745c9e386c91d9c3ede32a87673",
+  "abi": {
+    "platform": "Windows x64",
+    "default_params_rva": "0x12de70",
+    "model_params_bytes": 80,
+    "vocab_only_byte": "0x48",
+    "n_gpu_layers_byte": "0x10",
+    "tokenize_rva": "0x196e40",
+    "tokenize_args": [
+      "vocab",
+      "utf8_text",
+      "text_bytes",
+      "int32_tokens",
+      "capacity",
+      "add_special=true",
+      "parse_special=true"
+    ]
+  },
+  "models": [
+    {
+      "model": "qwen",
+      "model_path": "D:\\lmstudiomodels\\lmstudio-community\\Qwen2.5-Coder-14B-Instruct-GGUF\\Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+      "model_file_sha256": "ec8991dc0de5af1c40498adb827192971c4169e9f5ac785f9bde23137e2384e2",
+      "native_special_flags": {
+        "bos": false,
+        "eos": false,
+        "sep": false
+      },
+      "default_params_hex": "00000000000000000000000000000000ffffffff01000000ffffffff01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000",
+      "vocabulary_only_params_hex": "000000000000000000000000000000000000000001000000ffffffff01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100010000000000",
+      "comparisons": [
+        {
+          "trace_completed_pair": 1,
+          "prompt_sha256": "d72a733c48c6847687bfa66697ba56a6764a6829dd678cf1e26fdffc7abca6b4",
+          "native_prediction_tokens": 786,
+          "native_sdk_mode_tokens": 786,
+          "usage_prompt_tokens": 786,
+          "native_ids_sha256": "63f3972206556e1258d4a1c78078ae7d9701b72f59f1dafd28bdc145a6bb8259",
+          "native_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "matches_usage": true
+        },
+        {
+          "trace_completed_pair": 2,
+          "prompt_sha256": "9d8ac2ab57cf57c133e09b5694d8809d72d99caf17fe5c9f5a4e2e3b6d24a9a0",
+          "native_prediction_tokens": 1288,
+          "native_sdk_mode_tokens": 1288,
+          "usage_prompt_tokens": 1288,
+          "native_ids_sha256": "5368ba1b295ddb56b8b5680176da616d3ca6cdf7a48c5e11ea1a7f5cfcc5e1b9",
+          "native_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "matches_usage": true
+        },
+        {
+          "trace_completed_pair": 3,
+          "prompt_sha256": "d72a733c48c6847687bfa66697ba56a6764a6829dd678cf1e26fdffc7abca6b4",
+          "native_prediction_tokens": 786,
+          "native_sdk_mode_tokens": 786,
+          "usage_prompt_tokens": 786,
+          "native_ids_sha256": "63f3972206556e1258d4a1c78078ae7d9701b72f59f1dafd28bdc145a6bb8259",
+          "native_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "matches_usage": true
+        },
+        {
+          "trace_completed_pair": 4,
+          "prompt_sha256": "9d8ac2ab57cf57c133e09b5694d8809d72d99caf17fe5c9f5a4e2e3b6d24a9a0",
+          "native_prediction_tokens": 1288,
+          "native_sdk_mode_tokens": 1288,
+          "usage_prompt_tokens": 1288,
+          "native_ids_sha256": "5368ba1b295ddb56b8b5680176da616d3ca6cdf7a48c5e11ea1a7f5cfcc5e1b9",
+          "native_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            151644,
+            8948,
+            198,
+            2610,
+            525,
+            1207,
+            16948,
+            11
+          ],
+          "matches_usage": true
+        }
+      ]
+    },
+    {
+      "model": "gemma",
+      "model_path": "D:\\lmstudiomodels\\lmstudio-community\\gemma-4-E4B-it-GGUF\\gemma-4-E4B-it-Q4_K_M.gguf",
+      "model_file_sha256": "3f72a20a06f626c78e6c475ae07a64c88b2663149c0f6197b56bf7cf1f37585c",
+      "native_special_flags": {
+        "bos": true,
+        "eos": false,
+        "sep": false
+      },
+      "default_params_hex": "00000000000000000000000000000000ffffffff01000000ffffffff01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000",
+      "vocabulary_only_params_hex": "000000000000000000000000000000000000000001000000ffffffff01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100010000000000",
+      "comparisons": [
+        {
+          "trace_completed_pair": 5,
+          "prompt_sha256": "1a573bda9e9d9edfcbd406e14e01536ae8c7d72dabbe03d6ed6b093b6ea5eb9c",
+          "native_prediction_tokens": 670,
+          "native_sdk_mode_tokens": 669,
+          "usage_prompt_tokens": 670,
+          "native_ids_sha256": "68983f5b69ff29e286ef5341c859715f515f28f67507883f5b0f1538026bbe0c",
+          "native_first_ids": [
+            2,
+            105,
+            2364,
+            107,
+            207162,
+            2192,
+            64634,
+            92852
+          ],
+          "sdk_mode_first_ids": [
+            105,
+            2364,
+            107,
+            207162,
+            2192,
+            64634,
+            92852,
+            43394
+          ],
+          "matches_usage": true
+        },
+        {
+          "trace_completed_pair": 6,
+          "prompt_sha256": "d4c9e4ded40e7e6b962ca9d104f80040cc719cd4b69e5d943bbe9d1d40ae5fbe",
+          "native_prediction_tokens": 1118,
+          "native_sdk_mode_tokens": 1117,
+          "usage_prompt_tokens": 1118,
+          "native_ids_sha256": "f3033e98dbc0e8fa6c7f9d0f4de582d51f0105e77e4a61ce63165dc56df33287",
+          "native_first_ids": [
+            2,
+            105,
+            2364,
+            107,
+            207162,
+            2192,
+            64634,
+            236827
+          ],
+          "sdk_mode_first_ids": [
+            105,
+            2364,
+            107,
+            207162,
+            2192,
+            64634,
+            236827,
+            1311
+          ],
+          "matches_usage": true
+        }
+      ]
+    },
+    {
+      "model": "gpt-oss",
+      "model_path": "D:\\lmstudiomodels\\lmstudio-community\\gpt-oss-20b-GGUF\\gpt-oss-20b-MXFP4.gguf",
+      "model_file_sha256": "65d06d31a3977d553cb3af137b5c26b5f1e9297a6aaa29ae7caa98788cde53ab",
+      "native_special_flags": {
+        "bos": false,
+        "eos": false,
+        "sep": false
+      },
+      "default_params_hex": "00000000000000000000000000000000ffffffff01000000ffffffff01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000010000000000",
+      "vocabulary_only_params_hex": "000000000000000000000000000000000000000001000000ffffffff01000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100010000000000",
+      "comparisons": [
+        {
+          "trace_completed_pair": 7,
+          "prompt_sha256": "826c822114bf1b16b2af280e0cc1e51d1a699c10cc9de99b532d2aed7cdc23db",
+          "native_prediction_tokens": 702,
+          "native_sdk_mode_tokens": 702,
+          "usage_prompt_tokens": 702,
+          "native_ids_sha256": "81ee233355069ec3b39367503af7e025ff86493c9c1a7c99e0dfc0b2fcaf1dd4",
+          "native_first_ids": [
+            200006,
+            17360,
+            200008,
+            3575,
+            553,
+            17554,
+            162016,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            200006,
+            17360,
+            200008,
+            3575,
+            553,
+            17554,
+            162016,
+            11
+          ],
+          "matches_usage": true
+        },
+        {
+          "trace_completed_pair": 8,
+          "prompt_sha256": "e732b39c843a3916f2fac7828b4f022681ef495a6f7a7b9bfb3733dba68be13b",
+          "native_prediction_tokens": 1104,
+          "native_sdk_mode_tokens": 1104,
+          "usage_prompt_tokens": 1104,
+          "native_ids_sha256": "a94df4a4a09f96608fefa240542728dad35d61aa8f22e139411f23935e2b2210",
+          "native_first_ids": [
+            200006,
+            17360,
+            200008,
+            3575,
+            553,
+            17554,
+            162016,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            200006,
+            17360,
+            200008,
+            3575,
+            553,
+            17554,
+            162016,
+            11
+          ],
+          "matches_usage": true
+        },
+        {
+          "trace_completed_pair": 9,
+          "prompt_sha256": "826c822114bf1b16b2af280e0cc1e51d1a699c10cc9de99b532d2aed7cdc23db",
+          "native_prediction_tokens": 702,
+          "native_sdk_mode_tokens": 702,
+          "usage_prompt_tokens": 702,
+          "native_ids_sha256": "81ee233355069ec3b39367503af7e025ff86493c9c1a7c99e0dfc0b2fcaf1dd4",
+          "native_first_ids": [
+            200006,
+            17360,
+            200008,
+            3575,
+            553,
+            17554,
+            162016,
+            11
+          ],
+          "sdk_mode_first_ids": [
+            200006,
+            17360,
+            200008,
+            3575,
+            553,
+            17554,
+            162016,
+            11
+          ],
+          "matches_usage": true
+        }
+      ]
+    }
+  ],
+  "limitation": "This verifies native tokenization and special-token handling; HTTP-to-prompt replay equivalence and runtime/model/date/config immutability must be established separately.",
+  "vendor_dependencies": {
+    "cublas64_12.dll": "9513540e4ec4c51ee9e7304138c2cc255c29a8c181f9e80c38efa25738becd99",
+    "cublasLt64_12.dll": "b199d1ff892a81b7fd3d57ba1781549609b41500b36008fef326038393ad46c7",
+    "cudart64_12.dll": "c2c9a9c22a9bcba90e261825968836787b331038047a26770cffb7a583c28344"
+  },
+  "engine_tokenize_disassembly_path": "configs/development-smoke-v2/bundle/verified-local/native-engine-tokenize-call.disassembly.txt",
+  "engine_tokenize_disassembly_sha256": "ecc81a201d0ee8763e155565963c195ba29a46862e869d8332254131a69aa874"
+}

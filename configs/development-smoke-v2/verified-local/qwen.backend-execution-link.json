@@ -1,0 +1,12 @@
+{
+  "run_id": "615e1917-c9b3-419b-a09b-2e55439fdb18",
+  "instance_reference": "Kf+xdSpjH4mJ3OSBu2IKtOVz",
+  "served_model_id": "qwen2.5-coder-14b-instruct",
+  "base_config_sha256": "bc738ccaa3938747c7a541a83aa375b5cc9fbd9ef0a816d42808269755004340",
+  "observed_backend_before_sha256": "38a49ecadc1e07bbe3af3826d14e451d95c5904a04ffa1ca010924d83c0f0799",
+  "execution_receipt_sha256": "5d283fa0f1160ad3946a76362b3fd42ca6f8cf442562ab339b7827491c923adf",
+  "execution_freeze_sha256": "c49473e36417514239c40e208023e0d62c40723195189578fb84d6d6fb133045",
+  "smoke_evidence_sha256": "d6e625c21bd71adf0b072a67ca1e5e3c90bb5c432fb9f2edc295b114a18b7442",
+  "real_smoke": "passed",
+  "evidence_class": "automated observed metadata + production journal verification; no human attestation"
+}

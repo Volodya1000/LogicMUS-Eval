@@ -1,0 +1,96 @@
+"""Offline native-formatting investigation; status remains candidate method."""
+import asyncio
+import hashlib
+import json
+import sys
+import time
+from datetime import UTC,datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path[:0]=[str(REPO),str(REPO/'experiments/live-smoke-tools')]
+sys.path.insert(0,str(REPO/'experiments'))
+import lmstudio
+from lmstudio._sdk_models import LlmRpcApplyPromptTemplateParameter,LlmRpcGetLoadConfigParameter
+from lmstudio.json_api import _model_spec_to_api_dict
+from native_tokenizer_probe import NativeTokenizer, MODELS
+from logicmus_eval.infrastructure_smoke import load_admitted_cases
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import build_request,digest
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'verified-local'
+RAW=ROOT/'bundle/verified-local'
+
+def save(path,data):
+    path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+
+def stack_fields(body,name):
+    assert set(body)<= {'model','messages','response_format','max_tokens','temperature','top_p','seed','reasoning_effort','stream'}
+    assert len(body['messages'])==1 and body['messages'][0]['role']=='user' and isinstance(body['messages'][0]['content'],str)
+    assert body['response_format']['type']=='json_schema' and body['stream'] is False
+    fields=[{'key':'llm.prediction.structured','value':{'type':'json','jsonSchema':body['response_format']['json_schema']['schema']}},{'key':'llm.prediction.maxPredictedTokens','value':{'checked':True,'value':body['max_tokens']}},{'key':'llm.prediction.temperature','value':body['temperature']}]
+    if 'top_p' in body:fields.append({'key':'llm.prediction.topPSampling','value':{'checked':True,'value':body['top_p']}})
+    if 'seed' in body:fields.append({'key':'llm.prediction.seed','value':{'checked':True,'value':body['seed']}})
+    if name=='gemma':fields.append({'key':'ext.virtualModel.customField.google.gemma4E4b.enableThinking','value':False})
+    if name=='gpt-oss':fields.append({'key':'ext.virtualModel.customField.openai.gptOss20b.reasoningEffort','value':'low'})
+    return fields
+
+async def main(name):
+    import faulthandler
+    print('loading config',name,flush=True)
+    cfg=load_config(OUT/(name+'.diagnostic.json'))
+    _,parent=load_admitted_cases(Path(cfg.series_manifest))
+    print('parent loaded',len(parent),flush=True)
+    confirmed=load_config(REPO/'releases/confirmation-v2-candidate'/f'{name}.proposed.json')
+    _,confirmation=load_admitted_cases(Path(confirmed.series_manifest))
+    print('confirmation loaded',len(confirmation),flush=True)
+    old=set(json.loads((ROOT/'selection.json').read_text())['case_uids'])
+    rows={};cache={};started=time.perf_counter();sem=asyncio.Semaphore(12)
+    native=NativeTokenizer(MODELS[name])
+    async with lmstudio.AsyncClient('127.0.0.1:1234') as client:
+        models=await client.llm.list_loaded();m=next(m for m in models if m.identifier==cfg.models[0].model_id)
+        print('loaded model',m.identifier,flush=True)
+        observed={'captured_at':datetime.now(UTC).isoformat(),'info':(await m.get_info()).to_dict(),'load_config':(await m.get_load_config()).to_dict(),'context_tokens':await m.get_context_length(),'evidence_class':'observed','operator_checked':[]}
+        save(OUT/(name+'.measurement-loaded.json'),observed)
+        base_params=LlmRpcGetLoadConfigParameter._from_api_dict({'specifier':_model_spec_to_api_dict(m.identifier)})
+        base=await m._session.remote_call('getBasePredictionConfig',base_params)
+        save(OUT/(name+'.effective-base-config.json'),base)
+        async def measure(request):
+            async with sem:
+                chat=lmstudio.Chat.from_history({'messages':request['body']['messages']})
+                params=LlmRpcApplyPromptTemplateParameter._from_api_dict({'specifier':_model_spec_to_api_dict(m.identifier),'history':chat._get_history_for_prediction(),'predictionConfigStack':{'layers':[{'layerName':'serverSession','config':base},{'layerName':'httpServerRequestOverride','config':{'fields':stack_fields(request['body'],name)}}]},'opts':{'omitBosToken':True,'omitEosToken':False}})
+                rendered=(await m._session.remote_call('applyPromptTemplate',params))['formatted']
+                tokens=native.tokenize(rendered,add_special=True,parse_special=True)
+                return {'input_tokens':len(tokens),'formatted_sha256':hashlib.sha256(rendered.encode()).hexdigest(),'tokens_sha256':digest(tokens)}
+        for dataset,cases in [('development-parent',parent),('confirmation-offline-only',confirmation)]:
+            jobs=[]
+            for strategy in ['direct','z3']:
+                for case in cases:
+                    request=build_request(cfg,cfg.models[0],strategy,case)
+                    key=digest({'messages':request['body']['messages'],'response_format':request['body']['response_format']})
+                    jobs.append((strategy,case,request,key))
+            new={key:request for _,_,request,key in jobs if key not in cache}
+            items=list(new.items())
+            for offset in range(0,len(items),120):
+                chunk=items[offset:offset+120]
+                values=await asyncio.gather(*(measure(request) for _,request in chunk))
+                cache.update({key:value for (key,_),value in zip(chunk,values)})
+                if offset%1200==0:print(name,dataset,offset,'/',len(items),flush=True)
+            rows[dataset]=[{'case_uid':case.case_id,'strategy':strategy,'request_sha256':digest(request),**cache[key]} for strategy,case,request,key in jobs]
+            with (RAW/(name+'.'+dataset+'.candidate-counts.jsonl')).open('w',encoding='utf8') as stream:
+                for row in rows[dataset]:stream.write(json.dumps(row)+'\n')
+        assert base==await m._session.remote_call('getBasePredictionConfig',base_params),'Backend base/session configuration changed'
+        summary={'status':'candidate-method-pending-final-review','method':'native applyPromptTemplate RPC with raw full base/session config, structured and reasoning stack, omitBos true; exact installed llama.dll vocabulary tokenize add_special=true/parse_special=true','model_id':m.identifier,'base_config_sha256':digest(base),'native_special_flags':native.special_flags,'generation_requests':0,'offline_seconds':time.perf_counter()-started,'distinct_formatting_requests':len(cache),'strategies':{}}
+        for strategy in ['direct','z3']:
+            p=[r for r in rows['development-parent'] if r['strategy']==strategy];c=[r for r in rows['confirmation-offline-only'] if r['strategy']==strategy]
+            maximum=min(p,key=lambda r:(-r['input_tokens'],r['case_uid']))
+            summary['strategies'][strategy]={'parent_max':maximum['input_tokens'],'parent_max_case_uid':maximum['case_uid'],'confirmation_max':max(r['input_tokens'] for r in c),'original_smoke_max':max(r['input_tokens'] for r in p if r['case_uid'] in old),'parent_requests':len(p),'confirmation_requests':len(c)}
+            assert max(maximum['input_tokens'],max(r['input_tokens'] for r in c))+cfg.models[0].generation.max_tokens < observed['context_tokens'],'Context reserve insufficient'
+        summary['rendered_date_utc']=datetime.now(UTC).date().isoformat()
+        summary['context_tokens']=observed['context_tokens']
+        save(OUT/(name+'.candidate-counts.summary.json'),summary)
+        print(json.dumps(summary),flush=True)
+    native.close()
+
+if __name__=='__main__':asyncio.run(main(sys.argv[1]))

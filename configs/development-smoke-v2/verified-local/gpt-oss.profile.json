@@ -1,0 +1,28 @@
+{
+  "captured_at": "2026-11-28T15:41:48.264034+00:00",
+  "evidence_class": "observed",
+  "model_id": "openai/gpt-oss-20b",
+  "local_file": "D:\\lmstudiomodels\\lmstudio-community\\gpt-oss-20b-GGUF\\gpt-oss-20b-MXFP4.gguf",
+  "file_bytes": 12109565632,
+  "file_sha256": "65d06d31a3977d553cb3af137b5c26b5f1e9297a6aaa29ae7caa98788cde53ab",
+  "quantization": {
+    "bits": 4,
+    "name": "MXFP4"
+  },
+  "gguf_metadata_sha256": "5f5cf14d27ab7a1b95694c67f0ee4b0761554fee4e45e345601b55e4b576daee",
+  "indexed_virtual_definition": {},
+  "loaded_observation_file": "gpt-oss.loaded.json",
+  "explicit_generation": {
+    "max_tokens": 8192,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": null,
+    "reasoning_effort": "low"
+  },
+  "operator_checked": [],
+  "unknown": [
+    "independent upstream commit of vendor native runtime",
+    "all omitted effective defaults unless traced",
+    "native HTTP input method pending verification"
+  ]
+}

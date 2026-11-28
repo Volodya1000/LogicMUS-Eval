@@ -1,0 +1,16 @@
+{
+  "run_id": "615e1917-c9b3-419b-a09b-2e55439fdb18",
+  "model": "qwen",
+  "jobs": 22,
+  "attempted": 22,
+  "completed": 22,
+  "elapsed_seconds_including_runner": 535.139400600001,
+  "journal_head": "1823b824c82abba190abe0186ff7b4634dcff463226f7277739f40b15582a2e2",
+  "journal_events": 66,
+  "noop_resume_http_attempts": 0,
+  "noop_report_identical": true,
+  "noop_journal_identical": true,
+  "noop_outcomes_identical": true,
+  "real_smoke": "pending evidence checker",
+  "report_sha256": "27369c8ae53304e280b01bb352ae55477589d0a140b92de5e0a93a85158f1ac4"
+}
