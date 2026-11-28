@@ -1,0 +1,92 @@
+{
+  "models": [
+    {
+      "logical_run": "qwen",
+      "label": "Qwen2.5-Coder-14B",
+      "repository": {
+        "source": "scripts/run_full_grid.py:93-109",
+        "load_key": "qwen2.5-coder-14b-instruct",
+        "historical_backend": "LM Studio",
+        "historical_context_default": 4096
+      },
+      "operator_supplied": {},
+      "observed": {},
+      "unknown": [
+        "current served ID",
+        "revision or exact model file and checksum",
+        "quantization",
+        "active context",
+        "active backend version",
+        "chat template",
+        "tokenizer",
+        "parameter support",
+        "token counts",
+        "latency and throughput",
+        "real smoke"
+      ],
+      "request_model_id": {
+        "value": "qwen2.5-coder-14b-instruct",
+        "status": "candidate from historical load_key; not observed HTTP ID"
+      }
+    },
+    {
+      "logical_run": "gemma",
+      "label": "Gemma-4-E4B",
+      "repository": {
+        "source": "scripts/run_full_grid.py:93-109",
+        "load_key": "google/gemma-4-e4b",
+        "historical_backend": "LM Studio",
+        "historical_context_default": 4096
+      },
+      "operator_supplied": {},
+      "observed": {},
+      "unknown": [
+        "current served ID",
+        "revision or exact model file and checksum",
+        "quantization",
+        "active context",
+        "active backend version",
+        "chat template",
+        "tokenizer",
+        "parameter support",
+        "token counts",
+        "latency and throughput",
+        "real smoke"
+      ],
+      "request_model_id": {
+        "value": "google/gemma-4-e4b",
+        "status": "candidate from historical load_key; not observed HTTP ID"
+      }
+    },
+    {
+      "logical_run": "gpt-oss",
+      "label": "GPT-OSS-20B",
+      "repository": {
+        "source": "scripts/run_full_grid.py:93-109",
+        "load_key": "openai/gpt-oss-20b",
+        "historical_backend": "LM Studio",
+        "historical_context_default": 4096
+      },
+      "operator_supplied": {},
+      "observed": {},
+      "unknown": [
+        "current served ID",
+        "revision or exact model file and checksum",
+        "quantization",
+        "active context",
+        "active backend version",
+        "chat template",
+        "tokenizer",
+        "parameter support",
+        "token counts",
+        "latency and throughput",
+        "real smoke"
+      ],
+      "request_model_id": {
+        "value": "openai/gpt-oss-20b",
+        "status": "candidate from historical load_key; not observed HTTP ID"
+      }
+    }
+  ],
+  "policy": "No server echo of all parameters required. Distinguish saved request, operator backend verification and actually observed response fields. No credentials are stored."
+}

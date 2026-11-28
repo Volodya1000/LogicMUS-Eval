@@ -1,0 +1,18 @@
+{
+  "source_archive_files_verified": 135,
+  "git_restoration_files_verified": 135,
+  "git_line_ending_restorations": 69,
+  "data_bundle_files_verified": 40,
+  "all_hashes_match": true,
+  "release_gates_preserved": true,
+  "copied_gates": {
+    "scientific_plan_frozen": "passed",
+    "datasets_admitted": "blocked",
+    "configurations_complete": "blocked",
+    "backend_model_verified": "not_verified",
+    "real_smoke": "not_verified",
+    "analysis_bound": "not_verified",
+    "ready_for_initialization": "blocked",
+    "ready_for_scale": "blocked"
+  }
+}

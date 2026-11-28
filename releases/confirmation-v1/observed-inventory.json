@@ -1,0 +1,221 @@
+{
+  "cells": 19,
+  "cases": 9728,
+  "independent_families": 2816,
+  "sat_unsat_pairs": 4864,
+  "development_confirmation_overlap": 0,
+  "construction_and_stable_insertion_consistent": true,
+  "combined_exact_cell_copy": true,
+  "requests_if_admitted": 58368,
+  "per_cell": [
+    {
+      "cell_id": "b5b18d4355f746d64676a0d1124ad7d9688ccf900b8f0edf6689c201b6613f98",
+      "series_id": "noise-chain",
+      "series_kind": "noise_sweep",
+      "pattern_id": "chain",
+      "k": 4,
+      "n": 8,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "7eb45c096509f83ea4817c6c8507ea38c1cd4b1e264d32b2d7782a12fdc1a63f",
+      "series_id": "noise-chain",
+      "series_kind": "noise_sweep",
+      "pattern_id": "chain",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "9dc83d1bee86dc9e3ddbdac1385b68cebd1a74acf61fcfc7d6e39175853fe50a",
+      "series_id": "noise-chain",
+      "series_kind": "noise_sweep",
+      "pattern_id": "chain",
+      "k": 4,
+      "n": 32,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "52e55b5b30744c86cd04001c8ba179ccd269fc6224d7c8670cd8745bd1625ce3",
+      "series_id": "noise-math",
+      "series_kind": "noise_sweep",
+      "pattern_id": "math",
+      "k": 4,
+      "n": 8,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "97076e74cea5f40d9cefd6be7d2e7b95b2b96c19c29c07d37979d3c56702e8a4",
+      "series_id": "noise-math",
+      "series_kind": "noise_sweep",
+      "pattern_id": "math",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "ccacaff65485ed433857b23ac44c779acfd1a5d65692d0694503ad359d52d11c",
+      "series_id": "noise-math",
+      "series_kind": "noise_sweep",
+      "pattern_id": "math",
+      "k": 4,
+      "n": 32,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "95839e1d47a993635e7703257114ca3cab6fdbd187bde00550bf1b4220046307",
+      "series_id": "size-chain",
+      "series_kind": "k_sweep",
+      "pattern_id": "chain",
+      "k": 3,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "96ede194d6640c493dcdcd5755b4a2e9e2eda5d19658f7fc7bc3deafd51b65fe",
+      "series_id": "size-chain",
+      "series_kind": "k_sweep",
+      "pattern_id": "chain",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "9f0ce4b2224fcc33bacee81afd572743867e08f8e189c989190f66c9f4e5edaa",
+      "series_id": "size-chain",
+      "series_kind": "k_sweep",
+      "pattern_id": "chain",
+      "k": 6,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "d2a3a7c34b8107d3db4791009c631e26b9422335d2b49583a64abace1e5156cb",
+      "series_id": "size-math",
+      "series_kind": "k_sweep",
+      "pattern_id": "math",
+      "k": 2,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "0c419a71af42d529428f0c9f343fc3b784aeb0b0dab0021c0d99dc30aea58a2a",
+      "series_id": "size-math",
+      "series_kind": "k_sweep",
+      "pattern_id": "math",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "8f9056869b6e43b114a952b48993ae0ac41bd8bbc8c7015de7f9aef6facc5799",
+      "series_id": "size-math",
+      "series_kind": "k_sweep",
+      "pattern_id": "math",
+      "k": 6,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "9ed109c1358a88a48c27b89ce0623c1389c337c5ca73a302e2cb2a3302a921ce",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "chain",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "7fd052b7e2fb9e45d9128588da53d21e5e374ce27320a3b78072b2d769f2b437",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "coverage",
+      "k": 3,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "b77f70ab4fb037b56c412b3d2868c3e63212bbe93486eec753dfe3149bc1d72a",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "direct",
+      "k": 2,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "e482c11c2996e1e35d02783003dbda3132049f19b26fbac324fd45aecf505bae",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "fork",
+      "k": 3,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "6e531eefff94dbc88a3406b78a36b4cd00dd224d7240e0f5d956a16fa6dd3744",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "idem",
+      "k": 3,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "c84960f392df0856cda730e41843b863f366ee097a75d1c9434ddf07eed9b728",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "math",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    },
+    {
+      "cell_id": "1b24c8b9e74c2ce83f457e1139442fbefbea97f42d61e4ca3f08c0df5972b2fd",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "merge",
+      "k": 4,
+      "n": 16,
+      "families": 256,
+      "sat": 256,
+      "unsat": 256
+    }
+  ]
+}

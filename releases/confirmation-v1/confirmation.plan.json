@@ -1,0 +1,137 @@
+{
+  "protocol_version": "controlled-v1",
+  "purpose": "confirmation",
+  "seeds": [
+    2718281,
+    3141593
+  ],
+  "pairs_per_seed": 128,
+  "series": [
+    {
+      "series_id": "noise-chain",
+      "kind": "noise_sweep",
+      "patterns": [
+        {
+          "pattern_id": "chain",
+          "k_values": [
+            4
+          ]
+        }
+      ],
+      "n_values": [
+        8,
+        16,
+        32
+      ],
+      "ordering": "stable_insertion"
+    },
+    {
+      "series_id": "noise-math",
+      "kind": "noise_sweep",
+      "patterns": [
+        {
+          "pattern_id": "math",
+          "k_values": [
+            4
+          ]
+        }
+      ],
+      "n_values": [
+        8,
+        16,
+        32
+      ],
+      "ordering": "stable_insertion"
+    },
+    {
+      "series_id": "size-chain",
+      "kind": "k_sweep",
+      "patterns": [
+        {
+          "pattern_id": "chain",
+          "k_values": [
+            3,
+            4,
+            6
+          ]
+        }
+      ],
+      "n_values": [
+        16
+      ],
+      "ordering": "stable_insertion"
+    },
+    {
+      "series_id": "size-math",
+      "kind": "k_sweep",
+      "patterns": [
+        {
+          "pattern_id": "math",
+          "k_values": [
+            2,
+            4,
+            6
+          ]
+        }
+      ],
+      "n_values": [
+        16
+      ],
+      "ordering": "stable_insertion"
+    },
+    {
+      "series_id": "topologies",
+      "kind": "topology_panel",
+      "patterns": [
+        {
+          "pattern_id": "chain",
+          "k_values": [
+            4
+          ]
+        },
+        {
+          "pattern_id": "coverage",
+          "k_values": [
+            3
+          ]
+        },
+        {
+          "pattern_id": "direct",
+          "k_values": [
+            2
+          ]
+        },
+        {
+          "pattern_id": "fork",
+          "k_values": [
+            3
+          ]
+        },
+        {
+          "pattern_id": "idem",
+          "k_values": [
+            3
+          ]
+        },
+        {
+          "pattern_id": "math",
+          "k_values": [
+            4
+          ]
+        },
+        {
+          "pattern_id": "merge",
+          "k_values": [
+            4
+          ]
+        }
+      ],
+      "n_values": [
+        16
+      ],
+      "ordering": "stable_insertion"
+    }
+  ],
+  "split_rule": "even_development_odd_confirmation",
+  "leakage_threshold": 0.55
+}

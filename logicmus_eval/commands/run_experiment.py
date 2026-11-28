@@ -13,6 +13,24 @@ from logicmus_eval.runner.preflight import preflight
 from logicmus_eval.runner.state import replay
 
 
+def initialize(
+    config: Annotated[Path, typer.Option("--config")],
+    run_dir: Annotated[Path, typer.Option("--run-dir")],
+) -> None:
+    """OFFLINE: save UUID/inventory and empty journal; perform no model HTTP."""
+    # pylint: disable=import-outside-toplevel
+    from logicmus_eval.runner.execution import (
+        initialize_run,  # pylint: disable=import-outside-toplevel
+    )
+
+    try:
+        manifest = initialize_run(load_config(config), run_dir)
+        typer.echo(f"Initialized without HTTP: {manifest['payload']['run_id']}")
+    except (ValueError, OSError) as error:
+        typer.echo(f"Initialization failed: {error}", err=True)
+        raise typer.Exit(1) from error
+
+
 def check(
     config: Annotated[Path | None, typer.Option("--config")] = None,
     run_dir: Annotated[Path | None, typer.Option("--run-dir")] = None,

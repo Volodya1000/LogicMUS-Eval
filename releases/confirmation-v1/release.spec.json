@@ -1,0 +1,21 @@
+{
+  "release_version": "confirmation-release-v1",
+  "release_id": "confirmation-v1",
+  "base_commit": "71f5e7b1d7528f4e081b825a91a30a4289a184f5",
+  "plan": "confirmation.plan.json",
+  "protocol": "protocol.md",
+  "analysis_template": "analysis.template.json",
+  "configs": {
+    "qwen": "qwen.run.json",
+    "gemma": "gemma.run.json",
+    "gpt-oss": "gpt-oss.run.json"
+  },
+  "development_plans": [
+    "development.reference.json"
+  ],
+  "smoke_plan": "development.smoke.plan.json",
+  "supporting_files": [
+    "model-facts.json",
+    "inventory.before-preparation.json"
+  ]
+}
