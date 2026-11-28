@@ -1,7 +1,6 @@
 """Offline inventory and identity. No client import, endpoint access or generation."""
 
 import hashlib
-import json
 import platform
 from dataclasses import dataclass
 from importlib.metadata import version
@@ -12,17 +11,16 @@ from logicmus_eval.evaluation.strategies import (
     DirectEvaluationStrategy,
     Z3TranslationEvaluationStrategy,
 )
-from logicmus_eval.experiment_plan import ExperimentPlan, canonical_json, content_id
+from logicmus_eval.experiment_plan import canonical_json, content_id
 from logicmus_eval.hashing import compute_file_sha256, compute_source_bundle_hash
+from logicmus_eval.infrastructure_smoke import load_admitted_cases, validate_selection
 from logicmus_eval.models.evaluation import (
     METRIC_DEFINITIONS_VERSION,
     REPORT_SCHEMA_VERSION,
     Z3_EXECUTION_PROTOCOL_VERSION,
-    ExperimentProvenance,
 )
 from logicmus_eval.models.llm import DirectReasoningResponse, LLMToZ3Response
 from logicmus_eval.models.test_case import LogicTestCase
-from logicmus_eval.release import assert_controlled_series_approved
 from logicmus_eval.runner.config import ModelConfig, RunConfig
 
 
@@ -90,39 +88,16 @@ def preflight(config: RunConfig) -> Preflight:  # pylint: disable=too-many-local
     path = Path(config.series_manifest).resolve()
     if path.name != "series.manifest.json":
         raise ValueError("Expected series.manifest.json")
-    manifest = assert_controlled_series_approved(path)
-    plan = ExperimentPlan.model_validate(manifest.plan)
-    combined_path = path.parent / str(manifest.combined_path)
-    cases: list[LogicTestCase] = []
-    for item in manifest.cells:
-        dataset = path.parent / str(item.dataset_path)
-        rows = [
-            LogicTestCase.model_validate_json(line)
-            for line in dataset.read_text(encoding="utf-8").splitlines()
-            if line.strip()
-        ]
-        expected = {record["case_id"] for record in item.smt_checks}
-        if len(rows) != len(expected) or {row.case_id for row in rows} != expected:
-            raise ValueError("Dataset cases differ from admitted cell evidence")
-        for row in rows:
-            provenance = ExperimentProvenance.model_validate(row.metadata)
-            if (
-                provenance.case_uid != row.case_id
-                or provenance.cell_id != item.cell.cell_id
-                or provenance.total_rules != item.cell.n
-                or row.mus_size != item.cell.k
-            ):
-                raise ValueError("Dataset case provenance differs from plan")
-        cases.extend(rows)
-    combined = [
-        json.loads(line)
-        for line in combined_path.read_text(encoding="utf-8").splitlines()
-        if line.strip()
-    ]
-    if combined != [case.model_dump(mode="json") for case in cases]:
-        raise ValueError("Combined dataset differs from planned cell contents")
-    if len({case.case_id for case in cases}) != len(cases):
-        raise ValueError("Duplicate case_uid")
+    plan, cases = load_admitted_cases(path)
+    selection = None
+    if config.infrastructure_smoke is not None:
+        selection_path = Path(config.infrastructure_smoke.selection_path).resolve()
+        config.infrastructure_smoke.selection_path = str(selection_path)
+        selection = validate_selection(path, selection_path, cases)
+        if selection.selection_sha256 != config.infrastructure_smoke.selection_sha256:
+            raise ValueError("Smoke selection hash differs from pinned configuration")
+        selected_ids = set(selection.case_uids)
+        cases = [case for case in cases if case.case_id in selected_ids]
     payload = config.model_dump(mode="json")
     payload["series_manifest"] = str(path)
     identity = {
@@ -140,6 +115,10 @@ def preflight(config: RunConfig) -> Preflight:  # pylint: disable=too-many-local
             **{name: version(name) for name in ("pydantic", "z3-solver")},
         },
     }
+    identity["generation_protocol"] = plan.protocol_version
+    if selection is not None:
+        identity["runner_protocol"] = "infrastructure-smoke-v1"
+        identity["smoke_selection"] = selection.model_dump(mode="json")
     requests = [
         (case, model, strategy, build_request(config, model, strategy, case))
         for model in config.models

@@ -24,3 +24,4 @@ data/**/dataset_v1_frozen.manifest.json
 # Large confirmation artifacts stay local; compact receipts are versioned.
 releases/*/bundle/
 releases/*/*.tar.gz
+configs/development-smoke-v2/bundle/

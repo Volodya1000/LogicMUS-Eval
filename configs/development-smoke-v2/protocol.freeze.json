@@ -1,0 +1,19 @@
+{
+  "contract_version": "development-infrastructure-contract-v1",
+  "base_commit": "348c9d09d0e7b3b9b8699dbe1471cfedcb7b2003",
+  "frozen_before_preparation": true,
+  "files": {
+    "parent.plan.json": "584457dc6c1c85609b3f983a4595c0219f1a2ba07f42298a6c1e4ad971d9ba69",
+    "selection.rule.json": "9229de5bf42038bc2c4cbb54ebb19d4bf2df7b00216901f55eee815c80dcadc2"
+  },
+  "families_per_cell": 256,
+  "parent_cells": 4,
+  "parent_cases": 2048,
+  "smoke_cases": 8,
+  "requests_per_model": 16,
+  "models": 3,
+  "planned_requests": 48,
+  "automatic_max_attempts": 1,
+  "parent_preparation_attempts": 1,
+  "on_failed_parent": "block; no automatic seed, size or selection changes"
+}

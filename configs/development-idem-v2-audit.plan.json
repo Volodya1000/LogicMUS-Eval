@@ -1,0 +1,17 @@
+{
+  "protocol_version": "controlled-v2",
+  "purpose": "development",
+  "seeds": [42, 44, 424242, 424244],
+  "pairs_per_seed": 1,
+  "series": [
+    {
+      "series_id": "idem-regression",
+      "kind": "noise_sweep",
+      "patterns": [{"pattern_id": "idem", "k_values": [3]}],
+      "n_values": [3, 16, 48],
+      "ordering": "stable_insertion"
+    }
+  ],
+  "split_rule": "even_development_odd_confirmation",
+  "leakage_threshold": 0.55
+}

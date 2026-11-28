@@ -1,5 +1,11 @@
 # Resumable controlled execution
 
+The explicit `infrastructure-smoke-v1` mode uses a pinned deterministic selection
+from a fully admitted development parent. It runs only that selection, revalidates
+the complete parent on start/resume, and binds purpose/selection to run identity.
+See [development smoke](development-infrastructure-smoke.md). Its results require
+diagnostic analysis and cannot serve as confirmation dataset admission.
+
 This runner executes an **already admitted** PR #5 `series.manifest.json`. It never
 generates, repairs, samples or substitutes datasets. It shares the existing strategies,
 response parser, `build_case_report`, metrics version 3 and process-isolated Z3 protocol

@@ -59,7 +59,7 @@ class ExperimentProvenance(BaseModel):
 
     model_config = ConfigDict(strict=True)
 
-    protocol_version: Literal["controlled-v1"]
+    protocol_version: Literal["controlled-v1", "controlled-v2"]
     cell_id: str
     family_id: str
     pair_id: str

@@ -10,6 +10,7 @@ from logicmus_eval.run_pipeline import STRATEGY_REGISTRY
 from logicmus_eval.templates import PREDICATE_POOL
 
 PROTOCOL_VERSION = "controlled-v1"
+ControlledProtocol = Literal["controlled-v1", "controlled-v2"]
 PATTERNS = {strategy.name: strategy for strategy in STRATEGY_REGISTRY}
 SCALABLE_PATTERNS = frozenset({"chain", "math"})
 
@@ -93,18 +94,32 @@ class ExperimentCell(PlanModel):
     n: int
 
 
-def family_identity(pattern_id: str, k: int, seed: int, index: int) -> str:
-    return content_id(PROTOCOL_VERSION, pattern_id, k, seed, index)
+def family_identity(
+    pattern_id: str,
+    k: int,
+    seed: int,
+    index: int,
+    protocol_version: ControlledProtocol = "controlled-v1",
+) -> str:
+    return content_id(protocol_version, pattern_id, k, seed, index)
 
 
-def case_identity(cell: ExperimentCell, seed: int, index: int, is_sat: bool) -> str:
+def case_identity(
+    cell: ExperimentCell,
+    seed: int,
+    index: int,
+    is_sat: bool,
+    protocol_version: ControlledProtocol = "controlled-v1",
+) -> str:
     return content_id(
-        cell.cell_id, family_identity(cell.pattern_id, cell.k, seed, index), is_sat
+        cell.cell_id,
+        family_identity(cell.pattern_id, cell.k, seed, index, protocol_version),
+        is_sat,
     )
 
 
 class ExperimentPlan(PlanModel):
-    protocol_version: Literal["controlled-v1"]
+    protocol_version: ControlledProtocol
     purpose: Literal["development", "confirmation"]
     seeds: list[int] = Field(min_length=1)
     pairs_per_seed: int = Field(ge=1)
@@ -146,7 +161,7 @@ class ExperimentPlan(PlanModel):
         return [
             ExperimentCell(
                 cell_id=content_id(
-                    PROTOCOL_VERSION,
+                    self.protocol_version,
                     self.purpose,
                     series["series_id"],
                     series["kind"],

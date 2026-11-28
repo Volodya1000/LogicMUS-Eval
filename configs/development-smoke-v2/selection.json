@@ -1,0 +1,24 @@
+{
+  "selection_version": "infrastructure-smoke-v1",
+  "purpose": "infrastructure-smoke",
+  "parent_manifest_sha256": "a1cc6e25e9f17b36c13ba37c8bd856b61b7b9d570a5573126907102148221f04",
+  "parent_plan_sha256": "42b204198788060635c7890caf6900f90ec651e28f4389f1aae2650539d735d8",
+  "rule": {
+    "selection_version": "infrastructure-smoke-v1",
+    "seed": 424242,
+    "pair_index": 0
+  },
+  "case_uids": [
+    "f996977c10787009f05e1935516896c1a339a41fcc095446a659e929bf58b739",
+    "c73b5502e270fe73cdb7c8cc77e3c87af72ed8820a7041a6a0c7637bf887e984",
+    "5ef01b01d5027c4063830872db75aa1ea0bd0e36d6afd2937d88e005b2957ff3",
+    "9e9ddfa6a3f679730cf3b19c574d7289c7b0a0a5e7f7e31884c7c5a0aa2e48c9",
+    "64cc08b4bc8bc196348b3b55323b4acc7f47a76a2755171a3221bdf93b27f3aa",
+    "271080d2770532f581989d76e897f0a136a998a2aa79071cd5a4d8c461a265f3",
+    "2eae78098e001d0a347bcea63c97428d9eba059a083461be911ea71df95a9210",
+    "0fd821fccd9f6ad05a9f52f9763e3c4081e11fba813a0439cffbea558c56f20f"
+  ],
+  "standalone_research_admission": "not_admitted",
+  "leakage_status": "not_applicable_infrastructure_subset",
+  "selection_sha256": "6f496bff7b3a21ea12a38691d889ec63e0dcc222d1eab8735475ac30a95da53f"
+}

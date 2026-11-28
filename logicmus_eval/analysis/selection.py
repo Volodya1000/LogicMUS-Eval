@@ -78,6 +78,12 @@ def _group_filter(
 def group_rows(
     snapshots: list[Snapshot], plan: AnalysisPlan, diagnostics: AnalysisDiagnostics
 ) -> list[AnalysisRow]:
+    protocols = {
+        snapshot.payload.identity.generation_protocol or "controlled-v1"
+        for snapshot in snapshots
+    }
+    if len(protocols) > 1:
+        raise ValueError("Different generation protocols require separate analyses")
     runs = {snapshot.payload.run_id: snapshot for snapshot in snapshots}
     requested = {run_id for group in plan.groups for run_id in group.run_ids}
     if requested != runs.keys():
@@ -90,6 +96,15 @@ def group_rows(
         selected = []
         for run_id in dict.fromkeys(group.run_ids):
             snapshot = runs[run_id]
+            if snapshot.payload.identity.config.infrastructure_smoke is not None:
+                if plan.mode != "diagnostic":
+                    raise ValueError(
+                        "Infrastructure smoke requires diagnostic analysis"
+                    )
+                if plan.purpose != "development":
+                    raise ValueError(
+                        "Infrastructure smoke requires development analysis"
+                    )
             if plan.mode == "primary":
                 if snapshot.payload.identity.config.diagnostic_parent_run is not None:
                     raise ValueError("Diagnostic rerun cannot enter primary analysis")

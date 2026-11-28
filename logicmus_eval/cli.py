@@ -13,7 +13,9 @@ from logicmus_eval.commands.confirmation import initialize as initialize_release
 from logicmus_eval.commands.confirmation import resume as resume_release
 from logicmus_eval.commands.evaluate import evaluate
 from logicmus_eval.commands.generate import generate
+from logicmus_eval.commands.infrastructure_smoke import check_smoke_evidence
 from logicmus_eval.commands.prepare_experiment import prepare
+from logicmus_eval.commands.prepare_smoke import prepare_smoke
 from logicmus_eval.commands.run_experiment import check, initialize, resume, start
 
 app = typer.Typer(
@@ -26,6 +28,8 @@ app = typer.Typer(
 app.command(name="generate")(generate)
 app.command(name="evaluate")(evaluate)
 app.command(name="prepare-experiment")(prepare)
+app.command(name="prepare-infrastructure-smoke")(prepare_smoke)
+app.command(name="check-development-smoke")(check_smoke_evidence)
 app.command(name="experiment-preflight")(check)
 app.command(name="experiment-start")(start)
 app.command(name="experiment-initialize")(initialize)

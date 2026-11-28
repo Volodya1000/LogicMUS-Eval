@@ -5,14 +5,13 @@ import random
 from logicmus_eval.controlled_rendering import present_rules
 from logicmus_eval.experiment_plan import (
     PATTERNS,
-    PROTOCOL_VERSION,
     ExperimentCell,
     ExperimentPlan,
     case_identity,
     content_id,
     family_identity,
 )
-from logicmus_eval.models.rules import BaseRule, NoiseRule
+from logicmus_eval.models.rules import BaseRule, FactRule, NoiseRule
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.templates import PREDICATE_POOL, get_template_pack_id
 
@@ -35,7 +34,9 @@ def _generate_pair(
     plan: ExperimentPlan, cell: ExperimentCell, seed: int, index: int
 ) -> tuple[LogicTestCase, LogicTestCase]:
     strategy = PATTERNS[cell.pattern_id]()
-    family_id = family_identity(cell.pattern_id, cell.k, seed, index)
+    family_id = family_identity(
+        cell.pattern_id, cell.k, seed, index, plan.protocol_version
+    )
     pair_id = content_id(family_id, cell.n)
     construction_count = strategy.core_rule_count(cell.k)
     core_var_count = strategy.core_variable_count(cell.k)
@@ -73,15 +74,26 @@ def _generate_pair(
         )
 
     cases = []
+    idem_v2 = plan.protocol_version == "controlled-v2" and cell.pattern_id == "idem"
     for is_sat in (True, False):
         result = strategy.generate_pattern(
             mus_size=cell.k,
-            is_satisfiable=is_sat,
+            is_satisfiable=False if idem_v2 else is_sat,
             core_variables=aliases[:core_var_count],
             predicate_mapping=mapping,
             pack_id=pack,
             rng=random.Random(content_id(family_id, "construction")),
         )
+        if idem_v2:
+            # Both sides retain a -> b and a -> not b. The sole edit is a's
+            # fact polarity, before the same bijective presentation transform.
+            fact = result.core_rules[0]
+            if not isinstance(fact, FactRule):
+                raise RuntimeError("Idem v2 construction must begin with a fact")
+            fact.polarity = not is_sat
+            result.expected_mus_ids = (
+                [] if is_sat else [rule.id for rule in result.core_rules]
+            )
         if len(result.core_rules) != construction_count:
             raise RuntimeError("Unexpected construction size")
         core_ids = {
@@ -102,7 +114,7 @@ def _generate_pair(
         display_ids = {uid: rid for rid, uid in correspondence.items()}
         for rule in all_rules:
             rule.id = display_ids[rule.id]
-        case_uid = case_identity(cell, seed, index, is_sat)
+        case_uid = case_identity(cell, seed, index, is_sat, plan.protocol_version)
         cases.append(
             LogicTestCase(
                 case_id=case_uid,
@@ -113,8 +125,8 @@ def _generate_pair(
                 rules=all_rules,
                 mus_expected=[display_ids[uid] for uid in expected],
                 metadata={
-                    "protocol_version": PROTOCOL_VERSION,
-                    "generator_version": "controlled-v1",
+                    "protocol_version": plan.protocol_version,
+                    "generator_version": plan.protocol_version,
                     "cell_id": cell.cell_id,
                     "family_id": family_id,
                     "pair_id": pair_id,

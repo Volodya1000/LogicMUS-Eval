@@ -39,6 +39,8 @@ def contracts(
             raise ValueError("Series bundle must stay within the portable release root")
         if config.diagnostic_parent_run is not None:
             raise ValueError("Confirmation release cannot select diagnostic reruns")
+        if config.infrastructure_smoke is not None:
+            raise ValueError("Infrastructure smoke cannot establish datasets_admitted")
     template = AnalysisPlan.model_validate_json(
         local(root, spec.analysis_template).read_text(encoding="utf-8")
     )
@@ -91,6 +93,16 @@ def freeze_release(root: Path) -> dict[str, Any]:
     )
     if smoke.purpose != "development":
         raise ValueError("Smoke must use development families")
+    if spec.smoke_selection_rule is not None:
+        from logicmus_eval.infrastructure_smoke import (  # pylint: disable=import-outside-toplevel
+            SelectionRule,
+        )
+
+        rule = SelectionRule.model_validate_json(
+            local(root, spec.smoke_selection_rule).read_text(encoding="utf-8")
+        )
+        if rule.seed not in smoke.seeds or rule.pair_index >= smoke.pairs_per_seed:
+            raise ValueError("Smoke selection is outside the frozen development parent")
     if plan.purpose == "confirmation" and families(plan) & (
         dev_families | families(smoke)
     ):
@@ -105,6 +117,8 @@ def freeze_release(root: Path) -> dict[str, Any]:
         *spec.development_plans,
         *spec.supporting_files,
     }
+    if spec.smoke_selection_rule is not None:
+        paths.add(spec.smoke_selection_rule)
     files = {p: compute_file_sha256(local(root, p)) for p in sorted(paths)}
     payload = {
         "release_id": spec.release_id,
@@ -124,7 +138,7 @@ def freeze_release(root: Path) -> dict[str, Any]:
         "contrast_pairs": validate_template(plan, configs, template),
         "development_confirmation_overlap": 0,
         "protocols": {
-            "generation": "controlled-v1",
+            "generation": plan.protocol_version,
             "runner": "controlled-run-v1",
             "analysis": "controlled-analysis-v1",
         },

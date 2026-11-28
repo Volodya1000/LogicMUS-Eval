@@ -1,9 +1,17 @@
 """Validated saved-run contracts, independent of inference and current sources."""
 
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, TypeAdapter
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    TypeAdapter,
+    model_validator,
+)
 
+from logicmus_eval.infrastructure_smoke import InfrastructureSelection
 from logicmus_eval.models.evaluation import EvaluationCaseReport
 from logicmus_eval.runner.config import (
     GenerationConfig,
@@ -58,6 +66,36 @@ class SavedIdentity(SavedModel):
     z3_execution_protocol_version: str
     runtime: RuntimeVersions
     requests_sha256: str
+    generation_protocol: Literal["controlled-v1", "controlled-v2"] | None = None
+    smoke_selection: InfrastructureSelection | None = None
+
+    @model_validator(mode="after")
+    def smoke_scope(self) -> Self:
+        configured = self.config.infrastructure_smoke
+        selected = self.smoke_selection
+        scopes = (
+            self.runner_protocol == "infrastructure-smoke-v1",
+            configured is not None,
+            selected is not None,
+        )
+        if any(scopes) and not all(scopes):
+            raise ValueError(
+                "Smoke identity requires matching protocol, config and selection"
+            )
+        if (
+            configured is not None
+            and selected is not None
+            and not all(
+                (
+                    configured.selection_sha256 == selected.selection_sha256,
+                    self.series_manifest_sha256 == selected.parent_manifest_sha256,
+                    self.plan_sha256 == selected.parent_plan_sha256,
+                    self.generation_protocol is not None,
+                )
+            )
+        ):
+            raise ValueError("Smoke identity differs from pinned parent/selection")
+        return self
 
 
 class SavedPayload(SavedModel):
@@ -160,6 +198,7 @@ class StartedEvent(Event):
     backoff_before_seconds: float
     request: SavedRequest
     request_sha256: str
+    invocation_origin: Literal["http-adapter", "injected-completion"] | None = None
 
 
 class ResponseEvent(Event):

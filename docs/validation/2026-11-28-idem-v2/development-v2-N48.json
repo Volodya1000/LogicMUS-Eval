@@ -1,0 +1,56 @@
+{
+  "audit_version": "duplicate-cues-v1",
+  "protocol_versions": [
+    "controlled-v2"
+  ],
+  "provenance": {
+    "plan_sha256": "4b44c682f4d634a43129ad943cc95f2bcb677ac80981d76b87770c78b2ff8950",
+    "cell": {
+      "cell_id": "f995e8e88d5ad2cee6c4aaa7dc28aa47cc592c616106c8d8b344fbe68cd21528",
+      "series_id": "idem-regression",
+      "series_kind": "noise_sweep",
+      "pattern_id": "idem",
+      "k": 3,
+      "n": 48
+    }
+  },
+  "baselines": {
+    "exact_text": {
+      "prediction_rule": "duplicate -> SAT; otherwise UNSAT",
+      "confusion_axes": "rows=gold; columns=prediction",
+      "confusion_matrix": {
+        "SAT": {
+          "SAT": 0,
+          "UNSAT": 4
+        },
+        "UNSAT": {
+          "SAT": 0,
+          "UNSAT": 4
+        }
+      },
+      "cases": 8,
+      "independent_families": 4,
+      "accuracy": 0.5,
+      "balanced_accuracy": 0.5
+    },
+    "canonical_formula": {
+      "prediction_rule": "duplicate -> SAT; otherwise UNSAT",
+      "confusion_axes": "rows=gold; columns=prediction",
+      "confusion_matrix": {
+        "SAT": {
+          "SAT": 0,
+          "UNSAT": 4
+        },
+        "UNSAT": {
+          "SAT": 0,
+          "UNSAT": 4
+        }
+      },
+      "cases": 8,
+      "independent_families": 4,
+      "accuracy": 0.5,
+      "balanced_accuracy": 0.5
+    }
+  },
+  "limitation": "These fixed cues do not measure all leakage and do not explain TF-IDF scores."
+}

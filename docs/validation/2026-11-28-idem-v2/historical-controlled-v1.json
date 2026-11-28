@@ -1,0 +1,56 @@
+{
+  "audit_version": "duplicate-cues-v1",
+  "protocol_versions": [
+    "controlled-v1"
+  ],
+  "provenance": {
+    "plan_sha256": "c49c4ee2a88c5884f9af02651871b86ba0e6665665b4fc40650130d842a7e452",
+    "cell": {
+      "cell_id": "6e531eefff94dbc88a3406b78a36b4cd00dd224d7240e0f5d956a16fa6dd3744",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "idem",
+      "k": 3,
+      "n": 16
+    }
+  },
+  "baselines": {
+    "exact_text": {
+      "prediction_rule": "duplicate -> SAT; otherwise UNSAT",
+      "confusion_axes": "rows=gold; columns=prediction",
+      "confusion_matrix": {
+        "SAT": {
+          "SAT": 83,
+          "UNSAT": 173
+        },
+        "UNSAT": {
+          "SAT": 0,
+          "UNSAT": 256
+        }
+      },
+      "cases": 512,
+      "independent_families": 256,
+      "accuracy": 0.662109375,
+      "balanced_accuracy": 0.662109375
+    },
+    "canonical_formula": {
+      "prediction_rule": "duplicate -> SAT; otherwise UNSAT",
+      "confusion_axes": "rows=gold; columns=prediction",
+      "confusion_matrix": {
+        "SAT": {
+          "SAT": 256,
+          "UNSAT": 0
+        },
+        "UNSAT": {
+          "SAT": 0,
+          "UNSAT": 256
+        }
+      },
+      "cases": 512,
+      "independent_families": 256,
+      "accuracy": 1.0,
+      "balanced_accuracy": 1.0
+    }
+  },
+  "limitation": "These fixed cues do not measure all leakage and do not explain TF-IDF scores."
+}

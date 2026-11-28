@@ -111,6 +111,9 @@ class JournalExtractor:
         self.state = state
         self.journal = journal
         self.completion = completion or request_completion
+        self.invocation_origin = (
+            "http-adapter" if completion is None else "injected-completion"
+        )
         self.trace: dict[str, Any] = {}
 
     def _event(self, kind: str, **fields: Any) -> dict[str, Any]:
@@ -166,6 +169,7 @@ class JournalExtractor:
                 backoff_before_seconds=delay,
                 request=self.job.request,
                 request_sha256=digest(self.job.request),
+                invocation_origin=self.invocation_origin,
             )
             current = {**event, "status": "started"}
             self.state.attempts.append(current)
