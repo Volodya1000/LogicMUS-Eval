@@ -8,10 +8,13 @@ Usage:
 import typer
 
 from logicmus_eval.commands.analyze import controlled
+from logicmus_eval.commands.confirmation import check_release, freeze, seal
+from logicmus_eval.commands.confirmation import initialize as initialize_release
+from logicmus_eval.commands.confirmation import resume as resume_release
 from logicmus_eval.commands.evaluate import evaluate
 from logicmus_eval.commands.generate import generate
 from logicmus_eval.commands.prepare_experiment import prepare
-from logicmus_eval.commands.run_experiment import check, resume, start
+from logicmus_eval.commands.run_experiment import check, initialize, resume, start
 
 app = typer.Typer(
     name="logicmus-eval",
@@ -25,8 +28,14 @@ app.command(name="evaluate")(evaluate)
 app.command(name="prepare-experiment")(prepare)
 app.command(name="experiment-preflight")(check)
 app.command(name="experiment-start")(start)
+app.command(name="experiment-initialize")(initialize)
 app.command(name="experiment-resume")(resume)
 app.command(name="analyze-controlled")(controlled)
+app.command(name="release-freeze")(freeze)
+app.command(name="release-check")(check_release)
+app.command(name="release-seal-preparation")(seal)
+app.command(name="release-initialize")(initialize_release)
+app.command(name="release-resume")(resume_release)
 
 if __name__ == "__main__":
     app()

@@ -1,0 +1,47 @@
+{
+  "protocol_version": "controlled-v1",
+  "purpose": "development",
+  "seeds": [
+    424242,
+    424244
+  ],
+  "pairs_per_seed": 1,
+  "series": [
+    {
+      "series_id": "smoke-chain",
+      "kind": "noise_sweep",
+      "patterns": [
+        {
+          "pattern_id": "chain",
+          "k_values": [
+            4
+          ]
+        }
+      ],
+      "n_values": [
+        8,
+        48
+      ],
+      "ordering": "stable_insertion"
+    },
+    {
+      "series_id": "smoke-math",
+      "kind": "noise_sweep",
+      "patterns": [
+        {
+          "pattern_id": "math",
+          "k_values": [
+            4
+          ]
+        }
+      ],
+      "n_values": [
+        8,
+        48
+      ],
+      "ordering": "stable_insertion"
+    }
+  ],
+  "split_rule": "even_development_odd_confirmation",
+  "leakage_threshold": 0.55
+}

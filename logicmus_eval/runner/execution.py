@@ -192,9 +192,8 @@ def _execute(  # pylint: disable=too-many-arguments,too-many-positional-argument
     return report
 
 
-def new_run(
-    config: RunConfig, root: Path, *, completion: Completion | None = None
-) -> EvaluationSummary:
+def initialize_run(config: RunConfig, root: Path) -> dict[str, Any]:
+    """Persist UUID, exact inventory and empty journal, without importing inference."""
     ready = preflight(config)
     root = root.resolve()
     root.mkdir(parents=True, exist_ok=False)
@@ -219,7 +218,14 @@ def new_run(
     with RunJournal(root, manifest["manifest_sha256"], create=True) as journal:
         atomic_json(root / "run.manifest.json", manifest)
         _snapshot(root, manifest, ready, journal)
-        return _execute(root, manifest, ready, journal, "halt", completion)
+    return manifest
+
+
+def new_run(
+    config: RunConfig, root: Path, *, completion: Completion | None = None
+) -> EvaluationSummary:
+    initialize_run(config, root)
+    return resume_run(root, completion=completion)
 
 
 def resume_run(

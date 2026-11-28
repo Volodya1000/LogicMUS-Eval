@@ -20,3 +20,7 @@ data/**/dataset_v1_frozen.manifest.json
 
 .mypy_cache/
 .ruff_cache/
+
+# Large confirmation artifacts stay local; compact receipts are versioned.
+releases/*/bundle/
+releases/*/*.tar.gz
