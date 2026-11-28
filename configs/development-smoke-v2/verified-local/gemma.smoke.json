@@ -1,0 +1,45 @@
+{
+  "config_version": "controlled-run-v1",
+  "series_manifest": "../bundle/parent/series.manifest.json",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "api_key_env": null,
+  "models": [
+    {
+      "model_id": "google/gemma-4-e4b",
+      "expected_profile": {
+        "served_model_id": "google/gemma-4-e4b",
+        "revision": null,
+        "model_file": "D:\\lmstudiomodels\\lmstudio-community\\gemma-4-E4B-it-GGUF\\gemma-4-E4B-it-Q4_K_M.gguf; sha256=3f72a20a06f626c78e6c475ae07a64c88b2663149c0f6197b56bf7cf1f37585c",
+        "quantization": "Q4_K_M",
+        "context_tokens": 32768,
+        "backend_version": "LM Studio 0.4.13+1; llama.cpp CUDA12 2.83.0; llama.dll sha256=daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+        "chat_template": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\gemma.effective-chat-template.json",
+        "tokenizer": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\gemma.effective-tokenizer.json"
+      },
+      "generation": {
+        "max_tokens": 4096,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": null,
+        "reasoning_effort": "none"
+      }
+    }
+  ],
+  "strategies": [
+    "direct",
+    "z3"
+  ],
+  "request_timeout_seconds": 360.0,
+  "retry": {
+    "max_attempts": 1,
+    "initial_delay_seconds": 0.0,
+    "max_delay_seconds": 0.0,
+    "transient_errors": []
+  },
+  "z3_timeout_seconds": 5.0,
+  "diagnostic_parent_run": null,
+  "infrastructure_smoke": {
+    "selection_path": "selection.v2.json",
+    "selection_sha256": "63b07505d8bca88e1b630db604656b9df61a370f97dcd5adae998185930621da"
+  }
+}

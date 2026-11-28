@@ -1,0 +1,28 @@
+{
+  "captured_at": "2026-11-28T15:40:53.416908+00:00",
+  "evidence_class": "observed",
+  "model_id": "qwen2.5-coder-14b-instruct",
+  "local_file": "D:\\lmstudiomodels\\lmstudio-community\\Qwen2.5-Coder-14B-Instruct-GGUF\\Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+  "file_bytes": 8988110784,
+  "file_sha256": "ec8991dc0de5af1c40498adb827192971c4169e9f5ac785f9bde23137e2384e2",
+  "quantization": {
+    "bits": 4,
+    "name": "Q4_K_M"
+  },
+  "gguf_metadata_sha256": "868c7dafdc9d3f53fbe9332e0101fce07397c6f68a12011e8f6eebe3d10ce726",
+  "indexed_virtual_definition": {},
+  "loaded_observation_file": "qwen.loaded.json",
+  "explicit_generation": {
+    "max_tokens": 2048,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": null,
+    "reasoning_effort": null
+  },
+  "operator_checked": [],
+  "unknown": [
+    "independent upstream commit of vendor native runtime",
+    "all omitted effective defaults unless traced",
+    "native HTTP input method pending verification"
+  ]
+}

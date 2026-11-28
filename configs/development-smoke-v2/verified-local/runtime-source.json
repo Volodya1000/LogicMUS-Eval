@@ -1,0 +1,8 @@
+{
+  "source_bundle_sha256": "a327cc5f58973ce3123e806dec6990f4444999822e3795d8e957497adb812d95",
+  "archive_sha256": "7bffbac2f20d8c4aae82fac5159aa45bfbfa9f6478faca997f519134f72a8aed",
+  "historical_candidate_source_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+  "historical_parent_source_sha256": "595ec63f07cac8bedf9b3cf610a2f593ae6a1ce2925878f3a97bb811c2eb7f06",
+  "versions_equal": false,
+  "scope": "new runner source; historical receipts unmodified, no candidate handoff/release admission"
+}

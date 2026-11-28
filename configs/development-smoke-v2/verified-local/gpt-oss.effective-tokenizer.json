@@ -1,0 +1,37 @@
+{
+  "model_file_sha256": "65d06d31a3977d553cb3af137b5c26b5f1e9297a6aaa29ae7caa98788cde53ab",
+  "metadata": {
+    "evidence_class": "observed GGUF metadata/file identity",
+    "file_sha256": "65d06d31a3977d553cb3af137b5c26b5f1e9297a6aaa29ae7caa98788cde53ab",
+    "tokenizer": {
+      "tokenizer.ggml.model": "gpt2",
+      "tokenizer.ggml.pre": "gpt-4o",
+      "tokenizer.ggml.tokens": {
+        "array_type": 8,
+        "count": 201088,
+        "sha256": "98402a3ad2a0979810c08dc428a48750ca55e5e24c060eda1d4808de08930dae"
+      },
+      "tokenizer.ggml.token_type": {
+        "array_type": 5,
+        "count": 201088,
+        "sha256": "41d10e53ae50356dd62386b39873cbbe61d20a1f7fd8701bbf10bd6a48c0f884"
+      },
+      "tokenizer.ggml.merges": {
+        "array_type": 8,
+        "count": 446189,
+        "sha256": "cdaf794f068ca88764bc5b47738dde0e7edc8203eab3cc2c02679fe681235c76"
+      },
+      "tokenizer.ggml.bos_token_id": 199998,
+      "tokenizer.ggml.eos_token_id": 200002,
+      "tokenizer.ggml.padding_token_id": 199999
+    }
+  },
+  "native_llama_dll_sha256": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+  "native_special_flags": {
+    "bos": false,
+    "eos": false,
+    "sep": false
+  },
+  "native_add_special": true,
+  "native_parse_special": true
+}

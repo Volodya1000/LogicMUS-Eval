@@ -1,0 +1,98 @@
+{
+  "method": "verified installed HTTP path; all requests offline; independent maxima comparisons",
+  "selection_cases": 11,
+  "confirmation_generation_attempts": 0,
+  "conditions": "new development-calibrated prospective configs; candidate files unchanged; final release/handoff remains separate",
+  "models": {
+    "qwen": {
+      "direct": {
+        "parent_max": 2444,
+        "parent_max_case_uid": "06a4ee841185b09e91ad81a27e48184b52bf793063bcaf31fa71c950d8a5c4b7",
+        "confirmation_max": 1833,
+        "original_smoke_max": 2302,
+        "parent_requests": 2048,
+        "confirmation_requests": 9728,
+        "smoke_max": 2444,
+        "parent_covered": true,
+        "confirmation_covered": true,
+        "context_tokens": 12288,
+        "max_output_tokens": 2048,
+        "context_fits": true
+      },
+      "z3": {
+        "parent_max": 3791,
+        "parent_max_case_uid": "06a4ee841185b09e91ad81a27e48184b52bf793063bcaf31fa71c950d8a5c4b7",
+        "confirmation_max": 2824,
+        "original_smoke_max": 3672,
+        "parent_requests": 2048,
+        "confirmation_requests": 9728,
+        "smoke_max": 3791,
+        "parent_covered": true,
+        "confirmation_covered": true,
+        "context_tokens": 12288,
+        "max_output_tokens": 2048,
+        "context_fits": true
+      }
+    },
+    "gemma": {
+      "direct": {
+        "parent_max": 2127,
+        "parent_max_case_uid": "3546f1d67e3e750565a7c717242de1722a21b48519010b1eb38d0a6177f0efce",
+        "confirmation_max": 1584,
+        "original_smoke_max": 2008,
+        "parent_requests": 2048,
+        "confirmation_requests": 9728,
+        "smoke_max": 2127,
+        "parent_covered": true,
+        "confirmation_covered": true,
+        "context_tokens": 32768,
+        "max_output_tokens": 4096,
+        "context_fits": true
+      },
+      "z3": {
+        "parent_max": 3322,
+        "parent_max_case_uid": "08d35ed901933e9472d44518454d09769751685e4679f278e9feb30bac5e3237",
+        "confirmation_max": 2463,
+        "original_smoke_max": 3207,
+        "parent_requests": 2048,
+        "confirmation_requests": 9728,
+        "smoke_max": 3322,
+        "parent_covered": true,
+        "confirmation_covered": true,
+        "context_tokens": 32768,
+        "max_output_tokens": 4096,
+        "context_fits": true
+      }
+    },
+    "gpt-oss": {
+      "direct": {
+        "parent_max": 2059,
+        "parent_max_case_uid": "3546f1d67e3e750565a7c717242de1722a21b48519010b1eb38d0a6177f0efce",
+        "confirmation_max": 1549,
+        "original_smoke_max": 1932,
+        "parent_requests": 2048,
+        "confirmation_requests": 9728,
+        "smoke_max": 2059,
+        "parent_covered": true,
+        "confirmation_covered": true,
+        "context_tokens": 32768,
+        "max_output_tokens": 8192,
+        "context_fits": true
+      },
+      "z3": {
+        "parent_max": 3160,
+        "parent_max_case_uid": "06a4ee841185b09e91ad81a27e48184b52bf793063bcaf31fa71c950d8a5c4b7",
+        "confirmation_max": 2376,
+        "original_smoke_max": 3045,
+        "parent_requests": 2048,
+        "confirmation_requests": 9728,
+        "smoke_max": 3160,
+        "parent_covered": true,
+        "confirmation_covered": true,
+        "context_tokens": 32768,
+        "max_output_tokens": 8192,
+        "context_fits": true
+      }
+    }
+  }
+}

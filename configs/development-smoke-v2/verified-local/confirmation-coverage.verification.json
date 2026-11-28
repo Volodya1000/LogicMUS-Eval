@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-11-28T16:04:42.415280+00:00",
+  "scope": "Independent offline future-input inventory check under frozen new development conditions; no confirmation generation or release admission",
+  "case_count": 9728,
+  "models": {
+    "qwen": {
+      "direct": {
+        "requests": 9728,
+        "requests_sha256": "5d6ae9f0febc5e167493c68b672d75825977a2b4172792b5046296ca764f6629",
+        "max_input_tokens": 1833,
+        "smoke_max": 2444,
+        "covered": true,
+        "input_inventory_sha256": "24df7789a0c42bfbbfb0e46e43082198006a5e19af24b14a452a41f0eca84dc9"
+      },
+      "z3": {
+        "requests": 9728,
+        "requests_sha256": "acdf9efb5511bbbc8009746f057ba61e1891dae03fb7900f937932c7572e72da",
+        "max_input_tokens": 2824,
+        "smoke_max": 3791,
+        "covered": true,
+        "input_inventory_sha256": "24df7789a0c42bfbbfb0e46e43082198006a5e19af24b14a452a41f0eca84dc9"
+      }
+    },
+    "gemma": {
+      "direct": {
+        "requests": 9728,
+        "requests_sha256": "f42ad11ebe67bc066a7acea7da37ccb1ac2a5886c22d5df84fd0c3f8a83de145",
+        "max_input_tokens": 1584,
+        "smoke_max": 2127,
+        "covered": true,
+        "input_inventory_sha256": "e96a405f227ca0c2e28556a51687ef275ac3edcf9aaf2cbdbeb47096bac4e9f9"
+      },
+      "z3": {
+        "requests": 9728,
+        "requests_sha256": "98dfab26600cd99bcc34eef20b1d19065e59b2db42b2503603db5441c7d3f0ef",
+        "max_input_tokens": 2463,
+        "smoke_max": 3322,
+        "covered": true,
+        "input_inventory_sha256": "e96a405f227ca0c2e28556a51687ef275ac3edcf9aaf2cbdbeb47096bac4e9f9"
+      }
+    },
+    "gpt-oss": {
+      "direct": {
+        "requests": 9728,
+        "requests_sha256": "4569c951823874fe7ed2d710f370ad7f9141171ca35ecfe78ef73765aeb00028",
+        "max_input_tokens": 1549,
+        "smoke_max": 2059,
+        "covered": true,
+        "input_inventory_sha256": "22b512affb62aa107aaeda556420e8f71446468d4c4195acb9a4e51cd6230bb6"
+      },
+      "z3": {
+        "requests": 9728,
+        "requests_sha256": "5b3f1270b9c1bc9cbe6bd9665e4ded79e904ba09f5b0ef7d64427111cef779ad",
+        "max_input_tokens": 2376,
+        "smoke_max": 3160,
+        "covered": true,
+        "input_inventory_sha256": "22b512affb62aa107aaeda556420e8f71446468d4c4195acb9a4e51cd6230bb6"
+      }
+    }
+  }
+}

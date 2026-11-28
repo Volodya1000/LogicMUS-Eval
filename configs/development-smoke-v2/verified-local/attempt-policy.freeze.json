@@ -1,0 +1,32 @@
+{
+  "fixed_at": "2026-11-28T15:27:56.056712+00:00",
+  "total_attempt_cap": 96,
+  "diagnostic_cap": 12,
+  "smoke_cap": 84,
+  "retries": 0,
+  "indeterminate_policy": "halt",
+  "confirmation_generation": false,
+  "diagnostic_budgets": {
+    "qwen": {
+      "output": 2048,
+      "timeout": 180,
+      "reasoning": null,
+      "basis": "non-reasoning developer pilot; separately bounded from other models"
+    },
+    "gemma": {
+      "output": 4096,
+      "timeout": 360,
+      "reasoning": "none",
+      "basis": "explicit no-reasoning HTTP setting, verify mapping in trace; retained failures block smoke"
+    },
+    "gpt-oss": {
+      "output": 8192,
+      "timeout": 600,
+      "reasoning": "low",
+      "basis": "low reasoning reserve; development-only calibration before any confirmation inspection"
+    }
+  },
+  "safety": "For each short development request: observed template tokens + schema UTF8 bytes + 1024 reserve + output cap < loaded context. This is a conservative diagnostic safety screen, not exact HTTP accounting. Unknown transformations remain a blocker for smoke.",
+  "ledger": "bundle/verified-local/attempt-ledger.jsonl",
+  "smoke_status": "not_started; exact input accounting and coverage required"
+}

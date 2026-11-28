@@ -1,0 +1,61 @@
+{
+  "checked_at": "2026-11-28T16:41:29.576683+00:00",
+  "source_bundle_sha256": "a327cc5f58973ce3123e806dec6990f4444999822e3795d8e957497adb812d95",
+  "protected_historical_files_unchanged": 87,
+  "candidate_raw_files_unchanged": 46,
+  "diagnostic_attempts": 10,
+  "smoke_attempts": 66,
+  "total_attempts": 76,
+  "generation_attempt_cap": 96,
+  "remaining_total_attempts": 20,
+  "remaining_smoke_attempts": 18,
+  "automatic_retries": 0,
+  "confirmation_generation_attempts": 0,
+  "all_smoke_attempts_from_real_http_adapter": true,
+  "ledger_matches_all_three_production_journals": true,
+  "no_new_runs_or_repeated_smoke_requests": true,
+  "noop_generation_attempts": 0,
+  "trace_checks": {
+    "qwen": {
+      "emitted_smoke_prompts": 22,
+      "formatted_sha256_match_count": 22,
+      "all_exact_formatted_sha256_matched": true,
+      "trace_counts_match_attempts": true,
+      "usage_match_count": 22,
+      "all_native_usage_matched": true
+    },
+    "gemma": {
+      "emitted_smoke_prompts": 22,
+      "formatted_sha256_match_count": 22,
+      "all_exact_formatted_sha256_matched": true,
+      "trace_counts_match_attempts": true,
+      "usage_match_count": 22,
+      "all_native_usage_matched": true
+    },
+    "gpt-oss": {
+      "emitted_smoke_prompts": 22,
+      "formatted_sha256_match_count": 22,
+      "all_exact_formatted_sha256_matched": true,
+      "trace_counts_match_attempts": true,
+      "usage_match_count": 22,
+      "all_native_usage_matched": true
+    }
+  },
+  "formatted_prompt_match_count": 66,
+  "actual_usage_match_count": 66,
+  "real_smoke": {
+    "qwen": "passed",
+    "gemma": "not_verified",
+    "gpt-oss": "passed"
+  },
+  "infrastructure_blockers": {
+    "gemma": "Smoke transport/context/budget failure retained in outcomes"
+  },
+  "ready_for_scale": "blocked",
+  "additional_release_blockers": [
+    "final executable release not frozen",
+    "candidate handoff unverified",
+    "historical parent exact source bytes not recovered",
+    "GPT dynamic template date not frozen for a multi-day run"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-11-28T15:39:22.748750+00:00",
+  "info": {
+    "type": "llm",
+    "modelKey": "openai/gpt-oss-20b",
+    "format": "gguf",
+    "displayName": "GPT-OSS 20B",
+    "path": "openai/gpt-oss-20b",
+    "sizeBytes": 12109664217,
+    "identifier": "openai/gpt-oss-20b",
+    "instanceReference": "Tvu85nS+gkZyWWiTcEX8VOkV",
+    "vision": false,
+    "trainedForToolUse": true,
+    "maxContextLength": 131072,
+    "contextLength": 32768,
+    "paramsString": "20B",
+    "architecture": "gpt-oss"
+  },
+  "load_config": {
+    "gpu": {
+      "ratio": 0.75,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 32768,
+    "flashAttention": true,
+    "numExperts": 4
+  },
+  "context_tokens": 32768,
+  "evidence_class": "observed",
+  "operator_checked": []
+}

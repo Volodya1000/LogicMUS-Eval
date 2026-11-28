@@ -1,0 +1,89 @@
+{
+  "verification_version": "installed-full-http-input-method-v1",
+  "reviewed_at": "2026-11-28T15:46:26.263938+00:00",
+  "status": "qualified_method_established_scope_inventories_pending",
+  "scope": "Fixed single-user text-only /v1/chat/completions bodies; no tools, images, files, assistant prefill, or external integrations; exact two saved production JSON schemas; exact installed local GGUF backend and model identities. This receipt is a structural method review, not completion of all input measurements or real smoke.",
+  "pins": {
+    "original_app_main": "C:\\Program Files\\LM Studio\\resources\\app\\.webpack\\main\\index.js",
+    "original_app_main_sha256": "5d5d021a923e2063ad85c1931c040cbba229b70a27c1edd2bf8fe934b8c4d9a7",
+    "decoded_source_path": "configs/development-smoke-v2/bundle/verified-local/backend-decoded.js",
+    "decoded_source_sha256": "2557f6ec121fee625ef6567db52bcb22178ce7c707e1cf874d459aba18f1b08e",
+    "native_llama_dll": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll",
+    "native_llama_dll_sha256": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+    "native_engine_dll": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llm_engine.dll",
+    "native_engine_dll_sha256": "16435436904872cc20f3191089e169ee905bd72930aac93c4cc9fc4f9406492e"
+  },
+  "structural_chain": [
+    {
+      "step": "HTTP schema mapping",
+      "finding": "HTTP response_format.json_schema.schema is placed solely into llm.prediction.structured type=json/jsonSchema; schema name/strict wrapper is not appended to message text."
+    },
+    {
+      "step": "HTTP message conversion",
+      "finding": "prepareChatCompletionContext parses the supplied one-user message into ChatHistoryData. Assistant reasoning synthesis has no effect when no assistant message exists."
+    },
+    {
+      "step": "Model/session configuration",
+      "finding": "getModelV2 returns ordinary SDK model handles. LLMProvider.predict applies serverSession config before normal native prediction. applyPromptTemplate directly resolves model operation-time base plus supplied stack and does not independently add serverSession. Therefore retrieve raw getBasePredictionConfig KV fields and add them as a lower-priority explicit layer before exact HTTP overrides. Public converted config can drop virtual-model fields and is insufficient."
+    },
+    {
+      "step": "Exact native formatting",
+      "finding": "Use the same loaded instance, raw effective base, exact schema and reasoning custom-field HTTP override, and opts omitBosToken=true/omitEosToken=false. Both prediction and preview call common formatPrompt. It resolves configured system/prefill, virtual-model effects/Jinja variables, tools and exact prompt template. No structured-schema access occurs inside formatPrompt."
+    },
+    {
+      "step": "Schema sampler isolation",
+      "finding": "GGUF temp_createLlamaPredictionArgs formats prompt independently, then passes structured configuration into sampling.structuredOutput with GBNF grammar derived from JSON schema. Grammar never enters prompt bytes in this code path."
+    },
+    {
+      "step": "Date",
+      "finding": "formatPrompt rewrites strftime_now(...) to Date().toLocaleDateString(en-CA,year/month/day). GPT template includes this date; counting and HTTP must share host-local rendered date. Recount if it changes."
+    },
+    {
+      "step": "Prediction-side native tokenization",
+      "finding": "JS prediction computes engine.tokenize(prompt,true). The engine LlamaV4::tokenize export at RVA0x5bc30 forwards incoming add-special boolean and sets parse-special fifth argument true (instruction0x18005bc81). Helper at0x18006a2b0 forwards both to common tokenizer0x1801629b0. Common tokenizer calls actual imported llama.dll llama_tokenize through thunk0x180487780 / IAT0x1804d9dc8; its sixth arg is add-special and seventh parse-special, including retry. Thus ctypes llama_tokenize(vocab,UTF8,len,buffer,capacity,true,true) uses identical tokenizer and flags."
+    },
+    {
+      "step": "Native vocabulary extraction",
+      "finding": "Exact installed llama.dll default_params Win64 sret writes80 bytes. Setting byte0x48=1 enters loader branch at0x1800022bc that logs vocab only - skipping tensors. Probe creates no inference context and invokes no generation function. Runtime getters report effective add_bos/add_eos/add_sep, closing absent GGUF flag defaults without assuming them."
+    }
+  ],
+  "native_empirical_anchors": {
+    "qwen": "4 completed emitted prompt traces; native true and false counts786/1288, BOS/EOS/SEP allfalse",
+    "gemma": "2 completed emitted prompt traces; native true counts670/1118, false669/1117; native effective BOS=true, EOS/SEP=false",
+    "gpt-oss": "3 completed emitted prompt traces; native true and false counts702/1104/702, BOS/EOS/SEP allfalse",
+    "role": "Checks that identified formatting/tokenization path matches observed diagnostics. These finite equalities alone do not justify extrapolation; structural same-function/same-arguments proof above does."
+  },
+  "requirements_before_scope_accounting_can_be_verified": [
+    "Preserve complete ordered request inventories for each intended scope, exact model/server configuration, raw effective base/session KVConfig and schema hashes, formatter arguments, rendered prompt/token ID digests, runtime/module/model file hashes and date.",
+    "Use exact native add_special=true,parse_special=true for every count. Keep one vocabulary-only NativeTokenizer alive per model in child process for fast batch counting.",
+    "For every formatted input prove input_tokens + requested_max_tokens <= observed active context_tokens. Empty contextPrefill, one-user messages, no media/tools and fit-in-context bound remove truncation/compaction branches in fixed scope. If bounds fail, stop; do not count a shortened or alternate input as the original HTTP request.",
+    "Raw effective base/model instance/template/host-local date must be rechecked against counting receipt before actual HTTP and after any reload/change. Fail if mismatched.",
+    "Pin generation-side effective runtime/defaults separately. Input-token equivalence does not independently prove omitted sampler settings, completion, usage completeness, or real smoke evidence.",
+    "Do not infer all scopes measured from this method receipt: aggregate inventories, maxima, context checks and smoke coverage remain the root task responsibilities."
+  ],
+  "helper_api": {
+    "module": "experiments.native_tokenizer_probe",
+    "usage": "with NativeTokenizer(MODELS[model]) as tokenizer: n = tokenizer.count(rendered_prompt); token_ids = tokenizer.tokenize(rendered_prompt)",
+    "process": "Use from child process; model is freed by context exit. No full-file hash overhead per count."
+  },
+  "artifacts": {
+    "configs/development-smoke-v2/bundle/verified-local/format-prompt.excerpt.js": "289f3f4bc82a00177b65414dc143cf79e292e7ceee9a0b77940cb318511f6327",
+    "configs/development-smoke-v2/bundle/verified-local/gguf-prediction-prompt-and-sampler.excerpt.js": "ef1d7a84bae88626ab11a0509c0a3b9f90590a9530f8f25a190b739162196ae7",
+    "configs/development-smoke-v2/bundle/verified-local/gguf-structured-sampler-only.excerpt.js": "ad74e37ea99bc2af2b77809b83080cae7f028ce6565cd86b0b09f2a83ffb0f2d",
+    "configs/development-smoke-v2/bundle/verified-local/http-model-ordinary-handle.excerpt.js": "15227c2637c53913c80ce05dc1a901be04127f6ff109899aead6085f3e89420f",
+    "configs/development-smoke-v2/bundle/verified-local/http-reasoning-and-request-mapping.excerpt.js": "8447abc206ec226071f03b13d6f12680811d146bf8cd8232d79b11301bc27289",
+    "configs/development-smoke-v2/bundle/verified-local/http-response-format-to-structured.excerpt.js": "ff69852e6263f4098eda450b6c380a4d0e4cf7e5e91383752c29cc7b5d6f3bbc",
+    "configs/development-smoke-v2/bundle/verified-local/native-prediction-tokenizer-true.excerpt.js": "9c2a5487aa8c1e704c96a1703a0f60e228754d14df19838e02bab86bda32ae57",
+    "configs/development-smoke-v2/bundle/verified-local/prediction-config-stack.excerpt.js": "e13b01313d219245b002e0f547e132f60d95da4458fbc0d62db2b4f6d268fab3",
+    "configs/development-smoke-v2/bundle/verified-local/prediction-server-session-layer.excerpt.js": "aa56065710baafeac83b3a45c99525cf04b45b6849d3a3c829b8ebb13ba9611f",
+    "configs/development-smoke-v2/bundle/verified-local/preview-effective-base-inner.excerpt.js": "094675375eeffd4f7e89bcc5d278abc81c871179852b6f9da46e4dd362fe6344",
+    "configs/development-smoke-v2/bundle/verified-local/preview-uses-model-operation-base.excerpt.js": "50149a00e7497956612bbc7cafe7beea5a0a699c4019211c2a54921581d07951",
+    "configs/development-smoke-v2/bundle/verified-local/raw-effective-base-rpc.excerpt.js": "0342d68c1d096107183914c59e08270a67a66e55d345d58c090c17fa221369b2",
+    "configs/development-smoke-v2/bundle/verified-local/sdk-tokenizer-false.excerpt.js": "1daa339bdca4ee80af1bfbf6cf2ec1a62a7dd544ec8a4a8f6203f2af4375a9f4",
+    "configs/development-smoke-v2/bundle/verified-local/native-engine-tokenize-call.disassembly.txt": "ecc81a201d0ee8763e155565963c195ba29a46862e869d8332254131a69aa874",
+    "configs/development-smoke-v2/bundle/verified-local/native-tokenizer-abi.disassembly.txt": "252c7ec247d4e0f8bbcf4e715e8b7da1f746c745c9e386c91d9c3ede32a87673",
+    "configs/development-smoke-v2/verified-local/native-tokenizer-verification.json": "971b1508b43f16b09f7d43bd71840fae4cbd7b5ff0844e24a123bbe17c272f2f",
+    "experiments/native_tokenizer_probe.py": "5d107c081ea6c3b44945b395062fea24576ffcdc110354281f3c16f3736abebe",
+    "experiments/decode_backend.cjs": "0baa1418a348566f4561efea1f105fb5f8d46f90b3fa8e502ce1422f4dc47245"
+  }
+}

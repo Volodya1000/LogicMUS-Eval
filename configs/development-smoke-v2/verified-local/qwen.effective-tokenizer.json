@@ -1,0 +1,38 @@
+{
+  "model_file_sha256": "ec8991dc0de5af1c40498adb827192971c4169e9f5ac785f9bde23137e2384e2",
+  "metadata": {
+    "evidence_class": "observed GGUF metadata/file identity",
+    "file_sha256": "ec8991dc0de5af1c40498adb827192971c4169e9f5ac785f9bde23137e2384e2",
+    "tokenizer": {
+      "tokenizer.ggml.model": "gpt2",
+      "tokenizer.ggml.pre": "qwen2",
+      "tokenizer.ggml.tokens": {
+        "array_type": 8,
+        "count": 152064,
+        "sha256": "8628f4f17fdc0dddff169dc354b3a7b7fd0124e01ce0e2ba2593c218766a3823"
+      },
+      "tokenizer.ggml.token_type": {
+        "array_type": 5,
+        "count": 152064,
+        "sha256": "72f70e0d32dca914065229c3c36c8407ef88ec5dbf9ea2c942d33bbe4cdba4b1"
+      },
+      "tokenizer.ggml.merges": {
+        "array_type": 8,
+        "count": 151387,
+        "sha256": "39b97465d8aac828e86177dc2621f4bfb5dbb5c72d2df8aa35451159a81453e7"
+      },
+      "tokenizer.ggml.eos_token_id": 151645,
+      "tokenizer.ggml.padding_token_id": 151643,
+      "tokenizer.ggml.bos_token_id": 151643,
+      "tokenizer.ggml.add_bos_token": false
+    }
+  },
+  "native_llama_dll_sha256": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+  "native_special_flags": {
+    "bos": false,
+    "eos": false,
+    "sep": false
+  },
+  "native_add_special": true,
+  "native_parse_special": true
+}

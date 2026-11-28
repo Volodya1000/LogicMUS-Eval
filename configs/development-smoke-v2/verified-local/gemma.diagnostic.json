@@ -1,0 +1,42 @@
+{
+  "config_version": "controlled-run-v1",
+  "series_manifest": "../bundle/parent/series.manifest.json",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "api_key_env": null,
+  "models": [
+    {
+      "model_id": "google/gemma-4-e4b",
+      "expected_profile": {
+        "served_model_id": null,
+        "revision": null,
+        "model_file": null,
+        "quantization": null,
+        "context_tokens": null,
+        "backend_version": null,
+        "chat_template": null,
+        "tokenizer": null
+      },
+      "generation": {
+        "max_tokens": 4096,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": null,
+        "reasoning_effort": "none"
+      }
+    }
+  ],
+  "strategies": [
+    "direct",
+    "z3"
+  ],
+  "request_timeout_seconds": 360.0,
+  "retry": {
+    "max_attempts": 1,
+    "initial_delay_seconds": 0.0,
+    "max_delay_seconds": 0.0,
+    "transient_errors": []
+  },
+  "z3_timeout_seconds": 5.0,
+  "diagnostic_parent_run": null,
+  "infrastructure_smoke": null
+}

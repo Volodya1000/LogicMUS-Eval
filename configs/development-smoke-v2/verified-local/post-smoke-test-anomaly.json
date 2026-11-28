@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-11-28T17:00:30.143189+00:00",
+  "phase": "pre-commit hook after closed real smoke",
+  "test": "tests/unit/test_isolated_sandbox.py::test_large_request_cannot_block_deadline_when_worker_never_reads",
+  "full_hook_result": {
+    "passed": 548,
+    "failed": 1,
+    "seconds": 321.68
+  },
+  "failure": "Windows subprocess.TimeoutExpired during reap_worker second communicate(timeout=1.0) after termination/kill; finite dummy child runs import time; time.sleep(8).",
+  "first_isolated_rerun": {
+    "result": "passed",
+    "seconds": 7.37
+  },
+  "source_file": "logicmus_eval/sandbox/process_lifecycle.py",
+  "source_modified_by_this_pr": false,
+  "frozen_runtime_source_unchanged": true,
+  "tests_or_cleanup_limits_weakened": false,
+  "status": "intermittent failure observed; further bounded verification pending; no claim fixed",
+  "generation_attempts_added": 0
+}

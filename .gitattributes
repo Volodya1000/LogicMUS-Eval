@@ -8,3 +8,6 @@
 configs/development-smoke-v2/parent.plan.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 configs/development-smoke-v2/selection.rule.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
 configs/development-smoke-v2/protocol.freeze.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Preserve exact compact artifact bytes referenced by the new frozen evidence.
+configs/development-smoke-v2/verified-local/** -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

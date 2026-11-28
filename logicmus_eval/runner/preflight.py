@@ -22,6 +22,20 @@ from logicmus_eval.models.evaluation import (
 from logicmus_eval.models.llm import DirectReasoningResponse, LLMToZ3Response
 from logicmus_eval.models.test_case import LogicTestCase
 from logicmus_eval.runner.config import ModelConfig, RunConfig
+from logicmus_eval.runner.requests import build_request
+
+# Preserve the historical module exports while serialization lives independently.
+__all__ = [
+    "DirectEvaluationStrategy",
+    "DirectReasoningResponse",
+    "Job",
+    "LLMToZ3Response",
+    "Preflight",
+    "Z3TranslationEvaluationStrategy",
+    "build_request",
+    "digest",
+    "preflight",
+]
 
 
 def digest(value: Any) -> str:
@@ -50,39 +64,6 @@ class Preflight:
         return digest(self.identity)
 
 
-def build_request(
-    config: RunConfig, model: ModelConfig, strategy: str, case: LogicTestCase
-) -> dict[str, Any]:
-    evaluator = (
-        DirectEvaluationStrategy()
-        if strategy == "direct"
-        else Z3TranslationEvaluationStrategy()
-    )
-    schema = DirectReasoningResponse if strategy == "direct" else LLMToZ3Response
-    return {
-        "url": config.endpoint.rstrip("/") + "/chat/completions",
-        "body": {
-            "model": model.model_id,
-            "messages": [{"role": "user", "content": evaluator.build_prompt(case)}],
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": schema.__name__,
-                    "schema": schema.model_json_schema(),
-                },
-            },
-            **model.generation.model_dump(exclude_none=True),
-            "stream": False,
-        },
-        "timeout": config.request_timeout_seconds,
-        "transport": {
-            "automatic_retries": 0,
-            "follow_redirects": False,
-            "environment_proxies": False,
-        },
-    }
-
-
 def preflight(config: RunConfig) -> Preflight:  # pylint: disable=too-many-locals
     config = RunConfig.model_validate(config.model_dump())
     path = Path(config.series_manifest).resolve()
@@ -93,7 +74,7 @@ def preflight(config: RunConfig) -> Preflight:  # pylint: disable=too-many-local
     if config.infrastructure_smoke is not None:
         selection_path = Path(config.infrastructure_smoke.selection_path).resolve()
         config.infrastructure_smoke.selection_path = str(selection_path)
-        selection = validate_selection(path, selection_path, cases)
+        selection = validate_selection(path, selection_path, cases, config=config)
         if selection.selection_sha256 != config.infrastructure_smoke.selection_sha256:
             raise ValueError("Smoke selection hash differs from pinned configuration")
         selected_ids = set(selection.case_uids)

@@ -1,0 +1,120 @@
+"""Final compact report from checked journals; never sends generation."""
+import hashlib
+import json
+import shutil
+import statistics
+import subprocess
+import sys
+from collections import Counter
+from datetime import UTC,datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path[:0]=[str(REPO),str(REPO/'experiments')]
+from logicmus_eval.hashing import compute_file_sha256,compute_source_bundle_hash
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.preflight import digest,preflight
+from logicmus_eval.runner.snapshot import read_snapshot
+from verified_attempt_budget import verify_limits
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'verified-local'
+RAW=ROOT/'bundle/verified-local'
+NAMES=['qwen','gemma','gpt-oss']
+
+def save(path,data):path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+
+def main():
+    freeze=json.loads((OUT/'smoke.execution.freeze.json').read_text())
+    assert compute_source_bundle_hash()==freeze['source_bundle_sha256']
+    for rel,sha in freeze['files'].items():assert compute_file_sha256(ROOT/rel)==sha,rel
+    protected=json.loads((OUT/'source-preservation.json').read_text())['protected_files']
+    assert all(compute_file_sha256(REPO/rel)==sha for rel,sha in protected.items())
+    candidate=REPO/'releases/confirmation-v2-candidate'
+    candidate_index=json.loads((candidate/'artifact-index.json').read_text())['files']
+    assert all((candidate/rel).stat().st_size==r['bytes'] and compute_file_sha256(candidate/rel)==r['sha256'] for rel,r in candidate_index.items())
+    ledger=[json.loads(l) for l in (RAW/'attempt-ledger.jsonl').read_text().splitlines()]
+    intents=[r for r in ledger if r['event']=='intent'];diag=[r for r in intents if r['phase']=='diagnostic'];smoke=[r for r in intents if r['phase']=='smoke']
+    assert len(intents)<=96 and len(diag)<=12 and len(smoke)<=84
+    assert all(r['purpose']=='development' for r in intents)
+    assert len({r['request_sha256'] for r in smoke})==len(smoke)
+    measured=[];summaries={};executions={};checks={}
+    for name in NAMES:
+        run=RAW/(name+'.run');snapshot=read_snapshot(run,[run/'report.json'])
+        ready=preflight(load_config(OUT/(name+'.smoke.json')))
+        assert snapshot.manifest.payload.run_id==freeze['runs'][name]['run_id']
+        assert all(len(s.attempts)==1 and s.outcome is not None for s in snapshot.states.values())
+        for state in snapshot.states.values():
+            for attempt in state.attempts:
+                assert attempt.intent.invocation_origin=='http-adapter'
+                measured.append((snapshot.manifest.payload.run_id,attempt.intent.request_sha256))
+        result=json.loads((OUT/(name+'.smoke-results.json')).read_text());summaries[name]=result
+        executions[name]=json.loads((OUT/(name+'.execution.json')).read_text())
+        assert executions[name]['noop_resume_http_attempts']==0
+        backend=json.loads((OUT/(name+'.smoke-backend.before.json')).read_text())
+        evidence_path=OUT/(name+'.evidence.json')
+        save(OUT/(name+'.backend-execution-link.json'),{'run_id':snapshot.manifest.payload.run_id,'instance_reference':backend['info']['instanceReference'],'served_model_id':backend['info']['identifier'],'base_config_sha256':backend['base_config_sha256'],'observed_backend_before_sha256':compute_file_sha256(OUT/(name+'.smoke-backend.before.json')),'execution_receipt_sha256':compute_file_sha256(OUT/(name+'.execution.json')),'execution_freeze_sha256':compute_file_sha256(OUT/'smoke.execution.freeze.json'),'smoke_evidence_sha256':compute_file_sha256(evidence_path) if evidence_path.exists() else None,'real_smoke':result['real_smoke'],'evidence_class':'automated observed metadata + production journal verification; no human attestation'})
+        command=[sys.executable,'-m','logicmus_eval.cli','check-development-smoke','--root',str(ROOT),'--config',str(OUT/(name+'.smoke.json')),'--evidence',str(OUT/(name+'.evidence.json'))]
+        checked=subprocess.run(command,cwd=REPO,capture_output=True,text=True,encoding='utf8',check=False)
+        check={'command':command,'exit_code':checked.returncode,'stdout':checked.stdout,'stderr':checked.stderr}
+        save(OUT/(name+'.checker.json'),check);checks[name]=check
+        assert (checked.returncode==0)==(result['real_smoke']=='passed')
+    assert Counter(measured)==Counter((r['run_id'],r['request_sha256']) for r in smoke)
+    assert len(smoke)==freeze['planned_smoke_attempts']
+    trace=[]
+    for line in (RAW/'model-trace.jsonl').read_text(encoding='utf8').splitlines():
+        trace.append(json.loads(line)['data'])
+    trace_checks={}
+    for name in NAMES:
+        config=load_config(OUT/(name+'.smoke.json'));model_id=config.models[0].model_id
+        inputs=[r for r in trace if r['type']=='llm.prediction.input' and r.get('modelIdentifier')==model_id]
+        outputs=[r for r in trace if r['type']=='llm.prediction.output' and r.get('modelIdentifier')==model_id]
+        ready=preflight(config);rows=[json.loads(l) for l in (RAW/(name+'.development-parent.candidate-counts.jsonl')).read_text().splitlines()]
+        formats={(r['case_uid'],r['strategy']):r['formatted_sha256'] for r in rows}
+        expected=[formats[(j.case.case_id,j.strategy)] for j in ready.jobs]
+        actual=[hashlib.sha256(r['input'].encode()).hexdigest() for r in inputs[-len(expected):]]
+        formats_match=actual==expected
+        counts_match=len(inputs)==len(outputs)==len(expected)+sum(r['model']==name for r in diag)
+        if summaries[name]['real_smoke']=='passed':assert formats_match and counts_match,'Actual emitted prompts differ from measured native path: '+name
+        trace_checks[name]={'emitted_smoke_prompts':len(expected),'formatted_sha256_match_count':sum(a==e for a,e in zip(actual,expected)),'all_exact_formatted_sha256_matched':formats_match,'trace_counts_match_attempts':counts_match,'usage_match_count':sum(r['matches'] is True for r in summaries[name]['usage_accounting_checks']),'all_native_usage_matched':all(r['matches'] is True for r in summaries[name]['usage_accounting_checks'])}
+    save(OUT/'attempt-budget.verification.json',verify_limits())
+    blocked={n:r['issue'] for n,r in summaries.items() if r['real_smoke']!='passed'}
+    formatted_matches=sum(r['formatted_sha256_match_count'] for r in trace_checks.values());usage_matches=sum(r['usage_match_count'] for r in trace_checks.values())
+    validation={'checked_at':datetime.now(UTC).isoformat(),'source_bundle_sha256':compute_source_bundle_hash(),'protected_historical_files_unchanged':len(protected),'candidate_raw_files_unchanged':len(candidate_index),'diagnostic_attempts':len(diag),'smoke_attempts':len(smoke),'total_attempts':len(intents),'generation_attempt_cap':96,'remaining_total_attempts':96-len(intents),'remaining_smoke_attempts':84-len(smoke),'automatic_retries':0,'confirmation_generation_attempts':0,'all_smoke_attempts_from_real_http_adapter':True,'ledger_matches_all_three_production_journals':True,'no_new_runs_or_repeated_smoke_requests':True,'noop_generation_attempts':0,'trace_checks':trace_checks,'formatted_prompt_match_count':formatted_matches,'actual_usage_match_count':usage_matches,'real_smoke':{n:summaries[n]['real_smoke'] for n in NAMES},'infrastructure_blockers':blocked,'ready_for_scale':'blocked','additional_release_blockers':['final executable release not frozen','candidate handoff unverified','historical parent exact source bytes not recovered','GPT dynamic template date not frozen for a multi-day run']}
+    save(OUT/'final-validation.json',validation)
+    per_scope={f'{name}/{strategy}':summaries[name]['by_strategy'][strategy]['mean_seconds'] for name in NAMES for strategy in ['direct','z3']}
+    mean_seconds=9728*sum(per_scope.values())
+    median_seconds=9728*sum(summaries[n]['by_strategy'][s]['median_seconds'] for n in NAMES for s in ['direct','z3'])
+    slow_seconds=9728*sum(summaries[n]['by_strategy'][s]['max_seconds'] for n in NAMES for s in ['direct','z3'])
+    end_to_end_seconds=9728/11*sum(executions[n]['elapsed_seconds_including_runner'] for n in NAMES)
+    retries=[]
+    for probability in [0.0,0.05,0.10,0.25]:
+        factor=1+probability+probability**2;backoff=58368*(2*probability+4*probability**2)
+        timeout_scenario=9728*sum(factor*((1-probability)*summaries[n]['by_strategy'][s]['mean_seconds']+probability*load_config(OUT/(n+'.smoke.json')).request_timeout_seconds)+(2*probability+4*probability**2) for n in NAMES for s in ['direct','z3'])
+        retries.append({'retryable_failure_probability':probability,'mean_attempts_max3':factor,'equal_cost_attempts_days':(mean_seconds*factor+backoff)/86400,'backoff_hours':backoff/3600,'if_failures_consume_full_model_timeout_days':timeout_scenario/86400})
+    scale={'hypothetical_requests':58368,'cases_per_model_strategy':9728,'hardware':'same machine, observed load configs, sequential model/strategy execution','measured_mean_http_seconds':per_scope,'linear_mean_days':mean_seconds/86400,'linear_median_scenario_days':median_seconds/86400,'linear_each_scope_slowest_observed_scenario_days':slow_seconds/86400,'linear_runner_wall_days':end_to_end_seconds/86400,'retries_hypothetical_max3_with_candidate_backoff_2_4_seconds':retries,'actual_pilot_retries':0,'infrastructure_blockers':blocked,'limitations':['11 infrastructure-only cases, deliberately including input maxima; not a representative scientific timing sample','same output length/latency distribution and fixed reasoning/budget assumptions','truncated responses measure capped attempts; latency with adequate future budgets is unknown','no GPU contention, no repeated model loading, no long-run thermal/failure model','runtime/tokenizer/confirmation files remain separately scoped; no scale authorization','tokenization elapsed time is excluded from inference timing']}
+    save(OUT/'scale-estimate.json',scale)
+    coverage=json.loads((OUT/'coverage.json').read_text())
+    lines=['# LM Studio: development infrastructure-smoke v2','',f'База: master после PR11 (`{freeze["source_bundle_sha256"]}` — отдельный source hash исполнявшегося кода; Git-база `e139d67`).', '',f'Выполнено **{len(diag)} диагностических + {len(smoke)} smoke = {len(intents)}/96 реальных generation-попыток**. Confirmation generation: **0**. Automatic retries: **0**. Новая выборка: **11** development-случаев, обе стратегии, по 22 запроса на модель. `ready_for_scale = blocked`.', '', '| Модель | Загружена / context | Full accounting | Parent / confirmation coverage | Diag / smoke attempted | HTTP completed / finalized | Ошибки smoke | Обрезания | HTTP / runner время | real_smoke |','|---|---|---|---|---:|---:|---|---:|---|---|']
+    for name in NAMES:
+        r=summaries[name];cfg=load_config(OUT/(name+'.smoke.json'));errors=', '.join(f'{k}: {v}' for k,v in r['errors'].items()) or '0'
+        lines.append(f'| {name} | да / {cfg.models[0].expected_profile.context_tokens} | verified, scoped | passed / passed | {sum(d["model"]==name for d in diag)} / {r["attempted"]} | {r["http_completed"]} / {r["finalized"]} | {errors} | {r["truncations"]} | {r["total_http_seconds"]:.1f} / {executions[name]["elapsed_seconds_including_runner"]:.1f} s | {r["real_smoke"]} |')
+    lines+=['','HTTP completed означает полученный HTTP 200; finalized — сохранённый outcome, включая ошибки и обрезания. Ошибки JSON/Z3 и неверные логические ответы сохранены как outcomes; запросы из-за них не повторялись. Scope результатов — infrastructure-only. Научный primary-анализ этой подвыборки не выполнялся. Диагностика отделена в `diagnostic-results.json` и не служит доказательством smoke. Все отказы, исходные HTTP bodies, usage, finish_reason и время сохранены локально.']
+    if blocked:lines+=['', '**Технические blockers реального допуска:** '+ '; '.join(f'{n}: {reason}; обрезаний {summaries[n]["truncations"]}' for n,reason in blocked.items())+f'. Для этих запусков real SmokeEvidence не создан. Бюджеты после ошибок не менялись; новые runs и повторы не выполнялись. Полный повтор одной модели требует 22 попытки; осталось {84-len(smoke)} smoke и {96-len(intents)} общих, поэтому полный новый smoke-run в текущий лимит не помещается.']
+    lines+=['', '## Два независимых покрытия', '', '| Модель | Стратегия | Исторические 8, max | Full parent / новый smoke max | Confirmation max | Context / output cap |','|---|---|---:|---:|---:|---:|']
+    for name in NAMES:
+        for strategy in ['direct','z3']:
+            c=coverage['models'][name][strategy]
+            lines.append(f'| {name} | {strategy} | {c["original_smoke_max"]} | {c["parent_max"]} / {c["smoke_max"]} | {c["confirmation_max"]} | {c["context_tokens"]} / {c["max_output_tokens"]} |')
+    lines+=['', 'Все 58 368 будущих запросов независимо сверены offline с сохранёнными UID/request digest и длинами при новых предполагаемых development-условиях. Исходные confirmation proposed configs и данные не менялись. Confirmation-покрытие проверено отдельно от parent-покрытия; оно не является допуском release и не проверяет будущую длину reasoning/output.', '', '## Метод и фактические условия', '', 'Проверены точные файлы Q4_K_M (Qwen/Gemma) и MXFP4 (GPT-OSS), свежие SHA256, загруженные instance, контекст, runtime DLL, raw effective base/session config и реально применённый template. Запрошены temperature=0.0, top_p=1.0, seed не фиксирован. Qwen: output=2048, timeout=180s; Gemma: reasoning_effort=none, output=4096, timeout=360s; GPT-OSS: reasoning_effort=low, output=8192, timeout=600s. Эти условия зафиксированы до confirmation tokenization и smoke. GPU: Qwen/Gemma full offload; GPT-OSS ratio=0.75, CPU threads=10; parallel=1. Наблюдения, явные настройки, реализация и неизвестные поля разделены в profiles/base configs/method receipt. Человек не указан как проверявший.', '', 'Полный input accounting установлен для exact installed LM Studio 0.4.13+1 / llama.cpp CUDA12 2.83.0: inspected HTTP schema → sampler grammar path; native formatPrompt с raw base/session и HTTP/reasoning overrides; точный tokenizer из того же llama.dll, add_special=true, parse_special=true. Native vocabulary-only ABI и передача флагов подтверждены disassembly. SDK template-only не использован как полный подсчёт. У Gemma диагностика показала 673 SDK-токена против 670 HTTP; полный путь учитывает thinking/template/BOS, а не поправку по нескольким примерам. Метод ограничен сохранёнными single-user text-only запросами, двумя schemas, backend/model/template/config и датой 2026-11-28. GPT-OSS включает динамическую дату в system prompt. Покрытие confirmation здесь условно той же датой и сохранёнными conditions; для многосуточного release clock/template ещё не зафиксированы. Перенос этих exact counts на другую дату требует отдельной проверки или проспективной фиксации даты в шаблоне. Это дополнительный blocker готовности многодневного запуска.', '', f'Штатные [model IO logs](https://lmstudio.ai/docs/cli/serve/log-stream) использованы для дополнительной проверки. Совпадения побайтного SHA256 emitted prompt с offline native-formatting inventory: {formatted_matches}/{len(smoke)}; совпадения HTTP usage.prompt_tokens с полным accounting: {usage_matches}/{len(smoke)}. Данные проверены для каждой модели, включая blocked runs; детали в final-validation.json. Это проверка выполненных запросов; основание общего метода — сохранённая реализация и native path.', '', 'V2 независимо воспроизводит выбор из full admitted parent: исторический v1 receipt закреплён отдельным base_selection pin, затем максимум каждой из шести model/strategy групп, lexical case_uid tie-break и dedup. Ответы не участвуют в выборе. Три дополнительных UID дают 11 случаев. V1 receipt/hash, восемь случаев и отрицательные PR10 результаты сохранены.', '', '## Журнал, resume и проверки', '', 'Для каждого из трёх новых UUID выполнены production HTTP-adapter и журнал, completed no-op resume с нулём новых HTTP-попыток и неизменными report/journal/outcomes, production diagnostic analysis и отдельный check-development-smoke. Real SmokeEvidence записаны только после успешной проверки. Audit hook резервирует попытку в общем fsync-журнале до оригинального urllib POST; retries отключены, indeterminate policy=halt. Guard-тесты проверили 13-ю diagnostic, 85-ю smoke, 97-ю общую попытку и обход через новый run без сети.', '', 'Полные проектные hooks прошли: ruff/format, strict mypy, pylint и pytest; 549 тестов. Регрессии сохраняют old v1, full-parent admission и отказы для tokenizer/length/request/selection/base tampering, alternate seed/pair, недостаточного покрытия, mocks и пустого журнала. Начальная uv sync попытка упёрлась в неработающий proxy до hooks; штатные проверки выполнены в существующем окружении с UV_NO_SYNC и UV_OFFLINE. Код/зависимости ради обхода не менялись.', '', '## Время большого прогона и retries', '', f'Для 9 728 случаев × 3 модели × 2 стратегии = **58 368 запросов** линейная оценка по средним **реальным HTTP latency smoke**: **{mean_seconds/86400:.2f} суток** без retries. Масштабирование полного runner wall time: **{end_to_end_seconds/86400:.2f} суток**. Сценарий медианных latency: {median_seconds/86400:.2f} суток; сценарий самого медленного наблюдения каждой группы: {slow_seconds/86400:.2f} суток. Это сценарии, не доверительные интервалы и не гарантированные границы.', '', 'Допущения: та же RTX 3060/128GB машина, последовательное исполнение, те же модели/offload/reasoning/budgets и распределение длины ответов; модели загружаются группами, отдельная инфраструктурная выборка преднамеренно включает длинные входы. Будущие топологии, output/reasoning, фоновые нагрузки, длительные отказы и thermal effects могут изменить время. Offline tokenizer elapsed time в оценку генерации не входит.', '', 'Ни одного retry в пилоте не было. Ниже — только расчёт при гипотетическом max_attempts=3 и backoff 2/4s из proposed candidate. p — неизвестная вероятность retryable ошибки на попытке; независимость и одинаковая стоимость попыток — отдельные допущения. Если ошибки расходуют полный timeout, простой множитель попыток существенно недооценивает время.', '', '| p | E[attempts], 1+p+p² | Равная стоимость попыток, суток | Из них backoff, часов | Ошибки занимают полный model timeout, суток |','|---:|---:|---:|---:|---:|']
+    for r in retries:lines.append(f'| {r["retryable_failure_probability"]:.0%} | {r["mean_attempts_max3"]:.4f} | {r["equal_cost_attempts_days"]:.2f} | {r["backoff_hours"]:.2f} | {r["if_failures_consume_full_model_timeout_days"]:.2f} |')
+    if blocked:lines+=['', '**Ограничение оценки времени:** обрезанные ответы измеряют ограниченные попытки при текущих caps. Время полностью завершённых ответов при ещё не откалиброванных достаточных бюджетах для заблокированных моделей неизвестно. Эти цифры не являются оценкой длительности успешно допущенного большого прогона. Runner-wall сценарий также линейно масштабирует разовый preflight пилота; в крупных batches эта часть амортизируется иначе.']
+    lines+=['', '## Provenance и оставшиеся ограничения', '', 'До production-правок сохранён exact source bundle кандидата `9434b557…`; дополнительно восстановлены и проверены все 130 repository_inputs исходного candidate receipt. Новый исполнявшийся source `a327cc5f…` сохранён отдельным архивом. Ни один исторический receipt/source hash не переписан. Saved-data admission/artifact revalidation новым кодом явно отделена от равенства preparation sources.', '', '**Точные байты исторического development-parent source `595ec63f…` не восстановлены.** Receipt описывает intermediate working tree. Проверены локальные snapshots/archives, Git reflogs/unreachable objects и 2 889 ограниченных реконструкций; совпадения нет. Сохранены исходный hash и точный пробел provenance. Candidate archive не выдан за parent archive. Этот пункт первоначального запроса остаётся технически невыполненным.', '', 'Все подготовленные candidate/raw files и исторические компактные evidence сверены по исходным hash. Статья, данные, seeds и научные методы не изменены; parent и основной confirmation-набор заново не готовились. Новые generation были только development. Большие requests, ответы, SQLite journals, analyses, tokenizer inventories, native proofs и source archives остаются в ignored bundle/verified-local. Git содержит компактные configs, методику, receipts, summaries и hashes; Release/tag/archive upload отсутствуют.', '', '**ready_for_scale = blocked.** Финальный executable release, проверяемый candidate handoff и отдельный admission ещё не выполнены. Старые candidate gates остаются историческими записями; новый standalone infrastructure smoke их не переписывает. Компактный PR требует локальных raw artifacts и сохранённых абсолютных путей; он не является переносимым исполняемым release.', '', 'Ключевые файлы: `smoke.execution.freeze.json`, `selection.v2.json`, `measurements.manifest.json`, `coverage.json`, `confirmation-coverage.verification.json`, `full-http-input-method-verification.json`, `native-tokenizer-verification.json`, `final-validation.json`, `scale-estimate.json`, `*.evidence.json`, `*.checker.json`, `artifact-index.json`.']
+    (OUT/'RESULTS.md').write_text('\n'.join(lines)+'\n',encoding='utf8',newline='\n')
+    for filename in ['finalize_verified_smoke.py','report_verified_smoke.py']:
+        shutil.copyfile(REPO/'experiments'/filename,OUT/(filename+'.txt'))
+    shutil.copyfile(REPO/'experiments/verified-precommit-final.txt',OUT/'project-hooks.txt')
+    shutil.copyfile(REPO/'experiments/verified-test-collection.txt',RAW/'project-test-collection.txt')
+    print(json.dumps({'attempts':len(intents),'real_smoke':validation['real_smoke'],'scale_mean_days':mean_seconds/86400,'ready_for_scale':'blocked'}),flush=True)
+
+if __name__=='__main__':main()

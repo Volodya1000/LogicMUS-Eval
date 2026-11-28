@@ -1,0 +1,34 @@
+{
+  "info": {
+    "type": "llm",
+    "modelKey": "openai/gpt-oss-20b",
+    "format": "gguf",
+    "displayName": "GPT-OSS 20B",
+    "path": "openai/gpt-oss-20b",
+    "sizeBytes": 12109664217,
+    "identifier": "openai/gpt-oss-20b",
+    "instanceReference": "0kWN1iOiXCNQLzE3iq47zlRl",
+    "vision": false,
+    "trainedForToolUse": true,
+    "maxContextLength": 131072,
+    "contextLength": 32768,
+    "paramsString": "20B",
+    "architecture": "gpt-oss"
+  },
+  "active_llama_dll_modules": [
+    "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll"
+  ],
+  "load_config": {
+    "gpu": {
+      "ratio": 0.75,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 32768,
+    "flashAttention": true,
+    "numExperts": 4
+  },
+  "base_config_sha256": "5fe5052a6354472f934afe1e60a17318766539f586c3f17084bba9d485b8b6f9",
+  "observed_at": "2026-11-28T16:25:45.151636+00:00",
+  "operator_checked": []
+}

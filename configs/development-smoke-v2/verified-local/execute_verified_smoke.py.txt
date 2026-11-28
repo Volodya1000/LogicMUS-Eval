@@ -1,0 +1,91 @@
+"""Serial orchestration of the unchanged production runner and HTTP adapter."""
+import hashlib
+import json
+import shutil
+import subprocess
+import sys
+import time
+from datetime import UTC,datetime
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path[:0]=[str(REPO),str(REPO/'experiments'),str(REPO/'experiments/live-smoke-tools')]
+import lmstudio
+from lmstudio._sdk_models import LlmRpcGetLoadConfigParameter
+from lmstudio.json_api import _model_spec_to_api_dict
+from logicmus_eval.hashing import compute_file_sha256,compute_source_bundle_hash
+from logicmus_eval.runner.config import load_config
+from logicmus_eval.runner.execution import resume_run
+from logicmus_eval.runner.preflight import digest,preflight
+from logicmus_eval.runner.snapshot import read_snapshot
+from verified_attempt_budget import reserve
+
+ROOT=REPO/'configs/development-smoke-v2'
+OUT=ROOT/'verified-local'
+RAW=ROOT/'bundle/verified-local'
+
+def save(path,data):path.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+
+def main(name):
+    freeze=json.loads((OUT/'smoke.execution.freeze.json').read_text())
+    assert freeze['source_bundle_sha256']==compute_source_bundle_hash()
+    assert datetime.now(UTC).date().isoformat()==freeze['rendered_date_utc']
+    for rel,expected in freeze['files'].items():assert compute_file_sha256(ROOT/rel)==expected,rel
+    for path,expected in freeze['external_files'].items():assert compute_file_sha256(Path(path))==expected,path
+    config=load_config(OUT/(name+'.smoke.json'));ready=preflight(config)
+    assert config.retry.max_attempts==1 and config.retry.transient_errors==[]
+    run=RAW/(name+'.run');snapshot=read_snapshot(run,[run/'report.json'])
+    run_id=snapshot.manifest.payload.run_id
+    assert run_id==freeze['runs'][name]['run_id']
+    assert len(ready.jobs)==freeze['runs'][name]['jobs']
+    ledger=RAW/'attempt-ledger.jsonl';intents=[json.loads(line) for line in ledger.read_text().splitlines() if json.loads(line)['event']=='intent']
+    pending=sum(not state.attempts for state in snapshot.states.values())
+    assert len(intents)+pending<=96 and sum(r['phase']=='smoke' for r in intents)+pending<=84
+    by_body={digest(j.request['body']):j for j in ready.jobs}
+    assert len(by_body)==len(ready.jobs)
+    # Audit observes the original adapter; no injected completion or HTTP wrapper.
+    def audit(event,args):
+        if event!='urllib.Request':return
+        url,data,_,method=args
+        if method!='POST' or not url.endswith('/chat/completions'):return
+        body=json.loads(data);job=by_body[digest(body)]
+        assert url==job.request['url'] and body==job.request['body']
+        assert datetime.now(UTC).date().isoformat()==freeze['rendered_date_utc']
+        assert base==active._session.remote_call('getBasePredictionConfig',base_params),'Backend prompt conditions changed before HTTP'
+        assert active.get_info().to_dict()['instanceReference']==instance_reference,'Loaded instance changed'
+        saved=reserve(ledger,{'phase':'smoke','at':datetime.now(UTC).isoformat(),'model':name,'strategy':job.strategy,'case_uid':job.case.case_id,'purpose':job.case.metadata['purpose'],'request_sha256':digest(job.request),'run_id':run_id,'source':'stdlib urllib.Request audit before HTTP open'})
+        print(json.dumps({'reserved_attempt':saved['attempt'],'model':name,'strategy':job.strategy,'case_uid':job.case.case_id}),flush=True)
+    with lmstudio.Client('127.0.0.1:1234') as client:
+        active=next(m for m in client.llm.list_loaded() if m.identifier==config.models[0].model_id)
+        base_params=LlmRpcGetLoadConfigParameter._from_api_dict({'specifier':_model_spec_to_api_dict(active.identifier)})
+        base=active._session.remote_call('getBasePredictionConfig',base_params)
+        assert base==json.loads((OUT/(name+'.effective-base-config.json')).read_text())
+        assert active.get_context_length()==config.models[0].expected_profile.context_tokens
+        info=active.get_info().to_dict();instance_reference=info['instanceReference']
+        command="Get-Process -Name 'LM Studio' -ErrorAction SilentlyContinue | ForEach-Object { try { $_.Modules | Where-Object { $_.ModuleName -eq 'llama.dll' } | Select-Object -ExpandProperty FileName } catch {} } | ConvertTo-Json -Compress"
+        module_paths=json.loads(subprocess.check_output(['powershell','-NoProfile','-Command',command],text=True))
+        module_paths=[module_paths] if isinstance(module_paths,str) else module_paths
+        expected_dll=json.loads((OUT/'native-tokenizer-verification.json').read_text())['dll_path']
+        assert module_paths and all(Path(p).resolve()==Path(expected_dll).resolve() for p in module_paths),'Active runtime differs'
+        save(OUT/(name+'.smoke-backend.before.json'),{'info':info,'active_llama_dll_modules':module_paths,'load_config':active.get_load_config().to_dict(),'base_config_sha256':digest(base),'observed_at':datetime.now(UTC).isoformat(),'operator_checked':[]})
+        sys.addaudithook(audit)
+        started=time.perf_counter();report=resume_run(run,config=config)
+        elapsed=time.perf_counter()-started
+        assert base==active._session.remote_call('getBasePredictionConfig',base_params)
+        finished=read_snapshot(run,[run/'report.json'])
+        assert all(s.outcome is not None for s in finished.states.values())
+        before=run/'resume.before.json';after=run/'resume.after.json'
+        shutil.copyfile(run/'report.json',before)
+        count=len([json.loads(l) for l in ledger.read_text().splitlines() if json.loads(l)['event']=='intent'])
+        head=finished.journal_head;events=finished.journal_events;outcomes={k:s.outcome.model_dump(mode='json') for k,s in finished.states.items()}
+        resume_run(run,config=config)
+        shutil.copyfile(run/'report.json',after)
+        resumed=read_snapshot(run,[before,after])
+        assert before.read_bytes()==after.read_bytes()
+        assert count==len([json.loads(l) for l in ledger.read_text().splitlines() if json.loads(l)['event']=='intent'])
+        assert head==resumed.journal_head and events==resumed.journal_events
+        assert outcomes=={k:s.outcome.model_dump(mode='json') for k,s in resumed.states.items()}
+        save(OUT/(name+'.execution.json'),{'run_id':run_id,'model':name,'jobs':len(ready.jobs),'attempted':sum(len(s.attempts) for s in finished.states.values()),'completed':sum(s.outcome is not None for s in finished.states.values()),'elapsed_seconds_including_runner':elapsed,'journal_head':head,'journal_events':events,'noop_resume_http_attempts':0,'noop_report_identical':True,'noop_journal_identical':True,'noop_outcomes_identical':True,'real_smoke':'pending evidence checker','report_sha256':compute_file_sha256(run/'report.json')})
+        print(json.dumps({'model':name,'complete_jobs':len(ready.jobs),'elapsed_seconds':elapsed,'noop_http_attempts':0}),flush=True)
+
+if __name__=='__main__':main(sys.argv[1])

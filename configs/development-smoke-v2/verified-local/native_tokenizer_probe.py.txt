@@ -1,0 +1,174 @@
+"""Vocabulary-only tokenization with the exact installed prediction runtime.
+
+No context creation, tensor loading, prediction, network, or LM Studio API calls.
+All native work is isolated in a child process by the default verification CLI.
+"""
+from __future__ import annotations
+
+import argparse
+import ctypes as C
+import hashlib
+import json
+import os
+from pathlib import Path
+import struct
+import subprocess
+import sys
+
+REPO = Path(__file__).resolve().parents[1]
+RAW = REPO / "configs/development-smoke-v2/bundle/verified-local"
+OUT = REPO / "configs/development-smoke-v2/verified-local"
+RUNTIME = Path("C:/Users/dva/.lmstudio/extensions/backends/llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0")
+VENDOR = RUNTIME.parent / "vendor/win-llama-cuda12-vendor-v2"
+MODELS = {
+    "qwen": Path("D:/lmstudiomodels/lmstudio-community/Qwen2.5-Coder-14B-Instruct-GGUF/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf"),
+    "gemma": Path("D:/lmstudiomodels/lmstudio-community/gemma-4-E4B-it-GGUF/gemma-4-E4B-it-Q4_K_M.gguf"),
+    "gpt-oss": Path("D:/lmstudiomodels/lmstudio-community/gpt-oss-20b-GGUF/gpt-oss-20b-MXFP4.gguf"),
+}
+
+
+def sha(path: Path) -> str:
+    with path.open("rb") as stream:
+        return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+class NativeTokenizer:
+    """Reusable helper: with NativeTokenizer(model_path) as t: t.tokenize(text).
+
+    Use inside a child process. tokenize defaults match native prediction-side
+    addBos=true with special-token parsing; false permits SDK parity checks.
+    Model weights are never loaded: verified binary vocab_only byte is 0x48.
+    """
+
+    def __init__(self, model_path: str | Path):
+        self.directory = os.add_dll_directory(str(RUNTIME))
+        self.vendor_directory = os.add_dll_directory(str(VENDOR))
+        self.dll = C.CDLL(str(RUNTIME / "llama.dll"))
+        # Win64 sret ABI: default_params receives the hidden result pointer in
+        # RCX and returns that same pointer in RAX. Disassembly writes 80 bytes.
+        self.dll.llama_model_default_params.argtypes = [C.c_void_p]
+        self.dll.llama_model_default_params.restype = C.c_void_p
+        params = C.create_string_buffer(80)
+        assert self.dll.llama_model_default_params(C.byref(params)) == C.addressof(params)
+        expected = bytearray(80)
+        expected[16:32] = bytes.fromhex("ffffffff01000000ffffffff01000000")
+        expected[0x4A] = 1
+        assert params.raw == expected, "Installed DLL default parameter ABI changed"
+        self.default_params_hex = params.raw.hex()
+        params[0x48] = b"\x01"
+        # Offset0x10 is n_gpu_layers (default -1); vocabulary-only skips all
+        # tensors regardless. Set0 as additional CPU-only defense.
+        C.c_int32.from_buffer(params, 0x10).value = 0
+        self.params_hex = params.raw.hex()
+        # Win64 passes this >8-byte by-value struct through a pointer in RDX.
+        # The shipped loader additionally preserves R8; explicitly zero it.
+        self.dll.llama_model_load_from_file.argtypes = [C.c_char_p, C.c_void_p, C.c_void_p]
+        self.dll.llama_model_load_from_file.restype = C.c_void_p
+        self.dll.llama_model_free.argtypes = [C.c_void_p]
+        self.dll.llama_model_free.restype = None
+        self.dll.llama_model_get_vocab.argtypes = [C.c_void_p]
+        self.dll.llama_model_get_vocab.restype = C.c_void_p
+        self.dll.llama_tokenize.argtypes = [C.c_void_p, C.c_char_p, C.c_int32, C.POINTER(C.c_int32), C.c_int32, C.c_bool, C.c_bool]
+        self.dll.llama_tokenize.restype = C.c_int32
+        for name in ("llama_vocab_get_add_bos", "llama_vocab_get_add_eos", "llama_vocab_get_add_sep"):
+            fn = getattr(self.dll, name)
+            fn.argtypes = [C.c_void_p]
+            fn.restype = C.c_bool
+        self.model = self.dll.llama_model_load_from_file(os.fsencode(model_path), C.byref(params), None)
+        if not self.model:
+            raise RuntimeError("Vocabulary-only load failed")
+        self.vocab = self.dll.llama_model_get_vocab(self.model)
+        self.special_flags = {name: bool(getattr(self.dll, "llama_vocab_get_add_" + name)(self.vocab)) for name in ("bos", "eos", "sep")}
+
+    def tokenize(self, text: str, add_special: bool = True, parse_special: bool = True) -> list[int]:
+        encoded = text.encode("utf8")
+        capacity = max(32, len(encoded) + 16)
+        tokens = (C.c_int32 * capacity)()
+        count = self.dll.llama_tokenize(self.vocab, encoded, len(encoded), tokens, capacity, add_special, parse_special)
+        if count < 0:
+            capacity = -count
+            tokens = (C.c_int32 * capacity)()
+            count = self.dll.llama_tokenize(self.vocab, encoded, len(encoded), tokens, capacity, add_special, parse_special)
+        if count < 0:
+            raise RuntimeError("Native tokenize capacity retry failed")
+        return list(tokens[:count])
+
+    def count(self, text: str) -> int:
+        return len(self.tokenize(text))
+
+    def close(self):
+        if getattr(self, "model", None):
+            self.dll.llama_model_free(self.model)
+            self.model = None
+        self.directory.close()
+        self.vendor_directory.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+
+def trace_pairs():
+    # The live trace may end in a partial JSON line. Never parse trailing bytes.
+    content = (RAW / "model-trace.jsonl").read_bytes()
+    complete = content[:content.rfind(b"\n") + 1]
+    pairs = []
+    current = None
+    for line in complete.splitlines():
+        if not line.strip():
+            continue
+        event = json.loads(line)["data"]
+        if event["type"] == "llm.prediction.input":
+            current = event
+        elif event["type"] == "llm.prediction.output" and current is not None:
+            pairs.append((current, event))
+            current = None
+    return pairs
+
+
+def child(model: str):
+    marker = {"qwen": "<|im_start|>", "gemma": "<|turn>", "gpt-oss": "<|start|>"}[model]
+    entries = []
+    with NativeTokenizer(MODELS[model]) as tokenizer:
+        for index, (inp, output) in enumerate(trace_pairs(), 1):
+            prompt = inp["input"]
+            if not prompt.startswith(marker):
+                continue
+            native = tokenizer.tokenize(prompt)
+            sdk_mode = tokenizer.tokenize(prompt, add_special=False)
+            usage = output["stats"]["promptTokensCount"]
+            assert len(native) == usage, (model, index, len(native), usage)
+            entries.append({"trace_completed_pair": index, "prompt_sha256": hashlib.sha256(prompt.encode("utf8")).hexdigest(), "native_prediction_tokens": len(native), "native_sdk_mode_tokens": len(sdk_mode), "usage_prompt_tokens": usage, "native_ids_sha256": hashlib.sha256(struct.pack("<" + "i" * len(native), *native)).hexdigest(), "native_first_ids": native[:8], "sdk_mode_first_ids": sdk_mode[:8], "matches_usage": True})
+        assert entries, "No completed trace for model"
+        result = {"model": model, "model_path": str(MODELS[model]), "model_file_sha256": sha(MODELS[model]), "native_special_flags": tokenizer.special_flags, "default_params_hex": tokenizer.default_params_hex, "vocabulary_only_params_hex": tokenizer.params_hex, "comparisons": entries}
+    print(json.dumps(result), flush=True)
+
+
+def verify():
+    dll = RUNTIME / "llama.dll"
+    # Preserve compact exact machine-code evidence without loading the DLL here.
+    ranges = [(0x18012DE70, 0x18012DE95), (0x18000227C, 0x1800022F8), (0x180196600, 0x180196646), (0x180195DE0, 0x180195E10), (0x180002B40, 0x180002BA0)]
+    proof = "\n".join(subprocess.check_output(["objdump", "-d", "-M", "intel", f"--start-address={start:#x}", f"--stop-address={end:#x}", str(dll)], text=True) for start, end in ranges)
+    proof += subprocess.check_output(["objdump", "-s", "--start-address=0x180355ef0", "--stop-address=0x180355f13", str(dll)], text=True)
+    proof_path = RAW / "native-tokenizer-abi.disassembly.txt"
+    proof_path.write_text(proof, encoding="utf8", newline="\n")
+    models = []
+    for model in MODELS:
+        completed = subprocess.run([sys.executable, str(Path(__file__).resolve()), "--child", model], capture_output=True, timeout=240)
+        (RAW / f"native-tokenizer-{model}.stderr.txt").write_bytes(completed.stderr)
+        if completed.returncode:
+            raise RuntimeError(f"Native child {model} failed with {completed.returncode}: {completed.stderr[-1500:]!r}")
+        models.append(json.loads(completed.stdout.decode("utf8")))
+        print(json.dumps({"model": model, "completed_comparisons": len(models[-1]["comparisons"])}), flush=True)
+    result = {"method_version": "installed-native-vocabulary-tokenizer-v1", "scope": "Exact installed native tokenizer applied to saved emitted prediction prompts. No inference context, weights, GPU allocations, network, or model generation.", "dll_path": str(dll), "dll_sha256": sha(dll), "script_sha256": sha(Path(__file__)), "runtime_dependencies": {p.name: sha(p) for p in sorted(RUNTIME.glob("*.dll"))}, "vendor_dependencies": {p.name: sha(p) for p in sorted(VENDOR.glob("*.dll"))}, "abi_disassembly_path": str(proof_path.relative_to(REPO)), "abi_disassembly_sha256": sha(proof_path), "abi": {"platform": "Windows x64", "default_params_rva": "0x12de70", "model_params_bytes": 80, "vocab_only_byte": "0x48", "n_gpu_layers_byte": "0x10", "tokenize_rva": "0x196e40", "tokenize_args": ["vocab", "utf8_text", "text_bytes", "int32_tokens", "capacity", "add_special=true", "parse_special=true"]}, "models": models, "limitation": "This verifies native tokenization and special-token handling; HTTP-to-prompt replay equivalence and runtime/model/date/config immutability must be established separately."}
+    (OUT / "native-tokenizer-verification.json").write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf8", newline="\n")
+
+
+if __name__ == "__main__":
+    sys.stdout.reconfigure(encoding="utf8")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--child", choices=MODELS)
+    args = parser.parse_args()
+    child(args.child) if args.child else verify()

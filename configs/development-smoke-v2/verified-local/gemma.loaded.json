@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-11-28T15:30:10.040081+00:00",
+  "info": {
+    "type": "llm",
+    "modelKey": "google/gemma-4-e4b",
+    "format": "gguf",
+    "displayName": "Gemma 4 E4B",
+    "path": "google/gemma-4-e4b",
+    "sizeBytes": 6326936720,
+    "identifier": "google/gemma-4-e4b",
+    "instanceReference": "azhMHwH1pdm8Bjwjc+j7tCSo",
+    "vision": true,
+    "trainedForToolUse": true,
+    "maxContextLength": 131072,
+    "contextLength": 32768,
+    "paramsString": "7.5B",
+    "architecture": "gemma4"
+  },
+  "load_config": {
+    "gpu": {
+      "ratio": 1.0,
+      "splitStrategy": "evenly",
+      "disabledGpus": []
+    },
+    "contextLength": 32768,
+    "flashAttention": true
+  },
+  "context_tokens": 32768,
+  "evidence_class": "observed",
+  "operator_checked": []
+}

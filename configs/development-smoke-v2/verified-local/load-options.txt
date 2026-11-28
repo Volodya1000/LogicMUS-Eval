@@ -1,0 +1,37 @@
+Usage: lms load [options] [model-key]
+
+Load a model
+
+Arguments:
+   model-key                                The model key to load. If not provided, enters
+                                            an interactive mode to select a model.
+
+Options:
+   --gpu <offload-ratio>                    GPU offload ratio. Valid values: "off"
+                                            (disable GPU), "max" (full offload), or a
+                                            number between 0 and 1 (e.g., "0.5" for 50%
+                                            offload). By default, LM Studio automatically
+                                            determines the optimal offload ratio.
+   -c, --context-length <length>            The number of tokens to consider as context
+                                            when generating text. If not provided, the
+                                            default value will be used.
+   --parallel <count>                       Maximum number of predictions the model can
+                                            run at a given time. The speed of each
+                                            individual prediction may decrease with
+                                            concurrency, but each prediction will start
+                                            faster and higher total throughput can be
+                                            achieved.
+   --ttl <seconds>                          TTL: If provided, when the model is not used
+                                            for this number of seconds, it will be
+                                            unloaded.
+   --identifier <identifier>                The identifier to assign to the loaded model.
+                                            The identifier can be used to refer to the
+                                            model in the API.
+   --estimate-only                          Calculate an estimate of the resources
+                                            required to load the model. Does not load the
+                                            model.
+   -y, --yes                                Automatically approve all prompts. Useful for
+                                            scripting. If there are multiple models
+                                            matching the model key, the model will be
+                                            loaded on the preferred device (if set), or
+                                            the first matching model will be loaded.

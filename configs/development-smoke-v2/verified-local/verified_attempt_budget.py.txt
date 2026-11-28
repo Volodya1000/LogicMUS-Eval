@@ -1,0 +1,52 @@
+"""Persistent, shared attempt reservations before any urllib generation POST."""
+import json
+import os
+from pathlib import Path
+
+def reserve(ledger:Path, intent:dict)->dict:
+    import msvcrt
+    lock=ledger.with_suffix('.lock')
+    with lock.open('a+b') as handle:
+        if handle.tell()==0:handle.write(b'0');handle.flush()
+        handle.seek(0);msvcrt.locking(handle.fileno(),msvcrt.LK_LOCK,1)
+        try:
+            rows=[json.loads(line) for line in ledger.read_text(encoding='utf8').splitlines()] if ledger.exists() else []
+            intents=[r for r in rows if r['event']=='intent']
+            phase=intent['phase'];assert phase in ['diagnostic','smoke']
+            limits={'diagnostic':12,'smoke':84}
+            if len(intents)>=96 or sum(r['phase']==phase for r in intents)>=limits[phase]:
+                raise ValueError('Global generation attempt budget exhausted')
+            if phase=='smoke' and any(r['phase']=='smoke' and r['request_sha256']==intent['request_sha256'] for r in intents):
+                raise ValueError('A new run cannot repeat a reserved smoke request')
+            saved={**intent,'event':'intent','attempt':len(intents)+1}
+            with ledger.open('a',encoding='utf8') as stream:
+                stream.write(json.dumps(saved)+'\n');stream.flush();os.fsync(stream.fileno())
+            return saved
+        finally:handle.seek(0);msvcrt.locking(handle.fileno(),msvcrt.LK_UNLCK,1)
+
+def verify_limits():
+    import tempfile
+    with tempfile.TemporaryDirectory() as directory:
+        ledger=Path(directory)/'attempts.jsonl'
+        for i in range(12):reserve(ledger,{'phase':'diagnostic','request_sha256':f'd{i}'})
+        try:reserve(ledger,{'phase':'diagnostic','request_sha256':'d13'})
+        except ValueError:pass
+        else:raise AssertionError('Diagnostic cap bypass')
+        for i in range(84):reserve(ledger,{'phase':'smoke','request_sha256':f's{i}','run_id':f'new-run-{i}'})
+        try:reserve(ledger,{'phase':'smoke','request_sha256':'new','run_id':'another-run'})
+        except ValueError:pass
+        else:raise AssertionError('Total cap bypass by new run')
+        assert len(ledger.read_text().splitlines())==96
+        other=Path(directory)/'other.jsonl'
+        reserve(other,{'phase':'smoke','request_sha256':'same','run_id':'first'})
+        try:reserve(other,{'phase':'smoke','request_sha256':'same','run_id':'second'})
+        except ValueError:pass
+        else:raise AssertionError('Indeterminate/new-run duplicate bypass')
+        third=Path(directory)/'third.jsonl'
+        for i in range(84):reserve(third,{'phase':'smoke','request_sha256':str(i)})
+        try:reserve(third,{'phase':'smoke','request_sha256':'85'})
+        except ValueError:pass
+        else:raise AssertionError('Smoke phase cap bypass below global cap')
+    return {'diagnostic_13_rejected':True,'total_97_rejected':True,'new_run_repeat_rejected':True,'smoke_85_rejected':True,'reservation_survives_reopen':True,'actual_generation_requests':0}
+
+if __name__=='__main__':print(json.dumps(verify_limits()))

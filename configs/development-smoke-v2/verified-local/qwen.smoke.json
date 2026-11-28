@@ -1,0 +1,45 @@
+{
+  "config_version": "controlled-run-v1",
+  "series_manifest": "../bundle/parent/series.manifest.json",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "api_key_env": null,
+  "models": [
+    {
+      "model_id": "qwen2.5-coder-14b-instruct",
+      "expected_profile": {
+        "served_model_id": "qwen2.5-coder-14b-instruct",
+        "revision": null,
+        "model_file": "D:\\lmstudiomodels\\lmstudio-community\\Qwen2.5-Coder-14B-Instruct-GGUF\\Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf; sha256=ec8991dc0de5af1c40498adb827192971c4169e9f5ac785f9bde23137e2384e2",
+        "quantization": "Q4_K_M",
+        "context_tokens": 12288,
+        "backend_version": "LM Studio 0.4.13+1; llama.cpp CUDA12 2.83.0; llama.dll sha256=daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+        "chat_template": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\qwen.effective-chat-template.json",
+        "tokenizer": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\qwen.effective-tokenizer.json"
+      },
+      "generation": {
+        "max_tokens": 2048,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": null,
+        "reasoning_effort": null
+      }
+    }
+  ],
+  "strategies": [
+    "direct",
+    "z3"
+  ],
+  "request_timeout_seconds": 180.0,
+  "retry": {
+    "max_attempts": 1,
+    "initial_delay_seconds": 0.0,
+    "max_delay_seconds": 0.0,
+    "transient_errors": []
+  },
+  "z3_timeout_seconds": 5.0,
+  "diagnostic_parent_run": null,
+  "infrastructure_smoke": {
+    "selection_path": "selection.v2.json",
+    "selection_sha256": "63b07505d8bca88e1b630db604656b9df61a370f97dcd5adae998185930621da"
+  }
+}

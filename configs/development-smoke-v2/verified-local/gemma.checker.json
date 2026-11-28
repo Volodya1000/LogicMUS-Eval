@@ -1,0 +1,17 @@
+{
+  "command": [
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\.venv\\Scripts\\python.exe",
+    "-m",
+    "logicmus_eval.cli",
+    "check-development-smoke",
+    "--root",
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2",
+    "--config",
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\gemma.smoke.json",
+    "--evidence",
+    "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\configs\\development-smoke-v2\\verified-local\\gemma.evidence.json"
+  ],
+  "exit_code": 1,
+  "stdout": "{\"real_smoke\": \"not_verified\", \"issue\": \"[Errno 2] No such file or directory: 'D:\\\\\\\\Volodya\\\\\\\\ai_experiments\\\\\\\\LogicMUS-Eval\\\\\\\\configs\\\\\\\\development-smoke-v2\\\\\\\\verified-local\\\\\\\\gemma.evidence.json'\"}\n",
+  "stderr": ""
+}

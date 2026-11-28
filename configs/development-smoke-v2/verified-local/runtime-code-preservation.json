@@ -1,0 +1,27 @@
+{
+  "scope": "Exact critical implementation bytes for offline code/disassembly review; not a complete portable installed runtime",
+  "archive": "bundle/verified-local/critical-runtime-code.tar.gz",
+  "archive_sha256": "3e6acb0c890d9405088ac898722f90230ba458701626a7fb10f8c8e6fee8c1fb",
+  "files": {
+    "app/main/index.js": {
+      "source": "C:\\Program Files\\LM Studio\\resources\\app\\.webpack\\main\\index.js",
+      "sha256": "5d5d021a923e2063ad85c1931c040cbba229b70a27c1edd2bf8fe934b8c4d9a7",
+      "bytes": 15860422
+    },
+    "runtime/llama.dll": {
+      "source": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llama.dll",
+      "sha256": "daf25ea66c0fcb39bcf6e25a6d582c737a1087caf45b96f403443f4c5a1efab3",
+      "bytes": 4006584
+    },
+    "runtime/llm_engine.dll": {
+      "source": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\llm_engine.dll",
+      "sha256": "16435436904872cc20f3191089e169ee905bd72930aac93c4cc9fc4f9406492e",
+      "bytes": 6505656
+    },
+    "runtime/backend-manifest.json": {
+      "source": "C:\\Users\\dva\\.lmstudio\\extensions\\backends\\llama.cpp-win-x86_64-nvidia-cuda12-avx2-2.83.0\\backend-manifest.json",
+      "sha256": "f93b17aedc677a9a946e30a348194d1c9df400e88b46cf70250b8f2cebf91bc8",
+      "bytes": 1160
+    }
+  }
+}

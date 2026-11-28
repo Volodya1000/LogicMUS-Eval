@@ -1,0 +1,53 @@
+"""Replay actual diagnostic HTTP envelopes through production parsing/Z3."""
+import json
+import sys
+from pathlib import Path
+
+REPO=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(REPO))
+from logicmus_eval.errors import ExtractorError
+from logicmus_eval.extractor_metadata import extract_usage_metadata
+from logicmus_eval.infrastructure_smoke import load_admitted_cases
+from logicmus_eval.models.llm import DirectReasoningResponse,LLMToZ3Response
+from logicmus_eval.response_processing import parse_response
+from logicmus_eval.runner.preflight import digest
+from logicmus_eval.sandbox.executor import Z3CodeExecutor
+
+ROOT=REPO/'configs/development-smoke-v2'
+RAW=ROOT/'bundle/verified-local'
+OUT=ROOT/'verified-local'
+
+def main():
+    entries=[json.loads(line) for line in (RAW/'attempt-ledger.jsonl').read_text().splitlines()]
+    intents=[e for e in entries if e['event']=='intent']
+    assert len(intents)<=96 and sum(e['phase']=='diagnostic' for e in intents)<=12
+    assert len({e['attempt'] for e in intents})==len(intents)
+    _,cases=load_admitted_cases(ROOT/'bundle/parent/series.manifest.json')
+    by_uid={c.case_id:c for c in cases};results=[]
+    for intent in intents:
+        number=intent['attempt'];request=json.loads((RAW/f'diagnostic-{number:02}.request.json').read_text())
+        assert digest(request)==intent['request_sha256'] and intent['purpose']=='development'
+        assert request['transport']['automatic_retries']==0
+        saved=json.loads((RAW/f'diagnostic-{number:02}.response.json').read_text());response=saved['response'];case=by_uid[intent['case_uid']]
+        row={k:intent[k] for k in ['attempt','model','strategy','variant','case_uid','request_sha256']}
+        row.update(elapsed_seconds=saved['elapsed_seconds'],http_completed=response is not None,error_type=saved['error']['type'] if saved['error'] else None)
+        if response:
+            assert response['http_status']==200 and response['raw_body']
+            metadata=extract_usage_metadata(response,saved['elapsed_seconds'])
+            row.update(usage=response.get('usage'),finish_reason=metadata.finish_reason)
+            try:
+                schema=DirectReasoningResponse if intent['strategy']=='direct' else LLMToZ3Response
+                parsed=parse_response(response,schema,metadata).data
+                if intent['strategy']=='z3':
+                    execution=Z3CodeExecutor(timeout_seconds=5).execute(parsed.python_z3_code,[r['id'] if isinstance(r,dict) else r.id for r in case.rules])
+                    row.update(execution_success=execution.success,error_type=execution.error_type.value if execution.error_type else None,predicted_is_sat=execution.is_sat)
+                else:row['predicted_is_sat']=parsed.is_sat
+                row['gold_is_sat']=case.is_satisfiable
+                row['sat_correct']=row['predicted_is_sat']==case.is_satisfiable if row['predicted_is_sat'] is not None else None
+            except ExtractorError as error:row['error_type']=error.error_type.value
+        results.append(row)
+    payload={'scope':'separate development diagnosis, not admitted infrastructure smoke or primary quality analysis','attempted':len(intents),'completed':sum(r['http_completed'] for r in results),'retries':0,'confirmation_generation_attempts':0,'real_smoke':'not_established_by_diagnostics','attempts':results}
+    (OUT/'diagnostic-results.json').write_text(json.dumps(payload,ensure_ascii=False,indent=2)+'\n',encoding='utf8',newline='\n')
+    print(json.dumps({k:v for k,v in payload.items() if k!='attempts'}),flush=True)
+
+if __name__=='__main__':main()

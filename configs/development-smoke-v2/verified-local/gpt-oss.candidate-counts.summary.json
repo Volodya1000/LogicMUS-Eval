@@ -1,0 +1,32 @@
+{
+  "status": "candidate-method-pending-final-review",
+  "method": "native applyPromptTemplate RPC with raw full base/session config, structured and reasoning stack, omitBos true; exact installed llama.dll vocabulary tokenize add_special=true/parse_special=true",
+  "model_id": "openai/gpt-oss-20b",
+  "base_config_sha256": "5fe5052a6354472f934afe1e60a17318766539f586c3f17084bba9d485b8b6f9",
+  "native_special_flags": {
+    "bos": false,
+    "eos": false,
+    "sep": false
+  },
+  "generation_requests": 0,
+  "offline_seconds": 319.7618808999978,
+  "distinct_formatting_requests": 19456,
+  "strategies": {
+    "direct": {
+      "parent_max": 2059,
+      "parent_max_case_uid": "3546f1d67e3e750565a7c717242de1722a21b48519010b1eb38d0a6177f0efce",
+      "confirmation_max": 1549,
+      "original_smoke_max": 1932,
+      "parent_requests": 2048,
+      "confirmation_requests": 9728
+    },
+    "z3": {
+      "parent_max": 3160,
+      "parent_max_case_uid": "06a4ee841185b09e91ad81a27e48184b52bf793063bcaf31fa71c950d8a5c4b7",
+      "confirmation_max": 2376,
+      "original_smoke_max": 3045,
+      "parent_requests": 2048,
+      "confirmation_requests": 9728
+    }
+  }
+}
