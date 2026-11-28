@@ -1,0 +1,28 @@
+{
+  "preparation_attempts": 1,
+  "seeds": [
+    2718281,
+    3141593
+  ],
+  "pairs_per_seed": 128,
+  "threshold": 0.55,
+  "smt_passed_cells": 19,
+  "independent_reference_passed_cells": 19,
+  "leakage_passed_cells": 18,
+  "leakage_failed_cells": [
+    {
+      "cell_id": "6e531eefff94dbc88a3406b78a36b4cd00dd224d7240e0f5d956a16fa6dd3744",
+      "series_id": "topologies",
+      "series_kind": "topology_panel",
+      "pattern_id": "idem",
+      "k": 3,
+      "n": 16
+    }
+  ],
+  "combined_leakage_passed": true,
+  "max_measured_balanced_accuracy": 0.5568627450980392,
+  "dataset_ready": false,
+  "cause": "not established: no attribution to sampling fluctuation or systematic surface cue from a failing audit alone",
+  "real_model_requests": 0,
+  "real_smoke": "not_verified"
+}

@@ -10,7 +10,7 @@
 
 В Git хранятся планы, три существующих RunConfig, проспективный AnalysisPlan,
 протокол, inventory до подготовки, манифест фиксации и компактные результаты.
-Большой `bundle/` и архивы исключены из Git. Полные JSONL, SMT-контроль и все
+Большой `bundle/` и все архивы исключены из Git. Полные JSONL, SMT-контроль и все
 диагностики, включая неудачные, сохраняются локально. `package.json` перечисляет
 локальные архивы, размеры и SHA256; автоматической выгрузки нет.
 
@@ -39,6 +39,30 @@ checkout часть исторических файлов имеет CRLF. Git �
 Поэтому source-and-contracts архив сохраняет точные байты Python-файлов, lock,
 pyproject и зафиксированных контрактов; для побайтового воспроизведения нужно
 восстановить этот архив, а не принимать несовпадающий хеш после `git clone`.
+
+Архивы остаются локальными: их передачу выполняет оператор. Если доступен только
+Git checkout implementation_commit из `source-snapshot.json`, восстановить
+точные LF/CRLF по сохраненным SHA256 можно без архива. Для каждого перечисленного
+файла допускается только та форма конца строки, которая дает **точное** совпадение
+хеша; любое другое расхождение останавливает восстановление:
+
+```powershell
+@'
+import hashlib, json
+from pathlib import Path
+receipt = json.loads(Path("releases/confirmation-v1/source-snapshot.json").read_text(encoding="utf-8"))
+for name, expected in receipt["files"].items():
+    path = Path(name)
+    raw = path.read_bytes()
+    lf = raw.replace(b"\r\n", b"\n")
+    matches = [value for value in (raw, lf, lf.replace(b"\n", b"\r\n")) if hashlib.sha256(value).hexdigest() == expected]
+    if not matches:
+        raise SystemExit("Source/contract differs beyond line endings: " + name)
+    if raw != matches[0]:
+        path.write_bytes(matches[0])
+print("Exact frozen source and contract bytes restored")
+'@ | uv run --no-sync python -
+```
 
 Воспроизведение подготовки — только в отдельной копии и новом пустом каталоге,
 с точными версиями/байтами исходников из архива и зафиксированным планом:
@@ -115,6 +139,19 @@ uv run logicmus-eval prepare-experiment --plan "$r/development.smoke.plan.json" 
 производные файлы, их хеши и условия. Не менять generation/timeout/profile/model.
 Пути `series_manifest` разрешаются относительно файла RunConfig.
 
+```powershell
+@'
+import json, sys
+from pathlib import Path
+r = Path(sys.argv[1])
+for name in ("qwen", "gemma", "gpt-oss"):
+    config = json.loads((r / (name + ".run.json")).read_text(encoding="utf-8"))
+    config["series_manifest"] = "development-smoke/series.manifest.json"
+    path = r / "bundle" / (name + ".smoke.run.json")
+    path.write_text(json.dumps(config, indent=2) + "\n", encoding="utf-8", newline="\n")
+'@ | uv run --no-sync python - $r
+```
+
 Для каждого `qwen`, `gemma`, `gpt-oss` (нужная модель должна быть загружена оператором):
 
 ```powershell
@@ -137,6 +174,26 @@ count и оба checkpoint-отчета. Если произошел обрыв 
 с этим UUID, все ячейки/обе стратегии, primary MUS Exact Match, дополнительные
 MUS F1/SAT accuracy/coverage, seed=20261128, pointwise Wilson/family bootstrap.
 После этого выполнить существующий анализ:
+
+UUID можно прочитать из `bundle/smoke/<name>/run.manifest.json` поля payload.run_id.
+Полный минимальный план для одного smoke (выполнить после создания его run):
+
+```powershell
+@'
+import json, sys
+from pathlib import Path
+r = Path(sys.argv[1])
+for name in ("qwen", "gemma", "gpt-oss"):
+    saved = json.loads((r / "bundle" / "smoke" / name / "run.manifest.json").read_text(encoding="utf-8"))
+    plan = {
+        "analysis_version": "controlled-analysis-v1", "purpose": "development", "mode": "primary",
+        "groups": [{"name": "smoke", "run_ids": [saved["payload"]["run_id"]]}],
+        "primary_metric": "mus_exact_match", "additional_metrics": ["mus_f1", "sat_accuracy", "coverage"],
+        "contrasts": [], "intervals": {"seed": 20261128, "repeats": 10000, "level": 0.95, "min_families": 2},
+    }
+    (r / "bundle" / (name + ".smoke.analysis.json")).write_text(json.dumps(plan, indent=2) + "\n", encoding="utf-8", newline="\n")
+'@ | uv run --no-sync python - $r
+```
 
 ```powershell
 uv run logicmus-eval analyze-controlled --run "$r/bundle/smoke/qwen" --plan "$r/bundle/qwen.smoke.analysis.json" --output "$r/bundle/smoke-analysis/qwen"

@@ -1,0 +1,15 @@
+{
+  "full_pytest_passed": 447,
+  "new_release_tests_passed": 29,
+  "mypy_source_files": 129,
+  "ruff": "passed",
+  "pylint": "10.00/10",
+  "independent_review": "important findings reproduced and fixed; no deferred minors",
+  "historical_tracked_artifacts_changed": false,
+  "models_downloaded": false,
+  "real_http_smoke_performed": false,
+  "note": "Hooks used UV_NO_SYNC for unavailable editable rebuild proxy; final full suite passed before docs-only packaging.",
+  "actual_release_check_exit": 1,
+  "actual_initialize_exit": 1,
+  "blocked_initialize_created_run_directory": false
+}
