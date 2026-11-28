@@ -1,0 +1,8 @@
+{
+  "attempt": 1,
+  "started_at": "2026-11-28T14:21:00.523768+00:00",
+  "candidate_receipt_sha256": "da362976e77a76feff63756cda4a4a7d2990cceac0f6e6eb9fa4cd2d0b88c567",
+  "plan_sha256": "3f4683bcb9226ac1c88d5676e6ce1b2145298e33ed3abbb3bfa121a57e70da16",
+  "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+  "command": "production prepare_experiment(plan, root / 'bundle/confirmation')"
+}

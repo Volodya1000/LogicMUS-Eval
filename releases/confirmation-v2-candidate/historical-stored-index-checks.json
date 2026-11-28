@@ -1,0 +1,20 @@
+{
+  "historical_saved_index_checks": [
+    {
+      "inventory": "confirmation-v1-package",
+      "files_checked": 64,
+      "mismatches": []
+    },
+    {
+      "inventory": "development-parent-receipt",
+      "files_checked": 10,
+      "mismatches": []
+    },
+    {
+      "inventory": "PR10-raw-and-compact-evidence",
+      "files_checked": 90,
+      "mismatches": []
+    }
+  ],
+  "note": "Verifies historical stored hashes without re-freezing old releases against current sources."
+}

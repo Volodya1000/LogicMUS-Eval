@@ -1,0 +1,1647 @@
+{
+  "analysis_version": "controlled-analysis-v1",
+  "purpose": "confirmation",
+  "mode": "primary",
+  "groups": [
+    {
+      "name": "confirmation",
+      "run_ids": [
+        "qwen",
+        "gemma",
+        "gpt-oss"
+      ],
+      "model_ids": [
+        "qwen2.5-coder-14b-instruct",
+        "google/gemma-4-e4b",
+        "openai/gpt-oss-20b"
+      ],
+      "strategies": [
+        "direct",
+        "z3"
+      ],
+      "cell_ids": [
+        "7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d",
+        "7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3",
+        "09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d",
+        "3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909",
+        "1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b",
+        "e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329",
+        "1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671",
+        "0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e",
+        "ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc",
+        "682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b",
+        "136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971",
+        "84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3",
+        "bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db",
+        "f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803",
+        "b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee",
+        "bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c",
+        "55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a",
+        "78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a",
+        "0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788"
+      ]
+    }
+  ],
+  "primary_metric": "mus_exact_match",
+  "additional_metrics": [
+    "mus_f1",
+    "sat_accuracy",
+    "coverage"
+  ],
+  "contrasts": [
+    {
+      "name": "qwen-noise-chain-chain-k4-n8-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      }
+    },
+    {
+      "name": "qwen-noise-chain-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-noise-chain-chain-k4-n32-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "qwen-noise-math-math-k4-n8-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      }
+    },
+    {
+      "name": "qwen-noise-math-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-noise-math-math-k4-n32-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "qwen-size-chain-chain-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-size-chain-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-size-chain-chain-k6-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 6,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 6,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-size-math-math-k2-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 2,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 2,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-size-math-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-size-math-math-k6-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 6,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 6,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-coverage-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "coverage",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "coverage",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-direct-k2-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "direct",
+        "K": 2,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "direct",
+        "K": 2,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-fork-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "fork",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "fork",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-idem-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "idem",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "idem",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-topologies-merge-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "merge",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "merge",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "qwen-chain-direct-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "qwen-chain-z3-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "qwen-math-direct-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "qwen-math-z3-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "qwen2.5-coder-14b-instruct",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gemma-noise-chain-chain-k4-n8-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      }
+    },
+    {
+      "name": "gemma-noise-chain-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-noise-chain-chain-k4-n32-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gemma-noise-math-math-k4-n8-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      }
+    },
+    {
+      "name": "gemma-noise-math-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-noise-math-math-k4-n32-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gemma-size-chain-chain-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-size-chain-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-size-chain-chain-k6-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 6,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 6,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-size-math-math-k2-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 2,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 2,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-size-math-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-size-math-math-k6-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 6,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 6,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-coverage-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "coverage",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "coverage",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-direct-k2-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "direct",
+        "K": 2,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "direct",
+        "K": 2,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-fork-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "fork",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "fork",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-idem-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "idem",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "idem",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-topologies-merge-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "merge",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "merge",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gemma-chain-direct-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gemma-chain-z3-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gemma-math-direct-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gemma-math-z3-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "google/gemma-4-e4b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gpt-oss-noise-chain-chain-k4-n8-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      }
+    },
+    {
+      "name": "gpt-oss-noise-chain-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-noise-chain-chain-k4-n32-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gpt-oss-noise-math-math-k4-n8-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      }
+    },
+    {
+      "name": "gpt-oss-noise-math-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-noise-math-math-k4-n32-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gpt-oss-size-chain-chain-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-size-chain-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-size-chain-chain-k6-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 6,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "size-chain",
+        "pattern_id": "chain",
+        "K": 6,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-size-math-math-k2-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 2,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 2,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-size-math-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-size-math-math-k6-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 6,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "size-math",
+        "pattern_id": "math",
+        "K": 6,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-chain-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-coverage-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "coverage",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "coverage",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-direct-k2-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "direct",
+        "K": 2,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "direct",
+        "K": 2,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-fork-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "fork",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "fork",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-idem-k3-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "idem",
+        "K": 3,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "idem",
+        "K": 3,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-math-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-topologies-merge-k4-n16-z3-minus-direct",
+      "kind": "strategy",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "topologies",
+        "pattern_id": "merge",
+        "K": 4,
+        "N": 16
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "topologies",
+        "pattern_id": "merge",
+        "K": 4,
+        "N": 16
+      }
+    },
+    {
+      "name": "gpt-oss-chain-direct-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gpt-oss-chain-z3-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-chain",
+        "pattern_id": "chain",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gpt-oss-math-direct-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "direct",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    },
+    {
+      "name": "gpt-oss-math-z3-n32-minus-n8",
+      "kind": "noise",
+      "metric": "mus_exact_match",
+      "left": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 8
+      },
+      "right": {
+        "group": "confirmation",
+        "model_id": "openai/gpt-oss-20b",
+        "strategy": "z3",
+        "series_id": "noise-math",
+        "pattern_id": "math",
+        "K": 4,
+        "N": 32
+      }
+    }
+  ],
+  "intervals": {
+    "method": "wilson-and-cluster-percentile",
+    "level": 0.95,
+    "repeats": 10000,
+    "seed": 20261128,
+    "min_families": 2
+  }
+}

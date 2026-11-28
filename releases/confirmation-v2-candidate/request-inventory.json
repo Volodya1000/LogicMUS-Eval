@@ -1,0 +1,380 @@
+{
+  "scope": "Exact requests under proposed conditions; not calibrated/frozen final release requests and not HTTP token accounting.",
+  "models": {
+    "qwen": {
+      "status": "production_preflight_passed_for_proposed_config_only",
+      "jobs": 19456,
+      "identity": {
+        "runner_protocol": "controlled-run-v1",
+        "transport_protocol": "openai-compatible-urllib-v1",
+        "config": {
+          "config_version": "controlled-run-v1",
+          "series_manifest": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\releases\\confirmation-v2-candidate\\bundle\\confirmation\\series.manifest.json",
+          "endpoint": "http://127.0.0.1:1234/v1",
+          "api_key_env": null,
+          "models": [
+            {
+              "model_id": "qwen2.5-coder-14b-instruct",
+              "expected_profile": {
+                "served_model_id": "qwen2.5-coder-14b-instruct",
+                "revision": null,
+                "model_file": "D:\\lmstudiomodels\\lmstudio-community\\Qwen2.5-Coder-14B-Instruct-GGUF\\Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf",
+                "quantization": "Q4_K_M",
+                "context_tokens": null,
+                "backend_version": null,
+                "chat_template": null,
+                "tokenizer": null
+              },
+              "generation": {
+                "max_tokens": 2048,
+                "temperature": 0.0,
+                "top_p": 1.0,
+                "seed": null,
+                "reasoning_effort": null
+              }
+            }
+          ],
+          "strategies": [
+            "direct",
+            "z3"
+          ],
+          "request_timeout_seconds": 120.0,
+          "retry": {
+            "max_attempts": 3,
+            "initial_delay_seconds": 2.0,
+            "max_delay_seconds": 10.0,
+            "transient_errors": [
+              "api_timeout",
+              "api_connection",
+              "api_rate_limit",
+              "api_unavailable"
+            ]
+          },
+          "z3_timeout_seconds": 5.0,
+          "diagnostic_parent_run": null,
+          "infrastructure_smoke": null
+        },
+        "series_manifest_sha256": "a518f0556244befe280a77d323d7e937cc35472f0365a8c801f886710a575d8b",
+        "plan_sha256": "3f4683bcb9226ac1c88d5676e6ce1b2145298e33ed3abbb3bfa121a57e70da16",
+        "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+        "report_schema_version": 3,
+        "metric_definitions_version": "3",
+        "z3_execution_protocol_version": "1",
+        "runtime": {
+          "python": "3.13.9",
+          "pydantic": "2.13.5",
+          "z3-solver": "5.1.0.0"
+        },
+        "generation_protocol": "controlled-v2",
+        "requests_sha256": "29775bb3378a4748b567d2051c7ac16c8af6945a03b19f8a25f09ce1ed0c816c"
+      },
+      "identity_sha256": "e72e5bc50376395fa7d782275b96a0a732926c00312d9c346f367841e62efd06",
+      "counts": {
+        "qwen2.5-coder-14b-instruct/direct/7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d": 512,
+        "qwen2.5-coder-14b-instruct/direct/7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3": 512,
+        "qwen2.5-coder-14b-instruct/direct/09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d": 512,
+        "qwen2.5-coder-14b-instruct/direct/3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909": 512,
+        "qwen2.5-coder-14b-instruct/direct/1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b": 512,
+        "qwen2.5-coder-14b-instruct/direct/e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329": 512,
+        "qwen2.5-coder-14b-instruct/direct/1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671": 512,
+        "qwen2.5-coder-14b-instruct/direct/0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e": 512,
+        "qwen2.5-coder-14b-instruct/direct/ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc": 512,
+        "qwen2.5-coder-14b-instruct/direct/682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b": 512,
+        "qwen2.5-coder-14b-instruct/direct/136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971": 512,
+        "qwen2.5-coder-14b-instruct/direct/84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3": 512,
+        "qwen2.5-coder-14b-instruct/direct/bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db": 512,
+        "qwen2.5-coder-14b-instruct/direct/f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803": 512,
+        "qwen2.5-coder-14b-instruct/direct/b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee": 512,
+        "qwen2.5-coder-14b-instruct/direct/bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c": 512,
+        "qwen2.5-coder-14b-instruct/direct/55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a": 512,
+        "qwen2.5-coder-14b-instruct/direct/78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a": 512,
+        "qwen2.5-coder-14b-instruct/direct/0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788": 512,
+        "qwen2.5-coder-14b-instruct/z3/7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d": 512,
+        "qwen2.5-coder-14b-instruct/z3/7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3": 512,
+        "qwen2.5-coder-14b-instruct/z3/09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d": 512,
+        "qwen2.5-coder-14b-instruct/z3/3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909": 512,
+        "qwen2.5-coder-14b-instruct/z3/1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b": 512,
+        "qwen2.5-coder-14b-instruct/z3/e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329": 512,
+        "qwen2.5-coder-14b-instruct/z3/1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671": 512,
+        "qwen2.5-coder-14b-instruct/z3/0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e": 512,
+        "qwen2.5-coder-14b-instruct/z3/ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc": 512,
+        "qwen2.5-coder-14b-instruct/z3/682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b": 512,
+        "qwen2.5-coder-14b-instruct/z3/136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971": 512,
+        "qwen2.5-coder-14b-instruct/z3/84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3": 512,
+        "qwen2.5-coder-14b-instruct/z3/bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db": 512,
+        "qwen2.5-coder-14b-instruct/z3/f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803": 512,
+        "qwen2.5-coder-14b-instruct/z3/b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee": 512,
+        "qwen2.5-coder-14b-instruct/z3/bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c": 512,
+        "qwen2.5-coder-14b-instruct/z3/55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a": 512,
+        "qwen2.5-coder-14b-instruct/z3/78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a": 512,
+        "qwen2.5-coder-14b-instruct/z3/0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788": 512
+      },
+      "unknowns": [
+        "qwen2.5-coder-14b-instruct: served_model_id: user_supplied; not server-confirmed",
+        "qwen2.5-coder-14b-instruct: revision: unknown",
+        "qwen2.5-coder-14b-instruct: model_file: user_supplied; not server-confirmed",
+        "qwen2.5-coder-14b-instruct: quantization: user_supplied; not server-confirmed",
+        "qwen2.5-coder-14b-instruct: context_tokens: unknown",
+        "qwen2.5-coder-14b-instruct: backend_version: unknown",
+        "qwen2.5-coder-14b-instruct: chat_template: unknown",
+        "qwen2.5-coder-14b-instruct: tokenizer: unknown",
+        "Input token count/context fit unknown: no trusted tokenizer is configured; input is never truncated.",
+        "Requested generation settings are unconfirmed unless explicitly observed; acceptance is not confirmation.",
+        "Offline preflight does not verify a loaded model or contact the endpoint."
+      ],
+      "requests_file": "bundle/requests/qwen.requests.jsonl",
+      "requests_file_sha256": "2fe32aa899604b354841319c21a05f2ff721358a3d268d3e17bc083cbc63c295",
+      "bytes": 153847306
+    },
+    "gemma": {
+      "status": "production_preflight_passed_for_proposed_config_only",
+      "jobs": 19456,
+      "identity": {
+        "runner_protocol": "controlled-run-v1",
+        "transport_protocol": "openai-compatible-urllib-v1",
+        "config": {
+          "config_version": "controlled-run-v1",
+          "series_manifest": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\releases\\confirmation-v2-candidate\\bundle\\confirmation\\series.manifest.json",
+          "endpoint": "http://127.0.0.1:1234/v1",
+          "api_key_env": null,
+          "models": [
+            {
+              "model_id": "google/gemma-4-e4b",
+              "expected_profile": {
+                "served_model_id": "google/gemma-4-e4b",
+                "revision": null,
+                "model_file": "D:\\lmstudiomodels\\lmstudio-community\\gemma-4-E4B-it-GGUF\\gemma-4-E4B-it-Q4_K_M.gguf",
+                "quantization": "Q4_K_M",
+                "context_tokens": null,
+                "backend_version": null,
+                "chat_template": null,
+                "tokenizer": null
+              },
+              "generation": {
+                "max_tokens": 2048,
+                "temperature": 0.0,
+                "top_p": 1.0,
+                "seed": null,
+                "reasoning_effort": null
+              }
+            }
+          ],
+          "strategies": [
+            "direct",
+            "z3"
+          ],
+          "request_timeout_seconds": 120.0,
+          "retry": {
+            "max_attempts": 3,
+            "initial_delay_seconds": 2.0,
+            "max_delay_seconds": 10.0,
+            "transient_errors": [
+              "api_timeout",
+              "api_connection",
+              "api_rate_limit",
+              "api_unavailable"
+            ]
+          },
+          "z3_timeout_seconds": 5.0,
+          "diagnostic_parent_run": null,
+          "infrastructure_smoke": null
+        },
+        "series_manifest_sha256": "a518f0556244befe280a77d323d7e937cc35472f0365a8c801f886710a575d8b",
+        "plan_sha256": "3f4683bcb9226ac1c88d5676e6ce1b2145298e33ed3abbb3bfa121a57e70da16",
+        "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+        "report_schema_version": 3,
+        "metric_definitions_version": "3",
+        "z3_execution_protocol_version": "1",
+        "runtime": {
+          "python": "3.13.9",
+          "pydantic": "2.13.5",
+          "z3-solver": "5.1.0.0"
+        },
+        "generation_protocol": "controlled-v2",
+        "requests_sha256": "c9c14a5ffde81895068caf4ddcf0ff60fa363b9a7b541bcc3396d7393591c37e"
+      },
+      "identity_sha256": "790a74c41f34d59f33e090e127f3535182fb789d75f2264ae00381d13b1e4613",
+      "counts": {
+        "google/gemma-4-e4b/direct/7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d": 512,
+        "google/gemma-4-e4b/direct/7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3": 512,
+        "google/gemma-4-e4b/direct/09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d": 512,
+        "google/gemma-4-e4b/direct/3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909": 512,
+        "google/gemma-4-e4b/direct/1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b": 512,
+        "google/gemma-4-e4b/direct/e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329": 512,
+        "google/gemma-4-e4b/direct/1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671": 512,
+        "google/gemma-4-e4b/direct/0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e": 512,
+        "google/gemma-4-e4b/direct/ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc": 512,
+        "google/gemma-4-e4b/direct/682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b": 512,
+        "google/gemma-4-e4b/direct/136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971": 512,
+        "google/gemma-4-e4b/direct/84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3": 512,
+        "google/gemma-4-e4b/direct/bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db": 512,
+        "google/gemma-4-e4b/direct/f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803": 512,
+        "google/gemma-4-e4b/direct/b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee": 512,
+        "google/gemma-4-e4b/direct/bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c": 512,
+        "google/gemma-4-e4b/direct/55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a": 512,
+        "google/gemma-4-e4b/direct/78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a": 512,
+        "google/gemma-4-e4b/direct/0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788": 512,
+        "google/gemma-4-e4b/z3/7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d": 512,
+        "google/gemma-4-e4b/z3/7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3": 512,
+        "google/gemma-4-e4b/z3/09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d": 512,
+        "google/gemma-4-e4b/z3/3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909": 512,
+        "google/gemma-4-e4b/z3/1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b": 512,
+        "google/gemma-4-e4b/z3/e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329": 512,
+        "google/gemma-4-e4b/z3/1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671": 512,
+        "google/gemma-4-e4b/z3/0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e": 512,
+        "google/gemma-4-e4b/z3/ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc": 512,
+        "google/gemma-4-e4b/z3/682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b": 512,
+        "google/gemma-4-e4b/z3/136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971": 512,
+        "google/gemma-4-e4b/z3/84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3": 512,
+        "google/gemma-4-e4b/z3/bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db": 512,
+        "google/gemma-4-e4b/z3/f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803": 512,
+        "google/gemma-4-e4b/z3/b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee": 512,
+        "google/gemma-4-e4b/z3/bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c": 512,
+        "google/gemma-4-e4b/z3/55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a": 512,
+        "google/gemma-4-e4b/z3/78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a": 512,
+        "google/gemma-4-e4b/z3/0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788": 512
+      },
+      "unknowns": [
+        "google/gemma-4-e4b: served_model_id: user_supplied; not server-confirmed",
+        "google/gemma-4-e4b: revision: unknown",
+        "google/gemma-4-e4b: model_file: user_supplied; not server-confirmed",
+        "google/gemma-4-e4b: quantization: user_supplied; not server-confirmed",
+        "google/gemma-4-e4b: context_tokens: unknown",
+        "google/gemma-4-e4b: backend_version: unknown",
+        "google/gemma-4-e4b: chat_template: unknown",
+        "google/gemma-4-e4b: tokenizer: unknown",
+        "Input token count/context fit unknown: no trusted tokenizer is configured; input is never truncated.",
+        "Requested generation settings are unconfirmed unless explicitly observed; acceptance is not confirmation.",
+        "Offline preflight does not verify a loaded model or contact the endpoint."
+      ],
+      "requests_file": "bundle/requests/gemma.requests.jsonl",
+      "requests_file_sha256": "e6f61bfe4c6e06f7ff6837c9ce8dd902929554d6b33133b7c0df7b9ad160c674",
+      "bytes": 153536010
+    },
+    "gpt-oss": {
+      "status": "production_preflight_passed_for_proposed_config_only",
+      "jobs": 19456,
+      "identity": {
+        "runner_protocol": "controlled-run-v1",
+        "transport_protocol": "openai-compatible-urllib-v1",
+        "config": {
+          "config_version": "controlled-run-v1",
+          "series_manifest": "D:\\Volodya\\ai_experiments\\LogicMUS-Eval\\releases\\confirmation-v2-candidate\\bundle\\confirmation\\series.manifest.json",
+          "endpoint": "http://127.0.0.1:1234/v1",
+          "api_key_env": null,
+          "models": [
+            {
+              "model_id": "openai/gpt-oss-20b",
+              "expected_profile": {
+                "served_model_id": "openai/gpt-oss-20b",
+                "revision": null,
+                "model_file": "D:\\lmstudiomodels\\lmstudio-community\\gpt-oss-20b-GGUF\\gpt-oss-20b-MXFP4.gguf",
+                "quantization": "MXFP4",
+                "context_tokens": null,
+                "backend_version": null,
+                "chat_template": null,
+                "tokenizer": null
+              },
+              "generation": {
+                "max_tokens": 2048,
+                "temperature": 0.0,
+                "top_p": 1.0,
+                "seed": null,
+                "reasoning_effort": null
+              }
+            }
+          ],
+          "strategies": [
+            "direct",
+            "z3"
+          ],
+          "request_timeout_seconds": 120.0,
+          "retry": {
+            "max_attempts": 3,
+            "initial_delay_seconds": 2.0,
+            "max_delay_seconds": 10.0,
+            "transient_errors": [
+              "api_timeout",
+              "api_connection",
+              "api_rate_limit",
+              "api_unavailable"
+            ]
+          },
+          "z3_timeout_seconds": 5.0,
+          "diagnostic_parent_run": null,
+          "infrastructure_smoke": null
+        },
+        "series_manifest_sha256": "a518f0556244befe280a77d323d7e937cc35472f0365a8c801f886710a575d8b",
+        "plan_sha256": "3f4683bcb9226ac1c88d5676e6ce1b2145298e33ed3abbb3bfa121a57e70da16",
+        "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+        "report_schema_version": 3,
+        "metric_definitions_version": "3",
+        "z3_execution_protocol_version": "1",
+        "runtime": {
+          "python": "3.13.9",
+          "pydantic": "2.13.5",
+          "z3-solver": "5.1.0.0"
+        },
+        "generation_protocol": "controlled-v2",
+        "requests_sha256": "d8f540b56dbe078d7dc3a627a525cdcd5cce886a3802a7f7f53c4f1ba185675b"
+      },
+      "identity_sha256": "37b31675c00a25692d34837d96ac391c229a956dfed19dcc2464fa49985a4d5a",
+      "counts": {
+        "openai/gpt-oss-20b/direct/7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d": 512,
+        "openai/gpt-oss-20b/direct/7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3": 512,
+        "openai/gpt-oss-20b/direct/09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d": 512,
+        "openai/gpt-oss-20b/direct/3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909": 512,
+        "openai/gpt-oss-20b/direct/1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b": 512,
+        "openai/gpt-oss-20b/direct/e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329": 512,
+        "openai/gpt-oss-20b/direct/1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671": 512,
+        "openai/gpt-oss-20b/direct/0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e": 512,
+        "openai/gpt-oss-20b/direct/ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc": 512,
+        "openai/gpt-oss-20b/direct/682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b": 512,
+        "openai/gpt-oss-20b/direct/136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971": 512,
+        "openai/gpt-oss-20b/direct/84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3": 512,
+        "openai/gpt-oss-20b/direct/bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db": 512,
+        "openai/gpt-oss-20b/direct/f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803": 512,
+        "openai/gpt-oss-20b/direct/b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee": 512,
+        "openai/gpt-oss-20b/direct/bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c": 512,
+        "openai/gpt-oss-20b/direct/55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a": 512,
+        "openai/gpt-oss-20b/direct/78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a": 512,
+        "openai/gpt-oss-20b/direct/0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788": 512,
+        "openai/gpt-oss-20b/z3/7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d": 512,
+        "openai/gpt-oss-20b/z3/7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3": 512,
+        "openai/gpt-oss-20b/z3/09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d": 512,
+        "openai/gpt-oss-20b/z3/3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909": 512,
+        "openai/gpt-oss-20b/z3/1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b": 512,
+        "openai/gpt-oss-20b/z3/e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329": 512,
+        "openai/gpt-oss-20b/z3/1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671": 512,
+        "openai/gpt-oss-20b/z3/0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e": 512,
+        "openai/gpt-oss-20b/z3/ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc": 512,
+        "openai/gpt-oss-20b/z3/682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b": 512,
+        "openai/gpt-oss-20b/z3/136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971": 512,
+        "openai/gpt-oss-20b/z3/84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3": 512,
+        "openai/gpt-oss-20b/z3/bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db": 512,
+        "openai/gpt-oss-20b/z3/f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803": 512,
+        "openai/gpt-oss-20b/z3/b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee": 512,
+        "openai/gpt-oss-20b/z3/bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c": 512,
+        "openai/gpt-oss-20b/z3/55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a": 512,
+        "openai/gpt-oss-20b/z3/78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a": 512,
+        "openai/gpt-oss-20b/z3/0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788": 512
+      },
+      "unknowns": [
+        "openai/gpt-oss-20b: served_model_id: user_supplied; not server-confirmed",
+        "openai/gpt-oss-20b: revision: unknown",
+        "openai/gpt-oss-20b: model_file: user_supplied; not server-confirmed",
+        "openai/gpt-oss-20b: quantization: user_supplied; not server-confirmed",
+        "openai/gpt-oss-20b: context_tokens: unknown",
+        "openai/gpt-oss-20b: backend_version: unknown",
+        "openai/gpt-oss-20b: chat_template: unknown",
+        "openai/gpt-oss-20b: tokenizer: unknown",
+        "Input token count/context fit unknown: no trusted tokenizer is configured; input is never truncated.",
+        "Requested generation settings are unconfirmed unless explicitly observed; acceptance is not confirmation.",
+        "Offline preflight does not verify a loaded model or contact the endpoint."
+      ],
+      "requests_file": "bundle/requests/gpt-oss.requests.jsonl",
+      "requests_file_sha256": "ace94a1edad1ae23b40d9bd62c4669a15184f3b2fd2e064605d3bc1356a44eea",
+      "bytes": 153536010
+    }
+  }
+}
