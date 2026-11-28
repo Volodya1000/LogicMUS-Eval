@@ -1,0 +1,953 @@
+{
+  "payload": {
+    "receipt_version": "confirmation-v2-candidate-v1",
+    "kind": "scientific-candidate-only",
+    "release_admission": false,
+    "frozen_at": "2026-11-28T14:16:35.617516+00:00",
+    "files": {
+      "confirmation.plan.json": "50bf8cb5bcd2ab271ec0b0c06d80933d762c098fb199982d232ab220a0db88c0",
+      "analysis.template.json": "08fcf8082cba8a9944b494ab4a3f1d1f35bdfa86ab41171bb7ea9066e1a07a34",
+      "protocol.md": "a6b3d82acc9402d690d24cd4db8a693516cabcf355044d7ab21a4339a20594be",
+      "qwen.proposed.json": "6cdabed45254cdbbcc1b8c09f214390c8fd3fcd8e8fffebb12cefe111950b2c9",
+      "gemma.proposed.json": "dc31bba4e947ad5b5b141626f19b9cca5d00e152126ecbd4d8363e499f237a0e",
+      "gpt-oss.proposed.json": "2b472e3908534415de0fd9086c26e6dfafa0e7e6e499b8fa65f73f9bd0bb4c12",
+      "model-facts.json": "d89da013d9af2ecd29511bf3fe8fe70356d40a9f2a092669074b5a7c25cf4526",
+      "inventory.before-preparation.json": "2a58b9b059dbf7f33aa131206fac512c2fd87383d0910dcbdd4b9f66774bb32d",
+      "origin-inventory.json": "e899615c3c65b69db63e60126c1ff6f537beb6fe227118ed656cb37d697b9fc0",
+      "identity-migration.json": "aaf3540fef6e8822de08a47c2ebddea8a52cd5e8b3ebbf161608ba5685a21221",
+      "prospective-validation.json": "4872373186661816ec59936b2d993e01f86aa8bddb399b954ba9515e435356ad",
+      "development.reference.json": "1bcec8f63660b9f86f6bb787f9b2254e40d1968ead8e4b52a946bb2028d233cd",
+      "development.parent.plan.json": "0f82d10a6f94f9df5b2a8bcdee16c3a587b2aefa483d6c59b05f95f3cbe8ff92"
+    },
+    "repository_inputs": {
+      "logicmus_eval/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logicmus_eval/analysis/__init__.py": "2e08f2c6a328f87f1ce32845aaa98253bd69256d48549e16fc464f80d06a4c13",
+      "logicmus_eval/analysis/artifacts.py": "56a7558820b1c921af0a531965a96a4959a5a08281b9b3ba4628ce4abc4de1ea",
+      "logicmus_eval/analysis/contrasts.py": "cc02692344b044b4d8076c16d514460e7ba6cb7ba156ddc5a467646686ce1280",
+      "logicmus_eval/analysis/legacy.py": "6eeed5b00d93b5d59ed604dccc4906f6595bf1bfa8331e88e1f815f829ebe684",
+      "logicmus_eval/analysis/legacy_guard.py": "94db1db35d6b15fb52bd3577017ff896de24492485d4825ae215e6005d7c5ec3",
+      "logicmus_eval/analysis/models.py": "966fdac05f9722e2dbe1076ceb63b1b8e86eb75290b33c935806007d4abd7de4",
+      "logicmus_eval/analysis/plan.py": "eddc2d18931fdf54fdf98d82dcb282f8bb748d360785fa47b8dff7730d309719",
+      "logicmus_eval/analysis/plotting.py": "406f05b1eb854d488eee93fd9c90d603f7c9f57e8c6b71ad1f4d7ac0fe98e41a",
+      "logicmus_eval/analysis/selection.py": "cb1623516d9d5c8fe7357f0b268eedc1118d7fc87edcc56621870747c59a1639",
+      "logicmus_eval/analysis/service.py": "64b105492cdd626a2692e9c19e4da64f6de52ee203328dacb5a9b489ada0130d",
+      "logicmus_eval/analysis/sources.py": "332b5bb039b70529f078fa7113eaae3b0460eb7ef8d8e0e469586a833640af8d",
+      "logicmus_eval/analysis/statistics.py": "71eacff8a84d1108790953b66ff41752dec0415610910914bf0f6c3b5313cf32",
+      "logicmus_eval/analysis/tables.py": "c9c94c208ffa12b64da29ec9ebd5d750ca1228e4c84a07fa9ef6bb16a99b73a6",
+      "logicmus_eval/cli.py": "9b5c806155e023df80b7782ebf4245a7ec81e419cfdeb8afd354c83f9b161ab7",
+      "logicmus_eval/commands/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logicmus_eval/commands/analyze.py": "d2c38cb3592763747fb02d14ed29ac95f3ec86989af504721e094628587bd4f6",
+      "logicmus_eval/commands/confirmation.py": "39c30e0832c0b51fa87e1ad6a03ae31298e72ec86bccf6d90a2a2000e6c449b3",
+      "logicmus_eval/commands/evaluate.py": "413130d5e15e3936eb7147bac6e08af436966926c5202965077cfc7ec2255435",
+      "logicmus_eval/commands/generate.py": "21858f4a04175e9253f1165984a9fbe29055807e58b5544e1f7f66cf5a785741",
+      "logicmus_eval/commands/infrastructure_smoke.py": "aad50da7ceb10020acced4fd7cbd720efdc1119b8c8dc6bb0944da0727a3c87a",
+      "logicmus_eval/commands/prepare_experiment.py": "2d43a634f60bc87f88aa6788aa9583eb110fd2c5cc477511616fac3d6b12e910",
+      "logicmus_eval/commands/prepare_smoke.py": "edca672f7698087c4c2ebe978750b10d7a0b6d348b9c94c5cdf6972d4114f07d",
+      "logicmus_eval/commands/run_experiment.py": "6c02963c42128fe51042326707ab307c1c76cb7b9e67242721cb67cd5d361707",
+      "logicmus_eval/config.py": "a5288b1eee9af66796b9d8084f8d7356acb7eea6134f550da5963ff1ac570af4",
+      "logicmus_eval/confirmation/__init__.py": "26fd3dede4b09fe46ccf6b2b91628468c2bda709cbc93f0a66498b1a81137d92",
+      "logicmus_eval/confirmation/binding.py": "c2b017f070672d1c8203a08f5e134f9349edb91e7c8bdab239877eb17cce20f5",
+      "logicmus_eval/confirmation/evidence.py": "17d94ff549390daf7f0b133f90393b9f904db9e1ea1efbf5d5bf1734cc9769f1",
+      "logicmus_eval/confirmation/evidence_artifacts.py": "d804c6946339c8b391e7fb09f8f23f882691302e70a74027b2b2fc92466bfdff",
+      "logicmus_eval/confirmation/infrastructure_evidence.py": "f7eafb8a6f41249a81e0873e2af30ca57e4d39ea88d941915981e125b32bae6f",
+      "logicmus_eval/confirmation/inventory.py": "193c7b9464e0174507fef14f96c2fbbdbd4728d7c5b98591acfd0bbd8f817376",
+      "logicmus_eval/confirmation/io.py": "9acd3106343ef105bf6ccb4346b7b66be770392a4509d0d85dd2f902e62e422a",
+      "logicmus_eval/confirmation/launch.py": "79e4baf88c327e2392befc2d2c780ecde3135ddad5b07be8a3ace125f77e1811",
+      "logicmus_eval/confirmation/models.py": "647923e2c244e5c6c14314cc0071365b331b4fb2ab4aa5e10c1d53a7d55f0289",
+      "logicmus_eval/confirmation/prospective.py": "bc8e2a6d0f439ade3bd97b9bfb4b0c3d90f7a48650fcad470e4e714de9f90201",
+      "logicmus_eval/confirmation/service.py": "103bffcdf1fdb23b3d4729969a916b91d0dffeb5f53ff7848d1c70c20128ab21",
+      "logicmus_eval/controlled_generation.py": "2dc1bcf6c96047ffa911f2f26f128e75aeaf61201fc6850ee0da662bfea7b7ef",
+      "logicmus_eval/controlled_rendering.py": "dbf0607251bb4ba372a286a32b0849b71024c490947fd783a22fa91c8468c47e",
+      "logicmus_eval/duplicate_cues.py": "910d585aadebcf25c2b307e4cab7b1fc8e49d3f4c6cbdc164e5b9f41f791f676",
+      "logicmus_eval/enums.py": "cf67bb8825bf6f7f4ba3fed6980f2d639a144f291afdb2780f5f09d30dc61bf6",
+      "logicmus_eval/errors.py": "2c076684980d57a1cd0e5d0f34efa12fc6db23048400beb5b42d96773d4265dd",
+      "logicmus_eval/evaluate_llm.py": "71c32a0b1a4e23926c38a31b185fb651d10d69d7d8de6b8485fe26c16ce1dbfe",
+      "logicmus_eval/evaluation/diagnostics.py": "d70cd085767aa09b2031459d6d546a9f263fa571de60afc9b8d4fb5e16a47098",
+      "logicmus_eval/evaluation/metrics/__init__.py": "3e534c9bccafba23e252de0fb172333d461644b2bb541e1b5bf90c3b64620df4",
+      "logicmus_eval/evaluation/metrics/accounting.py": "ee059811feb47ef21a54fb9e0a2ad78802d9042282dcb072be923e6f220502ed",
+      "logicmus_eval/evaluation/metrics/base.py": "a368957fae2da1d31867bd1c321dce6488908b26a9b9155629b95e412b2cdf37",
+      "logicmus_eval/evaluation/metrics/code_execution_error_rate.py": "1bdbbc5c93e29e056661878319dd4f720f534a4c55bbd3a96880e3db0e268a57",
+      "logicmus_eval/evaluation/metrics/execution_time.py": "751251f515e60c231fe3a42cf200789bc9c0bae491df160ab04ef97a6b4fdb73",
+      "logicmus_eval/evaluation/metrics/infrastructure_error_rate.py": "33f60a58a7e390e9e424a584d263328122f38afa8eb1a59b0d763231151924ea",
+      "logicmus_eval/evaluation/metrics/mus_valid.py": "e96720d94f5931d2164ad00cee571a77d8c64a916431c7f13083e631b94ad120",
+      "logicmus_eval/evaluation/metrics/refusal_rate.py": "312370b9a1867a40a0ca6586380fc7773ef56e783e1a30ca2261b675fe00ce02",
+      "logicmus_eval/evaluation/metrics/response_error_rate.py": "4da93ee451f756390fda8f5dc11b362f2466203dee33953e83075bb0904d0f42",
+      "logicmus_eval/evaluation/metrics/sat_accuracy.py": "dbfd9d9daf73735bf8772ea97d07a60bb795a4d9c81302b9095d5bdc8307d946",
+      "logicmus_eval/evaluation/metrics/semantics.py": "abe7b9594a741e9f7c955b620cfb655e5de8803cd1a2f13cd0c488e87a3566c3",
+      "logicmus_eval/evaluation/metrics/token_usage.py": "6d1943a8ee6cc25e8e1c74907ccfe6e000befcc56602a6a8b1c617e2a77667bd",
+      "logicmus_eval/evaluation/metrics/valid_response_accuracy.py": "93e9b9b69a8934392d0e3d62dd52ccc34dd486803256394c1ad4085681cd543e",
+      "logicmus_eval/evaluation/pipeline.py": "1c9100bf94bbeb750545f3a1c1308a5dee09f87584bef0dbac85201c63c0227c",
+      "logicmus_eval/evaluation/refusal_patterns.py": "32f6551a444ef8b82408d38a0a1dfb829e45190e7d78503016c9ecad48765740",
+      "logicmus_eval/evaluation/reports.py": "eb48e2d465ea3adfa2d8855fffb108371283d5d77c89f08a9fa0b0a100dbe32a",
+      "logicmus_eval/evaluation/strategies/__init__.py": "2f6beba08f5780f4836a6ba4b808171bfd342cf8cfd12fb1463d2e1b038f13fd",
+      "logicmus_eval/evaluation/strategies/base.py": "6a31293c879a7f8faa96781a86129e4435fc9c73ef90d367d359631095168b0b",
+      "logicmus_eval/evaluation/strategies/direct.py": "0a0402542098690f5600846994ac99ba1e599db8132e0c5353eaa0b87a1318b2",
+      "logicmus_eval/evaluation/strategies/semantics.py": "6a5bee3492c86a3e7b3c97ddbb832593a0eb9dfac80f6ba98b89fee167aa580b",
+      "logicmus_eval/evaluation/strategies/z3.py": "4626c6ddc60c5df885f915ba271151c7188b6af49090c67e48df5898b66f01f2",
+      "logicmus_eval/evaluation/strategies/z3_prompt.py": "8201adcc52d2e0e62214a90e74688764940d6051dd71caefe9156f539db2e857",
+      "logicmus_eval/experiment_plan.py": "3d598a21bed41942d591aeded7a510ec617194a06b781dab9dec42f7ac689341",
+      "logicmus_eval/experiment_preparation.py": "f07c5b30522418dab65cfffa962ef4ab64a656d077b92dec54510b393ac691b3",
+      "logicmus_eval/extractor.py": "99b14956642b540484ecbfacbf8b394b8b19664c5d9b382f6130b93e29d61abd",
+      "logicmus_eval/extractor_metadata.py": "ce741feb2f765bbe42e03d11bc35b0daec5becd2f49f73d7c73819bbce0ca318",
+      "logicmus_eval/generation_rendering.py": "b23e136d991de37a4860d1e59e5cc3f72cdb23267e36a4899dccf3394c67bc6d",
+      "logicmus_eval/generator.py": "1e1e98ee277602bc3795f9b9d7e695b361d24a98a4a22b5b77c39a103b50c237",
+      "logicmus_eval/hashing.py": "33d6b4b831f006f37d09e5ad052e4922fccbcab13d7b4e5b1ca401cac8529535",
+      "logicmus_eval/independent_smt.py": "d319e404b3cfbf41df177d89f8320e7e2b4cca481eb01ec2d15a9d3dce37b619",
+      "logicmus_eval/infrastructure_smoke.py": "519bf2b56f0c23eaad5a6116fe30bcbc6442862d41759744f4a31180813b8d1c",
+      "logicmus_eval/leakage.py": "dea22e15efaf66e79330f358f8196adf1aa84060788369053e1cef5b1e4274f2",
+      "logicmus_eval/logging_utils.py": "aa147aa7d3fff05bdecc7443f13142d6ee8d25259f7f21a8371ca0d8b7a9aee6",
+      "logicmus_eval/models/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logicmus_eval/models/evaluation.py": "12f0438c42a7a0ad77856e83b6d0e321adb2d207d556d45b9c6d5cf0ab9f79f8",
+      "logicmus_eval/models/extraction.py": "f9eed0402cdf171be084432e01e654238be6d5e083321069e1dae73eef5ebb12",
+      "logicmus_eval/models/llm.py": "cc566822ad84d717d4264fe775e8ce43962861f62c31706d76cc3958f8224344",
+      "logicmus_eval/models/manifests.py": "fba67bad9c761ded8b8cda218ef3ed6b8b7b4a274b0bea0779cb22e5da4bc292",
+      "logicmus_eval/models/pipeline.py": "69bcdcf9c573672ef7dee219cdd251770213af18ceb13775ccbf07c59521f61f",
+      "logicmus_eval/models/report_manifest.py": "42ab055e7e9b845950c855cbe6c60692b4c0e729a10ee7d98fd97f06787165d1",
+      "logicmus_eval/models/rules.py": "e2a00726f11a27b9d33ba578c6940109304ff327c88d837c1ca28b0103ab6747",
+      "logicmus_eval/models/test_case.py": "bd9db8507fd9d835268d248111148db56eb17795e5bd8a7dad53ff2656089843",
+      "logicmus_eval/patterns/__init__.py": "20e899014836ba302b0c53af78f3131ab77ba45a270e1dd228220de68f302c6a",
+      "logicmus_eval/patterns/base.py": "b07c24c6c976af1b56587acf07d06ddb597ed68005e41515a935d1be4bb4f0e8",
+      "logicmus_eval/patterns/chain.py": "62c7d930aad621c92419d7352f515237214c59f171b3de7be34ff242694c81d7",
+      "logicmus_eval/patterns/coverage.py": "b18bbb6b6ade523ff7742b0ce19ce7cc44afe409b59d734447d7c8e4b47e7ef4",
+      "logicmus_eval/patterns/direct.py": "8970064447a0cd346b1546a8f9ad2fe5e887d283d78b81e1ee718deb498d7ed8",
+      "logicmus_eval/patterns/fork.py": "9d9a88de83cf9f5f27e3da565b33ddbceda3afa3cf9f8dfcc79c209632108393",
+      "logicmus_eval/patterns/idem.py": "ea5859c44af80433ba733cdd8cc8ddf3c178a604795d612723e580dedd655402",
+      "logicmus_eval/patterns/math.py": "93a446ce6ce02c9de2da12e234e570f0b4e94fb7352b8c1033d799f6f3e9876f",
+      "logicmus_eval/patterns/merge.py": "38916057abfbcf1fbd19a56699f463aa30e74700f6292a2ed71ca839da126b76",
+      "logicmus_eval/prompt_formatting.py": "4559078730b1bec56329961a89c74715714aafdad6649b27c6f31aeba5955551",
+      "logicmus_eval/release.py": "980f892310e04c1beda804de200bc6af19d6e04907d5311801a5ad3e9f444f4c",
+      "logicmus_eval/response_processing.py": "24d56c46dc30e520f85c0219d4a2f148d6c6400f8882da413ddf180ae591fb8c",
+      "logicmus_eval/run_pipeline.py": "f2c65a7abf1973c4a3ad7a1f4da19b57e00183d627bd8a80ac424516846ea942",
+      "logicmus_eval/runner/__init__.py": "5304dbf41db0b30780d9147d4ccb3a646dc5b675d093a47ad14d5e6a4ff7e27c",
+      "logicmus_eval/runner/config.py": "4fea7752fc4c7c3b78834a01531b2e013abb81581ff09188e67c47e9a406b2da",
+      "logicmus_eval/runner/execution.py": "4d12684e218d23cc478332f401f3151e29a5553a73bfe95674785e6e21e0ea54",
+      "logicmus_eval/runner/inference.py": "b869f2eff071fe81fcd6a99418b7218d3733992901271f4a636006e9ee9ec9da",
+      "logicmus_eval/runner/journal.py": "7d3208f9a47c15ff3b0e017edd7ac4cfb178d3b25f632dcf9782c7d957a2b95c",
+      "logicmus_eval/runner/manifest.py": "7264e10109538f31fbea12972d4a8883377d2bc51b8c149295214cb07e3ef7c5",
+      "logicmus_eval/runner/preflight.py": "78ca79e2a1b22f8731be5b737dfb9c0571024a794db255329506bfc93be71d64",
+      "logicmus_eval/runner/snapshot.py": "3236c0fa45a59d9ed95767f409fe8eab80da4bcb13413c0ce5728e89a49b5f15",
+      "logicmus_eval/runner/snapshot_models.py": "ba7c788387b712b284a1a38a11a8f7cfb006835b7343deb7a4e8cc381e6d0307",
+      "logicmus_eval/runner/state.py": "017443d124b5b96a45941cf8ba736ea3b29fc2ef34388d00672d40ef9ec45244",
+      "logicmus_eval/runner/transport.py": "eaecf54b60c200e04f83024641125729750423d41ac43ab3884bbcaba49f9bce",
+      "logicmus_eval/sandbox/allowed_names.py": "7ec8bc97b96a2cfec2eccaee3d3c588114fee04cb022669465827267ca512fdb",
+      "logicmus_eval/sandbox/bounded_output.py": "be5d6e47fb0fcd392107e2fec9e03dd4a1f13cc3fac0540f181ec7b40505dc05",
+      "logicmus_eval/sandbox/code_cleaning.py": "7d3895bb40cc3eb1b15d3552bc7530e4b94eab08c6b9cd7699abebfa305e77da",
+      "logicmus_eval/sandbox/controlled_solver.py": "79e9c0dfd77466cba80ca04378f608197ffdfe61203e60f18c78a784754ffdd3",
+      "logicmus_eval/sandbox/deadline.py": "159dc4a3dc211de559b29d9e7e5ed00e3e9750660db5d636ee383dbde496c6b0",
+      "logicmus_eval/sandbox/errors.py": "6d70952daacf65c7a6bf2db4cdfa3f0ef81a84c250975bfd47b71d9ce02e35a5",
+      "logicmus_eval/sandbox/executor.py": "66f05bfcffc0a0fa3ea366f6fb3af1577a1c91bd607b83f7427c104dab7655bd",
+      "logicmus_eval/sandbox/limits.py": "15737a3080beac03a40d58030ff43a769016c9d8e5f66e63c853d20556384d89",
+      "logicmus_eval/sandbox/namespace.py": "f86cc3f92bc48be08f9a544ea564cb3a943f4958836e9986d639196f36aebb3f",
+      "logicmus_eval/sandbox/process_lifecycle.py": "98488eac11366d7b443a5ba0b2274465b8065395dadd3ca742835de32ba7f80f",
+      "logicmus_eval/sandbox/protocol.py": "35d876e367231c6457d674072f853e64b86769b94c49ddbe0e301523632d488f",
+      "logicmus_eval/sandbox/result_building.py": "d60ee856ef8180b574ba515a190bc4cfb134d8aa333a1474d419f39ddae434cd",
+      "logicmus_eval/sandbox/solver_registry.py": "9abd978d9dbae07481311e6b1421d1cbf79df378da2de8aeeb921fff251b1d39",
+      "logicmus_eval/sandbox/verification.py": "9adc1eccc98b51dd9b80a2b550ed0aad46ffa0722752b368344d6efdae455ae8",
+      "logicmus_eval/sandbox/worker.py": "6a9c9e893c9f51a8eb69ba03c4c3ca07257dbf37b13549decac66ff66324f3a2",
+      "logicmus_eval/storage.py": "f1eee6aa2912180869c2ee46de94411e9057c985e39e25419865d743bba2f273",
+      "logicmus_eval/templates.py": "9661a98263fa6580ccc5ded021ac0c7ace9d2b9e50988e91f4ad19f1930251cc",
+      "logicmus_eval/verifier.py": "78316aa9af4554d0fec2a07979f1c6584806303689e3414bd466a61344666cb6",
+      "scripts/confirmation_candidate.py": "bbd52a476da835a61cb2a2207579b5482e30f5be0fc17debf4128d144b126ac7",
+      "uv.lock": "19eeec34ea89ff27857c44ae2373a2df6d389bdd28d3409b5d05955a07d635f5",
+      "pyproject.toml": "fe40166e1e7074828f146285c9c7ab024a6e1f07a96e3352c2096231825f546d"
+    },
+    "source_bundle_sha256": "9434b557c876a3a3a51864fe5bd8a010f914044cc3805041f669f142d105a642",
+    "environment": {
+      "project": {
+        "python": "3.13.9",
+        "pydantic": "2.13.5",
+        "z3-solver": "5.1.0.0",
+        "numpy": "2.5.3",
+        "scikit-learn": "1.9.1",
+        "typer": "0.27.2",
+        "litellm": "1.102.1",
+        "tenacity": "9.1.4",
+        "pandas": "3.0.6",
+        "matplotlib": "3.11.2"
+      },
+      "platform": "Windows-2022Server-10.0.20348-SP0",
+      "installed_distributions": [
+        {
+          "name": "Jinja2",
+          "version": "3.1.6"
+        },
+        {
+          "name": "MarkupSafe",
+          "version": "3.0.3"
+        },
+        {
+          "name": "PyYAML",
+          "version": "6.0.3"
+        },
+        {
+          "name": "Pygments",
+          "version": "2.21.0"
+        },
+        {
+          "name": "aiohappyeyeballs",
+          "version": "2.7.1"
+        },
+        {
+          "name": "aiohttp",
+          "version": "3.14.3"
+        },
+        {
+          "name": "aiosignal",
+          "version": "1.4.0"
+        },
+        {
+          "name": "annotated-doc",
+          "version": "0.0.5"
+        },
+        {
+          "name": "annotated-types",
+          "version": "0.8.0"
+        },
+        {
+          "name": "anyio",
+          "version": "4.15.1"
+        },
+        {
+          "name": "ast_serialize",
+          "version": "0.11.2"
+        },
+        {
+          "name": "astroid",
+          "version": "4.0.4"
+        },
+        {
+          "name": "attrs",
+          "version": "26.1.0"
+        },
+        {
+          "name": "boto3",
+          "version": "1.43.103"
+        },
+        {
+          "name": "botocore",
+          "version": "1.43.103"
+        },
+        {
+          "name": "certifi",
+          "version": "2026.7.22"
+        },
+        {
+          "name": "cfgv",
+          "version": "3.5.0"
+        },
+        {
+          "name": "charset-normalizer",
+          "version": "3.5.1"
+        },
+        {
+          "name": "click",
+          "version": "8.5.0"
+        },
+        {
+          "name": "cloudpickle",
+          "version": "3.1.2"
+        },
+        {
+          "name": "colorama",
+          "version": "0.4.6"
+        },
+        {
+          "name": "contourpy",
+          "version": "1.4.0"
+        },
+        {
+          "name": "cycler",
+          "version": "0.12.1"
+        },
+        {
+          "name": "dill",
+          "version": "0.4.1"
+        },
+        {
+          "name": "distlib",
+          "version": "0.4.3"
+        },
+        {
+          "name": "distro",
+          "version": "1.9.0"
+        },
+        {
+          "name": "fastuuid",
+          "version": "0.14.0"
+        },
+        {
+          "name": "filelock",
+          "version": "4.0.3"
+        },
+        {
+          "name": "fonttools",
+          "version": "4.66.0"
+        },
+        {
+          "name": "frozenlist",
+          "version": "1.8.0"
+        },
+        {
+          "name": "fsspec",
+          "version": "2026.9.0"
+        },
+        {
+          "name": "h11",
+          "version": "0.16.0"
+        },
+        {
+          "name": "hf-xet",
+          "version": "1.6.0"
+        },
+        {
+          "name": "httpcore",
+          "version": "1.0.9"
+        },
+        {
+          "name": "httpx",
+          "version": "0.28.1"
+        },
+        {
+          "name": "huggingface_hub",
+          "version": "1.33.0"
+        },
+        {
+          "name": "identify",
+          "version": "2.6.19"
+        },
+        {
+          "name": "idna",
+          "version": "3.20"
+        },
+        {
+          "name": "importlib_metadata",
+          "version": "8.9.0"
+        },
+        {
+          "name": "iniconfig",
+          "version": "2.3.0"
+        },
+        {
+          "name": "isort",
+          "version": "9.0.1"
+        },
+        {
+          "name": "jiter",
+          "version": "0.17.0"
+        },
+        {
+          "name": "jmespath",
+          "version": "1.1.0"
+        },
+        {
+          "name": "joblib",
+          "version": "1.6.0"
+        },
+        {
+          "name": "jsonschema",
+          "version": "4.26.0"
+        },
+        {
+          "name": "jsonschema-specifications",
+          "version": "2025.9.1"
+        },
+        {
+          "name": "kiwisolver",
+          "version": "1.5.1"
+        },
+        {
+          "name": "librt",
+          "version": "0.15.0"
+        },
+        {
+          "name": "litellm",
+          "version": "1.102.1"
+        },
+        {
+          "name": "logicmus-eval",
+          "version": "0.1.0"
+        },
+        {
+          "name": "logicmus-eval",
+          "version": "0.1.0"
+        },
+        {
+          "name": "markdown-it-py",
+          "version": "4.2.0"
+        },
+        {
+          "name": "matplotlib",
+          "version": "3.11.2"
+        },
+        {
+          "name": "mccabe",
+          "version": "0.7.0"
+        },
+        {
+          "name": "mdurl",
+          "version": "0.1.2"
+        },
+        {
+          "name": "multidict",
+          "version": "6.9.1"
+        },
+        {
+          "name": "mypy",
+          "version": "2.3.1"
+        },
+        {
+          "name": "mypy_extensions",
+          "version": "1.1.0"
+        },
+        {
+          "name": "narwhals",
+          "version": "2.26.0"
+        },
+        {
+          "name": "nodeenv",
+          "version": "1.11.0"
+        },
+        {
+          "name": "numpy",
+          "version": "2.5.3"
+        },
+        {
+          "name": "openai",
+          "version": "2.54.0"
+        },
+        {
+          "name": "packaging",
+          "version": "26.3"
+        },
+        {
+          "name": "pandas",
+          "version": "3.0.6"
+        },
+        {
+          "name": "pandas-stubs",
+          "version": "3.0.5.260914"
+        },
+        {
+          "name": "pathspec",
+          "version": "1.1.1"
+        },
+        {
+          "name": "pillow",
+          "version": "12.3.0"
+        },
+        {
+          "name": "platformdirs",
+          "version": "4.11.14"
+        },
+        {
+          "name": "pluggy",
+          "version": "1.6.0"
+        },
+        {
+          "name": "pre_commit",
+          "version": "4.6.2"
+        },
+        {
+          "name": "propcache",
+          "version": "0.5.4"
+        },
+        {
+          "name": "pydantic",
+          "version": "2.13.5"
+        },
+        {
+          "name": "pydantic-settings",
+          "version": "2.15.0"
+        },
+        {
+          "name": "pydantic_core",
+          "version": "2.46.5"
+        },
+        {
+          "name": "pylint",
+          "version": "4.0.9"
+        },
+        {
+          "name": "pyparsing",
+          "version": "3.3.3"
+        },
+        {
+          "name": "pytest",
+          "version": "9.1.1"
+        },
+        {
+          "name": "python-dateutil",
+          "version": "2.9.0.post0"
+        },
+        {
+          "name": "python-discovery",
+          "version": "1.6.1"
+        },
+        {
+          "name": "python-dotenv",
+          "version": "1.2.3"
+        },
+        {
+          "name": "referencing",
+          "version": "0.37.0"
+        },
+        {
+          "name": "regex",
+          "version": "2026.9.10"
+        },
+        {
+          "name": "requests",
+          "version": "2.34.2"
+        },
+        {
+          "name": "rich",
+          "version": "15.0.0"
+        },
+        {
+          "name": "rpds-py",
+          "version": "2026.6.3"
+        },
+        {
+          "name": "ruff",
+          "version": "0.16.8"
+        },
+        {
+          "name": "s3transfer",
+          "version": "0.19.2"
+        },
+        {
+          "name": "scikit-learn",
+          "version": "1.9.1"
+        },
+        {
+          "name": "scipy",
+          "version": "1.18.1"
+        },
+        {
+          "name": "shellingham",
+          "version": "1.5.4"
+        },
+        {
+          "name": "six",
+          "version": "1.17.0"
+        },
+        {
+          "name": "sniffio",
+          "version": "1.3.1"
+        },
+        {
+          "name": "tenacity",
+          "version": "9.1.4"
+        },
+        {
+          "name": "threadpoolctl",
+          "version": "3.7.0"
+        },
+        {
+          "name": "tiktoken",
+          "version": "0.14.0"
+        },
+        {
+          "name": "tokenizers",
+          "version": "0.23.2"
+        },
+        {
+          "name": "tomlkit",
+          "version": "0.15.1"
+        },
+        {
+          "name": "tqdm",
+          "version": "4.70.1"
+        },
+        {
+          "name": "typer",
+          "version": "0.27.2"
+        },
+        {
+          "name": "typing-inspection",
+          "version": "0.4.4"
+        },
+        {
+          "name": "typing_extensions",
+          "version": "4.16.0"
+        },
+        {
+          "name": "tzdata",
+          "version": "2026.4"
+        },
+        {
+          "name": "urllib3",
+          "version": "2.8.0"
+        },
+        {
+          "name": "virtualenv",
+          "version": "21.13.0"
+        },
+        {
+          "name": "yarl",
+          "version": "1.25.1"
+        },
+        {
+          "name": "z3-solver",
+          "version": "5.1.0.0"
+        },
+        {
+          "name": "zipp",
+          "version": "4.1.0"
+        }
+      ]
+    },
+    "plan_sha256": "3f4683bcb9226ac1c88d5676e6ce1b2145298e33ed3abbb3bfa121a57e70da16",
+    "analysis_sha256": "98d3cb0b200777fbdb680bea83f7d282c56ce621bf4fdb23866e2f7cc7e4b6f8",
+    "inventory": {
+      "cells": 19,
+      "pairs_per_cell": 256,
+      "independent_families": 2816,
+      "family_cell_occurrences": 4864,
+      "cases": 9728,
+      "requests": 58368,
+      "max_attempts": 175104,
+      "output_token_cap": 119537664,
+      "output_token_cap_all_attempts": 358612992,
+      "wilson_max_half_width": 0.06079444141093704,
+      "per_cell": [
+        {
+          "cell_id": "7389ebe5a36a3c7b8228d5fbcb4e9667f597cfa7085d7561f6514f6838e4637d",
+          "series_id": "noise-chain",
+          "series_kind": "noise_sweep",
+          "pattern_id": "chain",
+          "k": 4,
+          "n": 8,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "7ce3a8a412a48cfbd9c821579f10a4446d15e6e3df90f72a861ace7b69a285d3",
+          "series_id": "noise-chain",
+          "series_kind": "noise_sweep",
+          "pattern_id": "chain",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "09a2eea7946a6871c0dcc040145e323ae8109509bec45a1eab172b03f3e5207d",
+          "series_id": "noise-chain",
+          "series_kind": "noise_sweep",
+          "pattern_id": "chain",
+          "k": 4,
+          "n": 32,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "3ecd9d041e56d587766048a2bf34a620f5813144c823ccf112c62d15af028909",
+          "series_id": "noise-math",
+          "series_kind": "noise_sweep",
+          "pattern_id": "math",
+          "k": 4,
+          "n": 8,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "1194638b238ba33f984060b9eb31f1a2763c68a4f772ef886c1e6a6caa163e5b",
+          "series_id": "noise-math",
+          "series_kind": "noise_sweep",
+          "pattern_id": "math",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "e93aa6abb472615a987c75dac72a2fb403634d0cb127054aa0ca61046ddb9329",
+          "series_id": "noise-math",
+          "series_kind": "noise_sweep",
+          "pattern_id": "math",
+          "k": 4,
+          "n": 32,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "1205054db1ff6fb08dcffa797d4d358859007d15365b217b870cc4f8fc02a671",
+          "series_id": "size-chain",
+          "series_kind": "k_sweep",
+          "pattern_id": "chain",
+          "k": 3,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "0642b6b055a1b2eb65928eaba1553d2317605545bea8465e29953537c9e88e8e",
+          "series_id": "size-chain",
+          "series_kind": "k_sweep",
+          "pattern_id": "chain",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "ad75ae983e8b3088daabbfde826e07de9b712e5d022ce5cf826de1eb5df769dc",
+          "series_id": "size-chain",
+          "series_kind": "k_sweep",
+          "pattern_id": "chain",
+          "k": 6,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "682d5e4bf619b15a272908213b04a68c6e959e9f4feafe9d54383609b02c920b",
+          "series_id": "size-math",
+          "series_kind": "k_sweep",
+          "pattern_id": "math",
+          "k": 2,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "136e1ed64ef1d43953e3ae0cd51edd69c5eab812e2fb56ea68fa03f9fab5e971",
+          "series_id": "size-math",
+          "series_kind": "k_sweep",
+          "pattern_id": "math",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "84b6b8777627004e515e7ac90d9189cf86c3856be6a3d45bfd31bda22df655c3",
+          "series_id": "size-math",
+          "series_kind": "k_sweep",
+          "pattern_id": "math",
+          "k": 6,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "bc03e83c2ffb2131704d4a1ed0e5567547d570946ddfb8347deeaba512d331db",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "chain",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "f1ac84e27c07de29f8c12dc3442627e60bed10e03de5152f0ae4ad78acfe2803",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "coverage",
+          "k": 3,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "b1e0458dcf96e3cbf1d0fae326f9c96141c7bb12e0039115cba87df775a43dee",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "direct",
+          "k": 2,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "bc6c6787be6a1ceb5458a6b29e1efff6eb4ac268cadff45bde5a30f5fa9dae4c",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "fork",
+          "k": 3,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "55c7d8c509c6b453f31cd70ac0fef374d5dad8ddac1053b7a97fb14f39eacf1a",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "idem",
+          "k": 3,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "78e8bdf22e1def02e54f0606b7261bc1826200d21f261ed84d694cba9815517a",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "math",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        },
+        {
+          "cell_id": "0e5eb5292e5044c89322859c4e4dbcb4813be031904cc694710770af3404f788",
+          "series_id": "topologies",
+          "series_kind": "topology_panel",
+          "pattern_id": "merge",
+          "k": 4,
+          "n": 16,
+          "independent_families": 256,
+          "pairs": 256,
+          "cases": 512,
+          "requests": 3072
+        }
+      ],
+      "reuse": [
+        {
+          "pattern_id": "chain",
+          "K": 3,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "size-chain"
+          ]
+        },
+        {
+          "pattern_id": "chain",
+          "K": 4,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 5,
+          "series": [
+            "noise-chain",
+            "size-chain",
+            "topologies"
+          ]
+        },
+        {
+          "pattern_id": "chain",
+          "K": 6,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "size-chain"
+          ]
+        },
+        {
+          "pattern_id": "coverage",
+          "K": 3,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "topologies"
+          ]
+        },
+        {
+          "pattern_id": "direct",
+          "K": 2,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "topologies"
+          ]
+        },
+        {
+          "pattern_id": "fork",
+          "K": 3,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "topologies"
+          ]
+        },
+        {
+          "pattern_id": "idem",
+          "K": 3,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "topologies"
+          ]
+        },
+        {
+          "pattern_id": "math",
+          "K": 2,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "size-math"
+          ]
+        },
+        {
+          "pattern_id": "math",
+          "K": 4,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 5,
+          "series": [
+            "noise-math",
+            "size-math",
+            "topologies"
+          ]
+        },
+        {
+          "pattern_id": "math",
+          "K": 6,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "size-math"
+          ]
+        },
+        {
+          "pattern_id": "merge",
+          "K": 4,
+          "independent_families": 256,
+          "cell_occurrences_per_family": 1,
+          "series": [
+            "topologies"
+          ]
+        }
+      ],
+      "retry_scope": "Configured automatic retry cycles only, default indeterminate_policy=halt. Explicit indeterminate retry starts a new cycle; repeated manual authorization has no finite total bound. Never create duplicate runs to resume.",
+      "time_and_price": "unknown; no measured inference or provider pricing"
+    }
+  },
+  "sha256": "4d23413eb5139e98449f9565e218ccde5b5e85d030e2e5da94de9fef5b4f119b"
+}

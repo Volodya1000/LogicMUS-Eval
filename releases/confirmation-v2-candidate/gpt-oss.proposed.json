@@ -1,0 +1,46 @@
+{
+  "config_version": "controlled-run-v1",
+  "series_manifest": "bundle/confirmation/series.manifest.json",
+  "endpoint": "http://127.0.0.1:1234/v1",
+  "api_key_env": null,
+  "models": [
+    {
+      "model_id": "openai/gpt-oss-20b",
+      "expected_profile": {
+        "served_model_id": "openai/gpt-oss-20b",
+        "revision": null,
+        "model_file": "D:\\lmstudiomodels\\lmstudio-community\\gpt-oss-20b-GGUF\\gpt-oss-20b-MXFP4.gguf",
+        "quantization": "MXFP4",
+        "context_tokens": null,
+        "backend_version": null,
+        "chat_template": null,
+        "tokenizer": null
+      },
+      "generation": {
+        "max_tokens": 2048,
+        "temperature": 0.0,
+        "top_p": 1.0,
+        "seed": null,
+        "reasoning_effort": null
+      }
+    }
+  ],
+  "strategies": [
+    "direct",
+    "z3"
+  ],
+  "request_timeout_seconds": 120.0,
+  "retry": {
+    "max_attempts": 3,
+    "initial_delay_seconds": 2.0,
+    "max_delay_seconds": 10.0,
+    "transient_errors": [
+      "api_timeout",
+      "api_connection",
+      "api_rate_limit",
+      "api_unavailable"
+    ]
+  },
+  "z3_timeout_seconds": 5.0,
+  "diagnostic_parent_run": null
+}
